@@ -10,6 +10,5 @@ class UserService {
 
     fun getUser(id:Int): Either<UserError, User> {
         TODO()
-
     }
 }

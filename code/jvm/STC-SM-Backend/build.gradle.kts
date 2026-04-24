@@ -12,3 +12,7 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
 }
+
+tasks.bootJar {
+    enabled = false
+}
