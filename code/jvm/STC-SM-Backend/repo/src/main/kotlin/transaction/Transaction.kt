@@ -1,8 +1,10 @@
 package transaction
 
-import RepositoryUser
+import UserRepository
+import TokenRepository
 
 interface Transaction {
-    val repoUsers: RepositoryUser
+    val userRepository: UserRepository
+    val tokenRepository: TokenRepository
     fun rollback()
 }

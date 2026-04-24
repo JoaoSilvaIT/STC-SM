@@ -1,4 +1,4 @@
-package user
+package auth
 
 import java.time.Instant
 

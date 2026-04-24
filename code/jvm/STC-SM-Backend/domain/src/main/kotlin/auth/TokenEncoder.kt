@@ -1,4 +1,4 @@
-package user
+package auth
 
 interface TokenEncoder {
     fun createValidationInformation(token: String): TokenValidationInfo
