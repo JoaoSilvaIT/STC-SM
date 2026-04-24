@@ -5,3 +5,5 @@ rootProject.name = "STC-SM-Backend"
 include("domain")
 include("domain")
 include("repo")
+include("http")
+include("service")
