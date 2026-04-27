@@ -1,0 +1,33 @@
+# This defines every version of the plugins/libraries used in this project
+[versions]
+springBoot = "4.0.6"
+dependencyManagement = "1.1.7"
+kotlin = "2.2.21"
+ktlint = "12.1.1"
+
+# This defines the name of the plugins used in this project
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+kotlin-jpa = { id = "org.jetbrains.kotlin.plugin.jpa", version.ref = "kotlin" }
+spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "dependencyManagement" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
+
+# This defines the name of the libraries used in this project and the versions are determined by the plugins
+[libraries]
+# Implementations required to execute certain code of the project overall
+spring-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa" }
+spring-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
+spring-webmvc = { module = "org.springframework.boot:spring-boot-starter-webmvc" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
+jackson-tools = { module = "tools.jackson.module:jackson-module-kotlin" }
+postgres-sql = { module = "org.postgresql:postgresql" }
+
+# Implementations required to execute tests
+spring-jpa-test = { module = "org.springframework.boot:spring-boot-starter-data-jpa-test" }
+spring-validation-test = { module = "org.springframework.boot:spring-boot-starter-validation-test" }
+spring-webmvc-test = { module = "org.springframework.boot:spring-boot-starter-webmvc-test" }
+kotlin-unit-test = { module = "org.jetbrains.kotlin:kotlin-test-junit5" }
+# This is used in runtime
+kotlin-junit-test = { module = "org.junit.platform:junit-platform-launcher" }

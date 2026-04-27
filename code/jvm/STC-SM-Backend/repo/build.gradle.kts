@@ -1,6 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.9.25"
-    kotlin("plugin.spring") version "1.9.25"
+
 
 }
 
@@ -12,15 +11,7 @@ repositories {
 }
 
 dependencies {
-    api(project(":domain"))
-    implementation("org.springframework.boot:spring-boot-starter-web:3.5.6")
-    testImplementation(kotlin("test"))
+
 }
 
-kotlin {
-    jvmToolchain(21)
-}
 
-tasks.test {
-    useJUnitPlatform()
-}
