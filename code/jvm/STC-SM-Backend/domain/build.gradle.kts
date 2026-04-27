@@ -1,15 +1,10 @@
+// In use of JPA to connect the domain with postgres SQL
 plugins {
-
+    alias(libs.plugins.kotlin.jpa)
 }
 
-group = "org.example"
-version = "1.0-SNAPSHOT"
-
-repositories {
-    mavenCentral()
-}
-
+// To use annotations such as @Entity or @Id
 dependencies {
-
+    implementation(libs.jakarta.persistence)
 }
 

@@ -1,15 +1,8 @@
-import org.springframework.stereotype.Component
-import auth.PasswordValidationInfo
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.stereotype.Repository
 import user.User
 
-@Component
-interface UserRepository: Repository<User> {
-    fun createUser(
-        name: String,
-        email: String,
-        password : PasswordValidationInfo,
-        idProfile: Int
-    )
-
+@Repository
+interface UserRepository: JpaRepository<User, Int> {
     fun findByEmail(email: String) : User?
 }

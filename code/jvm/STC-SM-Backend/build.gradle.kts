@@ -1,4 +1,4 @@
-// Declaration of all the versions of the plugins in the classpath for the submodules
+// Declaration of all the versions of the plugins in the classpath for the subModules
 plugins {
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.spring) apply false
@@ -10,7 +10,7 @@ plugins {
 
 // Configurations for the overall project
 allprojects {
-    // Name of our project and the
+    // Name of our project
     group = "com.smart.tool.cabinets"
     // State version of the actual project
     version = "1.0.0-SNAPSHOT"
@@ -18,6 +18,15 @@ allprojects {
         mavenCentral()
     }
 }
+
+// This will apply to all subModules
+subprojects {
+    // The project is in kotlin
+    apply(plugin = "org.jetbrains.kotlin.jvm")
+    // Ktlint
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+}
+
 
 
 

@@ -4,6 +4,7 @@ springBoot = "4.0.6"
 dependencyManagement = "1.1.7"
 kotlin = "2.2.21"
 ktlint = "12.1.1"
+jakarta = "3.1.0"
 
 # This defines the name of the plugins used in this project
 [plugins]
@@ -23,6 +24,9 @@ spring-webmvc = { module = "org.springframework.boot:spring-boot-starter-webmvc"
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
 jackson-tools = { module = "tools.jackson.module:jackson-module-kotlin" }
 postgres-sql = { module = "org.postgresql:postgresql" }
+
+# The jakarta used in domain needs to be defined here because it is not included in the spring-jpa dependency, but it is required to execute the code in the domain
+jakarta-persistence = { module = "jakarta.persistence:jakarta.persistence-api", version.ref = "jakarta" }
 
 # Implementations required to execute tests
 spring-jpa-test = { module = "org.springframework.boot:spring-boot-starter-data-jpa-test" }
