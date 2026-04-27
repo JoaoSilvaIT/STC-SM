@@ -1,5 +1,12 @@
 package auth
 
-data class PasswordValidationInfo (
-    val validationInfo: String
-)
+import jakarta.persistence.Column
+import jakarta.persistence.Embeddable
+
+@Embeddable
+class PasswordValidationInfo (
+    @Column(nullable = false)
+    val hash: String = ""
+){
+
+}

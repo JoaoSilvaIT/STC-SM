@@ -1,6 +1,7 @@
 plugins {
     // Spring and JPA stuff
     alias(libs.plugins.spring.boot)
+    alias(libs.plugins.kotlin.spring)
     alias(libs.plugins.spring.dependency.management)
     alias(libs.plugins.kotlin.jpa)
 }
@@ -16,6 +17,14 @@ dependencies {
 
     // Driver for SQL in runtime
     runtimeOnly(libs.postgres.sql)
+
+    // Libraries used in tests
+    testImplementation(libs.spring.boot.test)
+    testImplementation(libs.spring.jpa.test)
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
 
 

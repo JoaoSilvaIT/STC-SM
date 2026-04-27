@@ -4,7 +4,7 @@ springBoot = "4.0.6"
 dependencyManagement = "1.1.7"
 kotlin = "2.2.21"
 ktlint = "12.1.1"
-jakarta = "3.1.0"
+jakarta = "3.2.0"
 
 # This defines the name of the plugins used in this project
 [plugins]
@@ -33,5 +33,6 @@ spring-jpa-test = { module = "org.springframework.boot:spring-boot-starter-data-
 spring-validation-test = { module = "org.springframework.boot:spring-boot-starter-validation-test" }
 spring-webmvc-test = { module = "org.springframework.boot:spring-boot-starter-webmvc-test" }
 kotlin-unit-test = { module = "org.jetbrains.kotlin:kotlin-test-junit5" }
+spring-boot-test = { module = "org.springframework.boot:spring-boot-starter-test" }
 # This is used in runtime
 kotlin-junit-test = { module = "org.junit.platform:junit-platform-launcher" }
