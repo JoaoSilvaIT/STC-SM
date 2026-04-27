@@ -1,5 +1,8 @@
 plugins {
-
+    // Spring and JPA stuff
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.spring.dependency.management)
 }
 
 group = "org.example"
@@ -10,5 +13,11 @@ repositories {
 }
 
 dependencies {
+    // To use classes from domain
+    implementation(project(":domain"))
 
+    // Inject dependency on services
+    implementation(project(":service"))
+
+    implementation(libs.spring.webmvc)
 }
