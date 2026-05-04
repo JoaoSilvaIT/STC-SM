@@ -5,7 +5,8 @@ import user.UserRepository
 import utils.Either
 import utils.failure
 import utils.success
-
+import auth.PasswordValidationInfo
+import user.UserStatus
 
 @Component
 class UserService(private val userRepo: UserRepository) {
@@ -17,5 +18,31 @@ class UserService(private val userRepo: UserRepository) {
         } else {
             failure(UserError.UserNotFoundOrInvalidCredentials)
         }
+    }
+
+    fun createUser(name: String, email: String, password: String, profile: Int): Either<UserError, User> {
+        val emailTrimmed = email.trim()
+
+        if(userRepo.findByEmail(emailTrimmed) != null) {
+            return failure(UserError.EmailAlreadyInUse)
+        }
+
+        val newUser = User(
+            name = name,
+            email = emailTrimmed,
+            idProfile = profile,
+            status = UserStatus.ACTIVE,
+            passwordValidation = PasswordValidationInfo(password)
+        )
+
+        return success(userRepo.save(newUser))
+    }
+
+    fun deleteUser(id: Int): Either<UserError, Unit> {
+        val user = userRepo.findById(id).orElse(null) ?: return failure(
+            UserError.UserNotFoundOrInvalidCredentials
+        )
+        userRepo.delete(user)
+        return success(Unit)
     }
 }
