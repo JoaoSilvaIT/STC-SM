@@ -1,10 +1,26 @@
 package auth
 
+import jakarta.persistence.*
+import user.User
 import java.time.Instant
 
-data class Token(
+@Entity
+@Table(name = "tokens")
+class Token(
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Int = 0,
+
+    @Embedded
     val tokenValidationInfo: TokenValidationInfo,
-    val userId: Int,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user", nullable = false)
+    val user: User,
+
+    @Column(nullable = false)
     val createdAt: Instant,
-    val lastUsedAt: Instant,
+
+    @Column(nullable = false)
+    val lastUsedAt: Instant
 )
