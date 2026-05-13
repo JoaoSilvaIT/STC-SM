@@ -8,5 +8,4 @@ class PasswordValidationInfo (
     @Column(nullable = false)
     val hash: String = ""
 ){
-
 }
