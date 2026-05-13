@@ -32,4 +32,9 @@ class Tool(
 
     @Column(nullable = false)
     val location: String, // Same as the cabinet
-)
+){
+
+    fun copy(name: String = this.name, cabinet: Cabinet = this.cabinet, status: ToolStatus = this.status, location: String = this.location) = Tool(this.id, name, cabinet, status, location)
+
+
+}
