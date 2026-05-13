@@ -6,10 +6,11 @@ import utils.Either
 import utils.failure
 import utils.success
 import auth.PasswordValidationInfo
+import user.ProfileRepository
 import user.UserStatus
 
 @Component
-class UserService(private val userRepo: UserRepository) {
+class UserService(private val userRepo: UserRepository, private val profileRepo: ProfileRepository) {
 
     fun getUser(id: Int): Either<UserError, User> {
         val user = userRepo.findById(id).orElse(null)
@@ -27,10 +28,12 @@ class UserService(private val userRepo: UserRepository) {
             return failure(UserError.EmailAlreadyInUse)
         }
 
+        val profile = profileRepo.getReferenceById(profile)
+
         val newUser = User(
             name = name,
             email = emailTrimmed,
-            idProfile = profile,
+            profile = profile,
             status = UserStatus.ACTIVE,
             passwordValidation = PasswordValidationInfo(password)
         )
