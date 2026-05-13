@@ -23,6 +23,9 @@ dependencies {
     testImplementation(libs.spring.jpa.test)
 }
 
+tasks.bootJar { enabled = false }
+tasks.jar { enabled = true }
+
 tasks.withType<Test> {
     useJUnitPlatform()
 }

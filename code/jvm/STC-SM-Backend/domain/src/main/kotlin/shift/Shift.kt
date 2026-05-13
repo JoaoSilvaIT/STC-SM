@@ -18,19 +18,15 @@ import java.time.Instant
 class Shift(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id : Int = 0,
-
+    val id: Int = 0,
     @ManyToOne(fetch = FetchType.LAZY) // Whenever the call to the database only gets the Shift and not Shift + Cabinet
     @JoinColumn(name = "id_cabinet", referencedColumnName = "id")
     val cabinet: Cabinet,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user", referencedColumnName = "id")
     val user: User,
-
     @Column(nullable = false)
     val startTime: Instant,
-
     @Column(nullable = false)
     val endTime: Instant,
 )

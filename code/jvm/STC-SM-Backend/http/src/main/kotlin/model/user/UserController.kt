@@ -22,7 +22,7 @@ class UserController(
                     .body(result.value)
             is Either.Failure ->
                 ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
+                    .status(HttpStatus.NOT_FOUND)
                     .body(result.value.toString())
         }
     }

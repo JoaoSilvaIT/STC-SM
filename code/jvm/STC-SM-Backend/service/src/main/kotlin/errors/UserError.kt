@@ -1,7 +1,5 @@
 package errors
 
-import user.User
-
 sealed class UserError {
     data object BlankEmail : UserError()
 

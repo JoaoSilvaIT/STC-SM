@@ -15,13 +15,10 @@ class Cabinet(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Int = 0,
-
     @Column(nullable = false)
     val description: String,
-
     @Enumerated(EnumType.STRING)
     val status: CabinetStatus,
-
     @Column(nullable = false)
-    val location: String // For now a text but can be a class in the future, for scalability cases
+    val location: String, // For now a text but can be a class in the future, for scalability cases
 )

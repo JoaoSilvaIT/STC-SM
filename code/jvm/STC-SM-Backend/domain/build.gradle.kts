@@ -7,4 +7,3 @@ plugins {
 dependencies {
     implementation(libs.jakarta.persistence)
 }
-

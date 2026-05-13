@@ -21,20 +21,15 @@ class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Int = 0, // Starts at 0 from there the DB adds serially
-
     @Column(nullable = false)
     val name: String,
-
     @Column(unique = true, nullable = false)
     val email: String,
-
     @ManyToOne(fetch = FetchType.LAZY) // When making a database call only gets the User data instead of User + Profile
     @JoinColumn(name = "id_profile", referencedColumnName = "id")
     val profile: Profile,
-
     @Enumerated(EnumType.STRING) // Keeps the name of the status (ex: "ACTIVE")
     val status: UserStatus,
-
     @Embedded // This annotation keeps the JPA from creating a new table just for the password
-    val passwordValidation: PasswordValidationInfo
+    val passwordValidation: PasswordValidationInfo,
 )

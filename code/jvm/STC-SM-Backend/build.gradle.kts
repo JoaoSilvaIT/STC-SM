@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.jpa) apply false
     alias(libs.plugins.spring.boot) apply false
     alias(libs.plugins.spring.dependency.management) apply false
-    alias(libs.plugins.ktlint) apply false
+//    alias(libs.plugins.ktlint) apply false
 }
 
 // Configurations for the overall project
@@ -23,8 +23,14 @@ allprojects {
 subprojects {
     // The project is in kotlin
     apply(plugin = "org.jetbrains.kotlin.jvm")
+
+    extensions.configure<JavaPluginExtension> {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(21))
+        }
+    }
     // Ktlint
-    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+//    apply(plugin = "org.jlleitschuh.gradle.ktlint")
 }
 
 

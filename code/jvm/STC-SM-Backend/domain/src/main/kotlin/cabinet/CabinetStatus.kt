@@ -4,5 +4,5 @@ enum class CabinetStatus {
     BROKEN,
     INACTIVE,
     OPEN,
-    CLOSED
+    CLOSED,
 }

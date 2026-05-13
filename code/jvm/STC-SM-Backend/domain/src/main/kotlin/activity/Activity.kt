@@ -21,24 +21,18 @@ import java.time.Instant
 class Activity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Int,
-
+    val id: Int = 0,
     @Enumerated(EnumType.STRING)
     val type: ActivityType,
-
     @Column(nullable = false)
     val date: Instant,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user", nullable = false)
     val user: User,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tool")
-    val tool: Tool,
-
+    val tool: Tool?,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cabinet")
-    val cabinet: Cabinet,
-) {
-}
+    val cabinet: Cabinet?,
+)

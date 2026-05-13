@@ -19,22 +19,27 @@ class Tool(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Int = 0,
-
     @Column(nullable = false)
     val name: String,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cabinet", referencedColumnName = "id")
     val cabinet: Cabinet,
-
     @Enumerated(EnumType.STRING)
     val status: ToolStatus,
-
     @Column(nullable = false)
     val location: String, // Same as the cabinet
-){
+) {
 
-    fun copy(name: String = this.name, cabinet: Cabinet = this.cabinet, status: ToolStatus = this.status, location: String = this.location) = Tool(this.id, name, cabinet, status, location)
-
-
+    fun copy(
+        name: String = this.name,
+        cabinet: Cabinet = this.cabinet,
+        status: ToolStatus = this.status,
+        location: String = this.location,
+    ) = Tool(
+        this.id,
+        name,
+        cabinet,
+        status,
+        location,
+    )
 }

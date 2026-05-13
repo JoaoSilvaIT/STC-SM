@@ -4,5 +4,5 @@ import user.User
 
 data class AuthenticatedUser(
     val user: User,
-    val token: String
+    val token: String,
 )

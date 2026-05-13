@@ -10,11 +10,8 @@ import java.time.Instant
 @Component
 class ShiftService(private val shiftRepo: ShiftRepository) {
     fun getShift(sid: Int): Either<ShiftError, Shift> {
-        return try {
-            success(shiftRepo.getReferenceById(sid))
-        }catch(e: Exception) {
-            failure(ShiftError.ShiftNotFound)
-        }
+        val shift = shiftRepo.findById(sid).orElse(null)
+        return if (shift != null) success(shift) else failure(ShiftError.ShiftNotFound)
     }
 
     fun updateShift(id : Int): Either<ShiftError, Shift> {

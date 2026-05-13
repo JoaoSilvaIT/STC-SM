@@ -1,9 +1,8 @@
 package user
 
+import cabinet.Cabinet
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
-import shift.Shift
 
 @Repository
-interface ShiftRepository : JpaRepository<Shift, Int> {
-}
+interface CabinetRepository : JpaRepository<Cabinet, Int>

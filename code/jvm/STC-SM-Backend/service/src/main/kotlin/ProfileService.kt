@@ -10,10 +10,7 @@ import utils.success
 class ProfileService(private val profileRepo: ProfileRepository,) {
 
     fun getProfile(id: Int): Either<ProfileError, Profile> {
-        return try {
-            success(profileRepo.getReferenceById(id))
-        }catch (e:Exception){
-            failure(ProfileError.ProfileNotFound)
-        }
+        val profile = profileRepo.findById(id).orElse(null)
+        return if (profile != null) success(profile) else failure(ProfileError.ProfileNotFound)
     }
 }
