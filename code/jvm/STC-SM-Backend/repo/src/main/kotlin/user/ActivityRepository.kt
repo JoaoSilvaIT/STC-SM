@@ -12,4 +12,8 @@ interface ActivityRepository : JpaRepository<Activity, Int> {
     fun findByUser(user: User): List<Activity>
     fun findByTool(tool: Tool): List<Activity>
     fun findByCabinet(cabinet: Cabinet): List<Activity>
+
+    fun findByUserId(userId: Int): List<Activity>
+    fun findByToolId(toolId: Int): List<Activity>
+    fun findByCabinetId(cabinetId: Int): List<Activity>
 }

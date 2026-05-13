@@ -6,29 +6,26 @@ import utils.Either
 import utils.failure
 import utils.success
 import auth.PasswordValidationInfo
+import org.springframework.data.repository.findByIdOrNull
 import user.ProfileRepository
 import user.UserStatus
 
 @Component
 class UserService(private val userRepo: UserRepository, private val profileRepo: ProfileRepository) {
 
-    fun getUser(id: Int): Either<UserError, User> {
-        val user = userRepo.findById(id).orElse(null)
-        return if (user != null) {
-            success(user)
-        } else {
-            failure(UserError.UserNotFoundOrInvalidCredentials)
-        }
+    fun getUser(uid: Int): Either<UserError, User> {
+        val user = userRepo.findByIdOrNull(uid) ?: return failure(UserError.UserNotFoundOrInvalidCredentials)
+        return success(user)
     }
 
-    fun createUser(name: String, email: String, password: String, profile: Int): Either<UserError, User> {
+    fun createUser(name: String, email: String, password: String, pid: Int): Either<UserError, User> {
         val emailTrimmed = email.trim()
 
         if(userRepo.findByEmail(emailTrimmed) != null) {
             return failure(UserError.EmailAlreadyInUse)
         }
 
-        val profile = profileRepo.getReferenceById(profile)
+        val profile = profileRepo.findByIdOrNull(pid) ?: return failure(UserError.UserNotFoundOrInvalidCredentials)
 
         val newUser = User(
             name = name,
@@ -41,8 +38,8 @@ class UserService(private val userRepo: UserRepository, private val profileRepo:
         return success(userRepo.save(newUser))
     }
 
-    fun deleteUser(id: Int): Either<UserError, Unit> {
-        val user = userRepo.findById(id).orElse(null) ?: return failure(
+    fun deleteUser(uid: Int): Either<UserError, Unit> {
+        val user = userRepo.findByIdOrNull(uid) ?: return failure(
             UserError.UserNotFoundOrInvalidCredentials
         )
         userRepo.delete(user)
