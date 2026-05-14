@@ -20,4 +20,8 @@ dependencies {
     implementation(project(":service"))
 
     implementation(libs.spring.webmvc)
+    implementation(libs.spring.validation)
+
+    // Password Encoder
+    implementation(libs.spring.security)
 }

@@ -1,27 +1,34 @@
 import errors.UserError
-import org.springframework.stereotype.Component
 import user.User
 import user.UserRepository
 import utils.Either
 import utils.failure
 import utils.success
 import auth.PasswordValidationInfo
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import user.ProfileRepository
 import user.UserStatus
 
-@Component
-class UserService(private val userRepo: UserRepository, private val profileRepo: ProfileRepository) {
+@Service
+class UserService(
+    private val passwordEncoder: PasswordEncoder,
+    private val userRepo: UserRepository,
+    private val profileRepo: ProfileRepository
+) {
+    @Transactional
+    fun createUser(
+        name: String,
+        email: String,
+        password: String,
+        profile: Int
+    ): Either<UserError, User> {
+        if (name.isBlank()) return failure(UserError.BlankName)
+        if (email.isBlank()) return failure(UserError.BlankEmail)
+        if (password.isBlank()) return failure(UserError.BlankPassword)
 
-    fun getUser(id: Int): Either<UserError, User> {
-        val user = userRepo.findById(id).orElse(null)
-        return if (user != null) {
-            success(user)
-        } else {
-            failure(UserError.UserNotFoundOrInvalidCredentials)
-        }
-    }
-
-    fun createUser(name: String, email: String, password: String, profile: Int): Either<UserError, User> {
         val emailTrimmed = email.trim()
 
         if(userRepo.findByEmail(emailTrimmed) != null) {
@@ -29,23 +36,28 @@ class UserService(private val userRepo: UserRepository, private val profileRepo:
         }
 
         val profile = profileRepo.getReferenceById(profile)
+        val newPassword = createPasswordValidationInformation(password)
 
         val newUser = User(
             name = name,
             email = emailTrimmed,
             profile = profile,
             status = UserStatus.ACTIVE,
-            passwordValidation = PasswordValidationInfo(password)
+            passwordValidation = newPassword,
         )
 
         return success(userRepo.save(newUser))
     }
 
+    @Transactional
     fun deleteUser(id: Int): Either<UserError, Unit> {
-        val user = userRepo.findById(id).orElse(null) ?: return failure(
-            UserError.UserNotFoundOrInvalidCredentials
-        )
+        val user = userRepo.findByIdOrNull(id)
+            ?: return failure(UserError.UserNotFoundOrInvalidCredentials)
         userRepo.delete(user)
         return success(Unit)
     }
+
+    // The !! is used because @Nullable is on the encode function even though never returns null unless the parameter passed is null
+    private fun createPasswordValidationInformation(password: String) =
+        PasswordValidationInfo(hash = passwordEncoder.encode(password)!!)
 }

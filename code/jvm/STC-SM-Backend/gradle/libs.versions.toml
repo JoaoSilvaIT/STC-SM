@@ -21,9 +21,11 @@ ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 spring-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa" }
 spring-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
 spring-webmvc = { module = "org.springframework.boot:spring-boot-starter-webmvc" }
+spring-security = { module = "org.springframework.boot:spring-boot-starter-security" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
 jackson-tools = { module = "tools.jackson.module:jackson-module-kotlin" }
 postgres-sql = { module = "org.postgresql:postgresql" }
+
 
 # The jakarta used in domain needs to be defined here because it is not included in the spring-jpa dependency, but it is required to execute the code in the domain
 jakarta-persistence = { module = "jakarta.persistence:jakarta.persistence-api", version.ref = "jakarta" }

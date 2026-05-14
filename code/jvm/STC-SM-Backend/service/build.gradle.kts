@@ -19,6 +19,9 @@ dependencies {
     // Inject dependency on repo
     implementation(project(":repo"))
 
+    // Password Encoder
+    implementation(libs.spring.security)
+
     implementation(libs.spring.jpa)
 }
 

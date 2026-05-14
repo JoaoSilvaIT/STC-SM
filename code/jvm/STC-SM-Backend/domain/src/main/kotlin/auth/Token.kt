@@ -19,4 +19,17 @@ class Token(
     val createdAt: Instant,
     @Column(nullable = false)
     val lastUsedAt: Instant,
-)
+) {
+    fun copy(
+        tokenValidationInfo: TokenValidationInfo = this.tokenValidationInfo,
+        user: User = this.user,
+        createdAt: Instant = this.createdAt,
+        lastUsedAt: Instant = this.lastUsedAt,
+    ) = Token(
+        this.id,
+        tokenValidationInfo,
+        user,
+        createdAt,
+        lastUsedAt
+    )
+}
