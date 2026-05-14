@@ -31,8 +31,8 @@ class Activity(
     val user: User,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tool")
-    val tool: Tool?,
+    val tool: Tool? = null,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cabinet")
-    val cabinet: Cabinet?,
+    val cabinet: Cabinet? = null,
 )

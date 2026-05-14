@@ -21,4 +21,10 @@ class Cabinet(
     val status: CabinetStatus,
     @Column(nullable = false)
     val location: String, // For now a text but can be a class in the future, for scalability cases
-)
+) {
+    fun copy(
+        description: String = this.description,
+        status: CabinetStatus = this.status,
+        location: String = this.location
+    ) = Cabinet(this.id, description, status, location)
+}
