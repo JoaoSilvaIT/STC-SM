@@ -1,0 +1,10 @@
+### Create user
+POST http://localhost:8080/api/users
+Content-Type: application/json
+
+{
+  "name": "teste1",
+  "email": "teste1@gmail.com",
+  "password": "teste1",
+  "profile": 1
+}
