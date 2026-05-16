@@ -2,6 +2,7 @@ package pt.isel
 
 import pt.isel.errors.UserError
 import pt.isel.user.UserRepository
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -24,7 +25,7 @@ class UserService(
         name: String,
         email: String,
         password: String,
-        profile: Int
+        profileId: Int
     ): Either<UserError, User> {
         if (name.isBlank()) return failure(UserError.BlankName)
         if (email.isBlank()) return failure(UserError.BlankEmail)
@@ -32,11 +33,12 @@ class UserService(
 
         val emailTrimmed = email.trim()
 
-        if(userRepo.findByEmail(emailTrimmed) != null) {
+        if (userRepo.findByEmail(emailTrimmed) != null) {
             return failure(UserError.EmailAlreadyInUse)
         }
 
-        val profile = profileRepo.getReferenceById(profile)
+        val profile = profileRepo.findByIdOrNull(profileId)
+            ?: return failure(UserError.InvalidProfileId)
         val newPassword = createPasswordValidationInformation(password)
 
         val newUser = User(
@@ -47,13 +49,17 @@ class UserService(
             passwordValidation = newPassword,
         )
 
-        return success(userRepo.save(newUser))
+        return try {
+            success(userRepo.saveAndFlush(newUser))
+        } catch (_: DataIntegrityViolationException) {
+            failure(UserError.EmailAlreadyInUse)
+        }
     }
 
     @Transactional
     fun deleteUser(id: Int): Either<UserError, Unit> {
         val user = userRepo.findByIdOrNull(id)
-            ?: return failure(UserError.UserNotFoundOrInvalidCredentials)
+            ?: return failure(UserError.UserNotFound)
         userRepo.delete(user)
         return success(Unit)
     }

@@ -7,7 +7,11 @@ sealed class UserError {
 
     data object UserNotFoundOrInvalidCredentials : UserError()
 
+    data object UserNotFound : UserError()
+
     data object BlankName : UserError()
 
     data object EmailAlreadyInUse : UserError()
+
+    data object InvalidProfileId : UserError()
 }

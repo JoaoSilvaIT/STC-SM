@@ -23,7 +23,15 @@ dependencies {
     implementation(libs.spring.security)
 
     implementation(libs.spring.jpa)
+
+    testImplementation(libs.kotlin.unit.test)
+    testImplementation(libs.mockk)
+    testRuntimeOnly(libs.kotlin.junit.test)
 }
 
 tasks.bootJar { enabled = false }
 tasks.jar { enabled = true }
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
