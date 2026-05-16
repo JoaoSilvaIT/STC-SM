@@ -17,3 +17,24 @@ Content-Type: application/json
   "username": "admin@isel.pt",
     "password": "admin"
 }
+
+### Create Cabinet
+POST http://localhost:8080/api/cabinets
+Content-Type: application/json
+
+{
+  "description": "Test Cabinet",
+  "status": "CLOSED",
+  "location": "Test Location"
+}
+
+### Update Cabinet
+PUT http://localhost:8080/api/cabinets/1
+Content-Type: application/json
+
+{
+  "status": "CLOSED"
+}
+
+### Get Cabinet
+GET http://localhost:8080/api/cabinets/1

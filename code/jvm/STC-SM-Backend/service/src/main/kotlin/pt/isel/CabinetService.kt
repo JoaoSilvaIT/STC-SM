@@ -25,4 +25,12 @@ class CabinetService(private val cabinetRepo: CabinetRepository) {
                 status = status
             )))
     }
+
+    fun createCabinet(desc: String, status: CabinetStatus, loc: String): Either<CabinetError, Cabinet> {
+        if(desc.isBlank()) return failure(CabinetError.InvalidDescription)
+        if(loc.isBlank()) return failure(CabinetError.InvalidLocation)
+
+        val newCabinet = Cabinet(description = desc, status = status, location = loc)
+        return success(cabinetRepo.save(newCabinet))
+    }
 }
