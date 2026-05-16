@@ -23,4 +23,6 @@ class ToolService(private val toolRepo: ToolRepository) {
         val tool = toolRepo.findByIdOrNull(tid) ?: return failure(ToolError.ToolNotFound)
         return success(toolRepo.saveAndFlush(tool.copy(status = status)))
     }
+
+    fun getAllTools(): List<Tool> = toolRepo.findAll()
 }
