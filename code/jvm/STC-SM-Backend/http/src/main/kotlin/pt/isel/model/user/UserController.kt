@@ -1,4 +1,4 @@
-package pt.isel.user
+package pt.isel.model.user
 
 import pt.isel.UserService
 import org.springframework.http.HttpStatus
@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
-import pt.isel.model.user.toProblemResponse
 import pt.isel.utils.Either
 
 @RestController

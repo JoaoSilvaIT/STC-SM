@@ -1,4 +1,6 @@
-package pt.isel.user
+package pt.isel.model.user
+
+import pt.isel.user.User
 
 data class UserOutputModel(
     val name: String

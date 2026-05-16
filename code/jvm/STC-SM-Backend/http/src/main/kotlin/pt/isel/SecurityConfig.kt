@@ -15,12 +15,8 @@ class SecurityConfig {
         http
             .csrf { it.disable() }
             .authorizeHttpRequests { auth ->
-                auth
-                    .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
-                    .anyRequest().authenticated()
+                auth.anyRequest().permitAll()
             }
-            .httpBasic {}
-
         return http.build()
     }
 }

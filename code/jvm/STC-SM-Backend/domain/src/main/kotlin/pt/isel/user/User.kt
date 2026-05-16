@@ -27,9 +27,9 @@ class User(
     val email: String,
     @ManyToOne(fetch = FetchType.LAZY) // When making a database call only gets the User data instead of User + Profile
     @JoinColumn(name = "id_profile", referencedColumnName = "id")
-    val profile: pt.isel.profile.Profile,
+    val profile: Profile,
     @Enumerated(EnumType.STRING) // Keeps the name of the status (ex: "ACTIVE")
     val status: pt.isel.user.UserStatus,
     @Embedded // This annotation keeps the JPA from creating a new table just for the password
-    val passwordValidation: pt.isel.auth.PasswordValidationInfo,
+    val passwordValidation: PasswordValidationInfo,
 )

@@ -51,9 +51,9 @@ class WebApp {
     fun tokenDomainConfig() =
         TokenDomainConfig(
             tokenSizeInBytes = 256 / 8,
-            tokenTtl = Duration.ofHours(24),
-            tokenRollingTtl = Duration.ofHours(1),
-            maxTokensPerUser = 3,
+            accessTokenExpiration = Duration.ofMinutes(15),
+            refreshTokenExpiration = Duration.ofDays(30),
+            maxTokensPerUser = 1,
             minPasswordLength = 2,
         )
 }
