@@ -13,7 +13,6 @@ import pt.isel.errors.UserError
 import pt.isel.profile.Profile
 import pt.isel.profile.Role
 import pt.isel.user.User
-import pt.isel.user.UserRepository
 import pt.isel.user.UserStatus
 import pt.isel.utils.Either
 import java.time.Clock
@@ -104,7 +103,7 @@ class AuthServiceTest {
     @Test
     fun `getUserByToken returns null when session is missing`() {
         val hashed = tokenEncoder.createValidationInformation(sampleToken).validationInfo
-        every { sessionRepo.findByAccessToken(hashed) } returns null
+        every { sessionRepo.findByAccessTokenValidationInfo(hashed) } returns null
 
         assertNull(service.getUserByToken(sampleToken))
     }
@@ -113,7 +112,7 @@ class AuthServiceTest {
     fun `getUserByToken deletes expired session and returns null`() {
         val hashed = tokenEncoder.createValidationInformation(sampleToken).validationInfo
         val expiredSession = sessionFor(user, accessExpiresAt = now.minusSeconds(1))
-        every { sessionRepo.findByAccessToken(hashed) } returns expiredSession
+        every { sessionRepo.findByAccessTokenValidationInfo(hashed) } returns expiredSession
 
         val result = service.getUserByToken(sampleToken)
 
@@ -125,7 +124,7 @@ class AuthServiceTest {
     fun `getUserByToken returns the user when session is valid`() {
         val hashed = tokenEncoder.createValidationInformation(sampleToken).validationInfo
         val session = sessionFor(user, accessExpiresAt = now.plusSeconds(60))
-        every { sessionRepo.findByAccessToken(hashed) } returns session
+        every { sessionRepo.findByAccessTokenValidationInfo(hashed) } returns session
 
         assertEquals(user, service.getUserByToken(sampleToken))
         verify(exactly = 0) { sessionRepo.delete(any<UserSession>()) }
@@ -135,7 +134,7 @@ class AuthServiceTest {
     fun `revokeToken deletes the session and returns true`() {
         val hashed = tokenEncoder.createValidationInformation(sampleToken).validationInfo
         val session = sessionFor(user)
-        every { sessionRepo.findByAccessToken(hashed) } returns session
+        every { sessionRepo.findByAccessTokenValidationInfo(hashed) } returns session
 
         assertEquals(true, service.revokeToken(sampleToken))
         verify { sessionRepo.delete(session) }
@@ -144,7 +143,7 @@ class AuthServiceTest {
     @Test
     fun `revokeToken returns false when no session matches`() {
         val hashed = tokenEncoder.createValidationInformation(sampleToken).validationInfo
-        every { sessionRepo.findByAccessToken(hashed) } returns null
+        every { sessionRepo.findByAccessTokenValidationInfo(hashed) } returns null
 
         assertEquals(false, service.revokeToken(sampleToken))
     }
@@ -158,7 +157,7 @@ class AuthServiceTest {
     @Test
     fun `refreshToken fails when no session matches the refresh token`() {
         val hashed = tokenEncoder.createValidationInformation(sampleToken).validationInfo
-        every { sessionRepo.findByRefreshToken(hashed) } returns null
+        every { sessionRepo.findByRefreshTokenValidationInfo(hashed) } returns null
 
         val result = service.refreshToken(sampleToken)
         assertIs<Either.Failure<UserError>>(result)
@@ -168,7 +167,7 @@ class AuthServiceTest {
     fun `refreshToken deletes session when refresh token expired`() {
         val hashed = tokenEncoder.createValidationInformation(sampleToken).validationInfo
         val expired = sessionFor(user, refreshExpiresAt = now.minusSeconds(1))
-        every { sessionRepo.findByRefreshToken(hashed) } returns expired
+        every { sessionRepo.findByRefreshTokenValidationInfo(hashed) } returns expired
 
         val result = service.refreshToken(sampleToken)
 
@@ -180,7 +179,7 @@ class AuthServiceTest {
     fun `refreshToken issues a new access token and bumps expiration`() {
         val hashed = tokenEncoder.createValidationInformation(sampleToken).validationInfo
         val session = sessionFor(user, accessExpiresAt = now.plusSeconds(5), refreshExpiresAt = now.plusSeconds(3600))
-        every { sessionRepo.findByRefreshToken(hashed) } returns session
+        every { sessionRepo.findByRefreshTokenValidationInfo(hashed) } returns session
         val saved = slot<UserSession>()
         every { sessionRepo.save(capture(saved)) } answers { firstArg() }
 

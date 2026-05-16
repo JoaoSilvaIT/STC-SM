@@ -18,6 +18,8 @@ class ActivityService(
     private val cabinetRepo: CabinetRepository,
     private val toolRepo: ToolRepository,
 ) {
+    fun getAllActivities(): List<Activity> = activityRepo.findAll()
+
     fun getActivity(id: Int): Either<ActivityError, Activity> {
         val activity = activityRepo.findByIdOrNull(id) ?: return failure(ActivityError.ActivityNotFound)
         return success(activity)

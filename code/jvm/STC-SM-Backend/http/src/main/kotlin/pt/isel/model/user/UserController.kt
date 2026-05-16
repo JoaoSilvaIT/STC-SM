@@ -40,9 +40,10 @@ class UserController(
 
     @DeleteMapping("/api/users/{id}")
     fun deleteUser(
-        @PathVariable id: Int
+        @PathVariable id: Int,
+        user: User,
     ): ResponseEntity<*> {
-        return when(val result = userService.deleteUser(id)) {
+        return when(val result = userService.deleteUser(id, user)) {
             is Either.Success ->
                 ResponseEntity.noContent().build<Unit>()
             is Either.Failure -> result.value.toProblemResponse()

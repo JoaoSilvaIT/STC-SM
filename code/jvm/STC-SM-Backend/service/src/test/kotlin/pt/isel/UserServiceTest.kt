@@ -4,7 +4,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import pt.isel.auth.PasswordValidationInfo
@@ -12,7 +11,6 @@ import pt.isel.errors.UserError
 import pt.isel.profile.Profile
 import pt.isel.profile.Role
 import pt.isel.user.User
-import pt.isel.user.UserRepository
 import pt.isel.user.UserStatus
 import pt.isel.utils.Either
 import kotlin.test.Test
@@ -28,104 +26,106 @@ class UserServiceTest {
     private val profileRepo: ProfileRepository = mockk(relaxed = true)
     private val service = UserService(passwordEncoder, userRepo, profileRepo)
 
-    private val profile = Profile(id = 1, role = Role.MECHANIC, description = "")
-    private val existingUser = User(
-        id = 7,
+    private val mechanicProfile = Profile(id = 1, role = Role.MECHANIC, description = "")
+    private val adminProfile = Profile(id = 2, role = Role.ADMIN, description = "")
+    private val admin = User(
+        id = 1,
+        name = "Root",
+        email = "admin@example.com",
+        profile = adminProfile,
+        status = UserStatus.ACTIVE,
+        passwordValidation = PasswordValidationInfo("admin-hash"),
+    )
+    private val nonAdmin = User(
+        id = 2,
         name = "Joana",
         email = "joana@example.com",
-        profile = profile,
+        profile = mechanicProfile,
         status = UserStatus.ACTIVE,
         passwordValidation = PasswordValidationInfo("h"),
     )
 
     @Test
     fun `createUser fails on blank name`() {
-        val result = service.createUser(" ", "a@b.com", "pw", 1)
+        val result = service.createUser(" ", "a@b.com", "pw", 1, admin)
         assertIs<Either.Failure<UserError>>(result)
         assertEquals(UserError.BlankName, result.value)
     }
 
     @Test
     fun `createUser fails on blank email`() {
-        val result = service.createUser("name", "  ", "pw", 1)
+        val result = service.createUser("name", "  ", "pw", 1, admin)
         assertIs<Either.Failure<UserError>>(result)
         assertEquals(UserError.BlankEmail, result.value)
     }
 
     @Test
     fun `createUser fails on blank password`() {
-        val result = service.createUser("name", "a@b.com", "", 1)
+        val result = service.createUser("name", "a@b.com", "", 1, admin)
         assertIs<Either.Failure<UserError>>(result)
         assertEquals(UserError.BlankPassword, result.value)
     }
 
     @Test
-    fun `createUser fails when email already exists (pre-check)`() {
-        every { userRepo.findByEmail("a@b.com") } returns existingUser
-
-        val result = service.createUser("name", "a@b.com", "pw", 1)
-
+    fun `createUser fails when caller is not admin`() {
+        val result = service.createUser("name", "a@b.com", "pw", 1, nonAdmin)
         assertIs<Either.Failure<UserError>>(result)
-        assertEquals(UserError.EmailAlreadyInUse, result.value)
-        verify(exactly = 0) { userRepo.saveAndFlush(any<User>()) }
+        assertEquals(UserError.NotAuthorized, result.value)
     }
 
     @Test
-    fun `createUser fails when profile id is unknown`() {
-        every { userRepo.findByEmail("a@b.com") } returns null
-        every { profileRepo.findByIdOrNull(99) } returns null
+    fun `createUser fails when email already exists`() {
+        every { userRepo.findByEmail("a@b.com") } returns nonAdmin
 
-        val result = service.createUser("name", "a@b.com", "pw", 99)
-
-        assertIs<Either.Failure<UserError>>(result)
-        assertEquals(UserError.InvalidProfileId, result.value)
-    }
-
-    @Test
-    fun `createUser maps unique violation race to EmailAlreadyInUse`() {
-        every { userRepo.findByEmail("a@b.com") } returns null
-        every { profileRepo.findByIdOrNull(1) } returns profile
-        every { userRepo.saveAndFlush(any<User>()) } throws DataIntegrityViolationException("dup")
-
-        val result = service.createUser("name", "a@b.com", "pw", 1)
+        val result = service.createUser("name", "a@b.com", "pw", 1, admin)
 
         assertIs<Either.Failure<UserError>>(result)
         assertEquals(UserError.EmailAlreadyInUse, result.value)
+        verify(exactly = 0) { userRepo.save(any<User>()) }
     }
 
     @Test
     fun `createUser trims email and persists`() {
         val saved = slot<User>()
         every { userRepo.findByEmail("a@b.com") } returns null
-        every { profileRepo.findByIdOrNull(1) } returns profile
-        every { userRepo.saveAndFlush(capture(saved)) } answers { firstArg() }
+        every { profileRepo.getReferenceById(1) } returns mechanicProfile
+        every { userRepo.save(capture(saved)) } answers { firstArg() }
 
-        val result = service.createUser("name", "  a@b.com  ", "pw", 1)
+        val result = service.createUser("name", "  a@b.com  ", "pw", 1, admin)
 
         assertIs<Either.Success<User>>(result)
         assertEquals("a@b.com", saved.captured.email)
         assertEquals("hashed", saved.captured.passwordValidation.hash)
         assertEquals(UserStatus.ACTIVE, saved.captured.status)
-        assertEquals(profile, saved.captured.profile)
+        assertEquals(mechanicProfile, saved.captured.profile)
     }
 
     @Test
-    fun `deleteUser succeeds when user exists`() {
-        every { userRepo.findByIdOrNull(7) } returns existingUser
+    fun `deleteUser succeeds when caller is admin and user exists`() {
+        every { userRepo.findByIdOrNull(2) } returns nonAdmin
 
-        val result = service.deleteUser(7)
+        val result = service.deleteUser(2, admin)
 
         assertIs<Either.Success<Unit>>(result)
-        verify { userRepo.delete(existingUser) }
+        verify { userRepo.delete(nonAdmin) }
     }
 
     @Test
-    fun `deleteUser returns UserNotFound when missing`() {
-        every { userRepo.findByIdOrNull(99) } returns null
-
-        val result = service.deleteUser(99)
+    fun `deleteUser fails when caller is not admin`() {
+        val result = service.deleteUser(2, nonAdmin)
 
         assertIs<Either.Failure<UserError>>(result)
-        assertEquals(UserError.UserNotFound, result.value)
+        assertEquals(UserError.NotAuthorized, result.value)
+        verify(exactly = 0) { userRepo.delete(any<User>()) }
+    }
+
+    @Test
+    fun `deleteUser returns UserNotFoundOrInvalidCredentials when missing`() {
+        every { userRepo.findByIdOrNull(99) } returns null
+
+        val result = service.deleteUser(99, admin)
+
+        assertIs<Either.Failure<UserError>>(result)
+        assertEquals(UserError.UserNotFoundOrInvalidCredentials, result.value)
     }
 }

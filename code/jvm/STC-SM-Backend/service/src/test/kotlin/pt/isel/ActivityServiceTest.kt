@@ -15,7 +15,6 @@ import pt.isel.profile.Role
 import pt.isel.tools.Tool
 import pt.isel.tools.ToolStatus
 import pt.isel.user.User
-import pt.isel.user.UserRepository
 import pt.isel.user.UserStatus
 import pt.isel.utils.Either
 import java.time.Instant
@@ -40,6 +39,19 @@ class ActivityServiceTest {
     private val cabinet = Cabinet(id = 1, description = "C", status = CabinetStatus.OPEN, location = "loc")
     private val tool = Tool(id = 1, name = "Drill", cabinet = cabinet, status = ToolStatus.ACTIVE, location = "loc")
     private val date: Instant = Instant.parse("2026-01-01T10:00:00Z")
+
+    @Test
+    fun `getAllActivities delegates to repo`() {
+        val activities = listOf(
+            Activity(id = 1, type = ActivityType.OPEN_CABINET, date = date, user = user),
+            Activity(id = 2, type = ActivityType.REMOVE_TOOL, date = date, user = user, tool = tool),
+        )
+        every { activityRepo.findAll() } returns activities
+
+        val result = service.getAllActivities()
+
+        assertEquals(activities, result)
+    }
 
     @Test
     fun `getActivity returns the activity when found`() {

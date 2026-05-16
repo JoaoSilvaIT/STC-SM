@@ -18,3 +18,6 @@ dependencies {
     // Password Encoder
     api(libs.spring.security)
 }
+
+tasks.bootJar { enabled = false }
+tasks.jar { enabled = true }

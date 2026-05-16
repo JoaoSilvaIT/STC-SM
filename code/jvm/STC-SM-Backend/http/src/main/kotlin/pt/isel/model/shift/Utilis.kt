@@ -1,13 +1,15 @@
 package pt.isel.model.shift
 
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import pt.isel.Problem
 import pt.isel.errors.ShiftError
 
 fun ShiftError.toProblemResponse(): ResponseEntity<Any> =
-    when(this) {
-        ShiftError.ShiftNotFound -> TODO()
-        ShiftError.InvalidUserId -> TODO()
-        ShiftError.InvalidCabinetId -> TODO()
-        ShiftError.InvalidTimeFormat -> TODO()
-        ShiftError.NotAuthorized -> TODO()
+    when (this) {
+        ShiftError.ShiftNotFound -> Problem.ShiftNotFound.response(HttpStatus.NOT_FOUND)
+        ShiftError.InvalidUserId -> Problem.UserNotFoundOrInvalidCredentials.response(HttpStatus.BAD_REQUEST)
+        ShiftError.InvalidCabinetId -> Problem.CabinetNotFound.response(HttpStatus.BAD_REQUEST)
+        ShiftError.InvalidTimeFormat -> Problem.InvalidTimeFormat.response(HttpStatus.BAD_REQUEST)
+        ShiftError.NotAuthorized -> Problem.NotAuthorized.response(HttpStatus.UNAUTHORIZED)
     }

@@ -54,7 +54,8 @@ class UserService(
     }
 
     @Transactional
-    fun deleteUser(id: Int): Either<UserError, Unit> {
+    fun deleteUser(id: Int, admin: User): Either<UserError, Unit> {
+        if (admin.profile.role != Role.ADMIN) return failure(UserError.NotAuthorized)
         val user = userRepo.findByIdOrNull(id)
             ?: return failure(UserError.UserNotFoundOrInvalidCredentials)
         userRepo.delete(user)

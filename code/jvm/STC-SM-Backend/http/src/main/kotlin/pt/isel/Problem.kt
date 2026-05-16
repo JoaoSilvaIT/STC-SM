@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity
 import java.net.URI
 
 private const val MEDIA_TYPE = "application/problem+json"
-private const val PROBLEM_URI_PATH = "placeholder"
+private const val PROBLEM_URI_PATH = "https://stc-sm.isel.pt/problems"
 
 sealed class Problem(
     typeUri: URI,
@@ -47,6 +47,10 @@ sealed class Problem(
     data object ShiftAlreadyEnded : Problem(URI("$PROBLEM_URI_PATH/shift-already-ended"))
 
     data object ActivityNotFound : Problem(URI("$PROBLEM_URI_PATH/activity-not-found"))
+
+    data object InvalidTimeFormat : Problem(URI("$PROBLEM_URI_PATH/invalid-time-format"))
+
+    data object ProfileNotFound : Problem(URI("$PROBLEM_URI_PATH/profile-not-found"))
 
     data object NoActiveShiftOnCabinet : Problem(URI("$PROBLEM_URI_PATH/no-active-shift-on-cabinet"))
 
