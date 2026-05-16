@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.CabinetService
+import pt.isel.user.User
 import pt.isel.utils.Either
 
 @RestController
@@ -16,7 +17,10 @@ class CabinetController(
     private val cabinetService: CabinetService
 ) {
     @GetMapping("/api/cabinets/{id}")
-    fun getCabinet(@PathVariable id: Int): ResponseEntity<*> {
+    fun getCabinet(
+        @PathVariable id: Int,
+        user: User
+    ): ResponseEntity<*> {
         return when(val result = cabinetService.getCabinet(id)){
             is Either.Success ->
                 ResponseEntity
@@ -29,7 +33,8 @@ class CabinetController(
     @PutMapping("/api/cabinets/{id}")
     fun updateCabinet(
         @PathVariable id: Int,
-        @RequestBody input: UpdateCabinetInputModel
+        @RequestBody input: UpdateCabinetInputModel,
+        user: User
     ): ResponseEntity<*> {
         return when(val result = cabinetService.updateCabinet(input.status, id)){
             is Either.Success ->
@@ -41,7 +46,10 @@ class CabinetController(
     }
 
     @PostMapping("/api/cabinets")
-    fun createCabinet(@RequestBody input: CreateCabinetInputModel): ResponseEntity<*> {
+    fun createCabinet(
+        @RequestBody input: CreateCabinetInputModel,
+        user: User
+    ): ResponseEntity<*> {
         return when(val result = cabinetService.createCabinet(input.description, input.status, input.location)){
             is Either.Success -> ResponseEntity
                 .status(HttpStatus.CREATED)
