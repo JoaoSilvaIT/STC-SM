@@ -29,7 +29,6 @@ class Tool(
     @Column(nullable = false)
     val location: String, // Same as the cabinet
 ) {
-
     fun copy(
         name: String = this.name,
         cabinet: pt.isel.cabinet.Cabinet = this.cabinet,

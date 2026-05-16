@@ -4,13 +4,10 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import pt.isel.errors.ShiftError
 import org.springframework.transaction.annotation.Transactional
-import pt.isel.profile.Role
 import pt.isel.shift.Shift
-import pt.isel.user.User
 import pt.isel.utils.Either
 import pt.isel.utils.failure
 import pt.isel.utils.success
-import java.time.Instant
 
 @Service
 class ShiftService(private val shiftRepo: ShiftRepository, private val userRepo: UserRepository, private val cabinetRepo: CabinetRepository) {
@@ -35,13 +32,6 @@ class ShiftService(private val shiftRepo: ShiftRepository, private val userRepo:
             startTime = startTime,
             endTime = endTime
         )))
-    }
-
-    @Transactional
-    fun deleteShift(sid: Int): Either<ShiftError, Boolean> {
-        shiftRepo.findByIdOrNull(sid) ?: return failure(ShiftError.ShiftNotFound)
-        shiftRepo.deleteById(sid)
-        return success(true)
     }
 
     fun findShiftsByCabinet(cid: Int): Either<ShiftError, List<Shift>> {

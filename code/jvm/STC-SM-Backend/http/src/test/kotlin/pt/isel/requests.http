@@ -9,14 +9,23 @@ Content-Type: application/json
 
 ### Create user
 POST http://localhost:8080/api/users
-Authorization: Bearer M9YKkX_9zQrjXmJqUjK6K5BJcZgYQBelDuqSiLX9G4c=
+Authorization: Bearer 7YFdSrXXioNhIBQGvOWCYzcPGOIS1u0uaVuSxxAtSwo=
 Content-Type: application/json
 
 {
-  "name": "teste2",
-  "email": "teste2@gmail.com",
-  "password": "teste2",
+  "name": "teste",
+  "email": "teste@gmail.com",
+  "password": "teste",
   "profile": 1
+}
+
+### Update user
+PUT http://localhost:8080/api/users/2
+Authorization: Bearer 7YFdSrXXioNhIBQGvOWCYzcPGOIS1u0uaVuSxxAtSwo=
+Content-Type: application/json
+
+{
+  "state": "INACTIVE"
 }
 
 ### Create Shift

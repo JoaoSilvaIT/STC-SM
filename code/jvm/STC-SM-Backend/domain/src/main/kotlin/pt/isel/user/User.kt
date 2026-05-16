@@ -29,7 +29,22 @@ class User(
     @JoinColumn(name = "id_profile", referencedColumnName = "id")
     val profile: Profile,
     @Enumerated(EnumType.STRING) // Keeps the name of the status (ex: "ACTIVE")
-    val status: pt.isel.user.UserStatus,
+    val status: UserStatus,
     @Embedded // This annotation keeps the JPA from creating a new table just for the password
     val passwordValidation: PasswordValidationInfo,
-)
+) {
+    fun copy(
+        name: String = this.name,
+        email: String = this.email,
+        profile: Profile = this.profile,
+        status: UserStatus = this.status,
+        password : PasswordValidationInfo = this.passwordValidation,
+    ) = User(
+        this.id,
+        name,
+        email,
+        profile,
+        status,
+        password
+    )
+}
