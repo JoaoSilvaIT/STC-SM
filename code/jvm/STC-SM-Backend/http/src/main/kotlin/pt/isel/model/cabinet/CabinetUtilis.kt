@@ -3,7 +3,7 @@ package pt.isel.model.cabinet
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import pt.isel.errors.CabinetError
-import pt.isel.model.Problem
+import pt.isel.Problem
 
 fun CabinetError.toProblemResponse(): ResponseEntity<Any> =
     when (this) {

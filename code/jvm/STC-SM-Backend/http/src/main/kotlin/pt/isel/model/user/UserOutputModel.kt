@@ -3,7 +3,7 @@ package pt.isel.model.user
 import pt.isel.user.User
 
 data class UserOutputModel(
-    val name: String
+    val name: String,
 ) {
     companion object {
         fun fromDomain(user: User): UserOutputModel =

@@ -6,6 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import pt.isel.auth.PasswordValidationInfo
+import pt.isel.profile.Role
 import pt.isel.user.User
 import pt.isel.user.UserStatus
 import pt.isel.utils.Either
@@ -23,11 +24,14 @@ class UserService(
         name: String,
         email: String,
         password: String,
-        profile: Int
+        profile: Int,
+        admin: User
     ): Either<UserError, User> {
         if (name.isBlank()) return failure(UserError.BlankName)
         if (email.isBlank()) return failure(UserError.BlankEmail)
         if (password.isBlank()) return failure(UserError.BlankPassword)
+
+        if(admin.profile.role != Role.ADMIN) return failure(UserError.NotAuthorized)
 
         val emailTrimmed = email.trim()
 

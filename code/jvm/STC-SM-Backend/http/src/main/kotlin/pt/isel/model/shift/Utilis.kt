@@ -9,4 +9,5 @@ fun ShiftError.toProblemResponse(): ResponseEntity<Any> =
         ShiftError.InvalidUserId -> TODO()
         ShiftError.InvalidCabinetId -> TODO()
         ShiftError.InvalidTimeFormat -> TODO()
+        ShiftError.NotAuthorized -> TODO()
     }

@@ -14,3 +14,6 @@ build/
 .DS_Store
 Thumbs.db
 .vscode/
+
+# Application Properties
+code/jvm/STC-SM-Backend/app/src/main/resources/application.properties

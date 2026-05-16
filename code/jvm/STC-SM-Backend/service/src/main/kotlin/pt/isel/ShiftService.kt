@@ -4,6 +4,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import pt.isel.errors.ShiftError
 import org.springframework.transaction.annotation.Transactional
+import pt.isel.profile.Role
 import pt.isel.shift.Shift
 import pt.isel.user.User
 import pt.isel.utils.Either

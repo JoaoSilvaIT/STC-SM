@@ -5,4 +5,5 @@ sealed class ShiftError {
     data object InvalidTimeFormat : ShiftError()
     data object InvalidUserId : ShiftError()
     data object InvalidCabinetId : ShiftError()
+    data object NotAuthorized : ShiftError()
 }

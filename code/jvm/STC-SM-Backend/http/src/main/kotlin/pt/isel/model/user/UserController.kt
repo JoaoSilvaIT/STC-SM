@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
+import pt.isel.user.User
 import pt.isel.utils.Either
 
 @RestController
@@ -16,13 +17,15 @@ class UserController(
 ) {
     @PostMapping("/api/users")
     fun createUser(
-        @RequestBody userInput: UserInput
+        @RequestBody userInput: UserInput,
+        user: User
     ): ResponseEntity<*> {
         return when(val result = userService.createUser(
             userInput.name,
             userInput.email,
             userInput.password,
-            userInput.profile
+            userInput.profile,
+            user
         )) {
             is Either.Success ->
                 ResponseEntity

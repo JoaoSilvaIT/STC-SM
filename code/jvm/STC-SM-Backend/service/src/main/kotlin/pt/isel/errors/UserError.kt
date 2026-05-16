@@ -14,4 +14,6 @@ sealed class UserError {
     data object EmailAlreadyInUse : UserError()
 
     data object InvalidProfileId : UserError()
+
+    data object NotAuthorized : UserError()
 }

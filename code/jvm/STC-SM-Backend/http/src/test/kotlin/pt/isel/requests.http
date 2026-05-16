@@ -1,26 +1,27 @@
-### Create user
-POST http://localhost:8080/api/users
-Content-Type: application/json
-
-{
-  "name": "teste1",
-  "email": "teste1@gmail.com",
-  "password": "teste1",
-  "profile": 1
-}
-
 ### Login
 POST http://localhost:8080/api/users/login
 Content-Type: application/json
 
 {
   "username": "admin@isel.pt",
-    "password": "admin"
+  "password": "admin"
+}
+
+### Create user
+POST http://localhost:8080/api/users
+Authorization: Bearer M9YKkX_9zQrjXmJqUjK6K5BJcZgYQBelDuqSiLX9G4c=
+Content-Type: application/json
+
+{
+  "name": "teste2",
+  "email": "teste2@gmail.com",
+  "password": "teste2",
+  "profile": 1
 }
 
 ### Create Shift
 POST http://localhost:8080/api/shifts
-Authorization: Bearer PHyUQThKf0Teg3IhqykxgeBKBftowcU88tS3xt4Hmtg=
+Authorization: Bearer M9YKkX_9zQrjXmJqUjK6K5BJcZgYQBelDuqSiLX9G4c=
 Content-Type: application/json
 
 {

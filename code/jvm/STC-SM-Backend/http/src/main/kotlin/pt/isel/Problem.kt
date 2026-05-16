@@ -22,11 +22,37 @@ sealed class Problem(
     // Authentication errors
     data object BlankEmail : Problem(URI("$PROBLEM_URI_PATH/blank-email"))
 
+    data object BlankName : Problem(URI("$PROBLEM_URI_PATH/blank-name"))
+
     data object BlankPassword : Problem(URI("$PROBLEM_URI_PATH/blank-password"))
 
     data object UserNotFoundOrInvalidCredentials : Problem(URI("$PROBLEM_URI_PATH/user-not-found-or-invalid-credentials"))
 
+    data object InvalidProfileId : Problem(URI("$PROBLEM_URI_PATH/invalid-profile-id"))
+
     data object EmailAlreadyInUse : Problem(URI("$PROBLEM_URI_PATH/email-already-in-use"))
 
     data object InsecurePassword : Problem(URI("$PROBLEM_URI_PATH/insecure-password"))
+
+    data object ToolNotFound : Problem(URI("$PROBLEM_URI_PATH/tool-not-found"))
+
+    data object CabinetNotFound : Problem(URI("$PROBLEM_URI_PATH/cabinet-not-found"))
+
+    data object ShiftNotFound : Problem(URI("$PROBLEM_URI_PATH/shift-not-found"))
+
+    data object CabinetAlreadyHasActiveShift : Problem(URI("$PROBLEM_URI_PATH/cabinet-already-has-active-shift"))
+
+    data object UserAlreadyHasActiveShift : Problem(URI("$PROBLEM_URI_PATH/user-already-has-active-shift"))
+
+    data object ShiftAlreadyEnded : Problem(URI("$PROBLEM_URI_PATH/shift-already-ended"))
+
+    data object ActivityNotFound : Problem(URI("$PROBLEM_URI_PATH/activity-not-found"))
+
+    data object NoActiveShiftOnCabinet : Problem(URI("$PROBLEM_URI_PATH/no-active-shift-on-cabinet"))
+
+    data object InvalidLocationForCabinet : Problem(URI("$PROBLEM_URI_PATH/invalid-location-for-cabinet"))
+
+    data object InvalidDescriptionForCabinet : Problem(URI("$PROBLEM_URI_PATH/invalid-description-for-cabinet"))
+
+    data object NotAuthorized : Problem(URI("$PROBLEM_URI_PATH/not-authorized"))
 }
