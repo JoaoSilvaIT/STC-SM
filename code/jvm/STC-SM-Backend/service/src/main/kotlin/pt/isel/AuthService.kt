@@ -8,16 +8,13 @@ import pt.isel.auth.TokenEncoder
 import pt.isel.auth.TokensOutput
 import pt.isel.auth.UserSession
 import pt.isel.user.User
-import pt.isel.user.UserRepository
 import pt.isel.utils.Either
 import pt.isel.utils.failure
 import pt.isel.utils.success
 import java.security.SecureRandom
 import java.time.Clock
-import java.time.Duration
 import java.util.Base64.getUrlDecoder
 import java.util.Base64.getUrlEncoder
-import kotlin.compareTo
 
 @Service
 class AuthService(
@@ -70,7 +67,7 @@ class AuthService(
 
         val tokenValidationInfo = tokenEncoder.createValidationInformation(token)
 
-        val session = sessionRepository.findByAccessToken(tokenValidationInfo.validationInfo) ?: return null
+        val session = sessionRepository.findByAccessTokenValidationInfo(tokenValidationInfo.validationInfo) ?: return null
 
         if (session.accessTokenExpiresAt.isBefore(clock.instant()) ) {
             return null
@@ -83,7 +80,7 @@ class AuthService(
     fun revokeToken(tokenValue: String): Boolean {
         val tokenValidationInfo = tokenEncoder.createValidationInformation(tokenValue)
 
-        val session = sessionRepository.findByAccessToken(tokenValidationInfo.validationInfo)
+        val session = sessionRepository.findByAccessTokenValidationInfo(tokenValidationInfo.validationInfo)
 
         return if (session != null) {
             sessionRepository.delete(session)
@@ -102,7 +99,7 @@ class AuthService(
 
         val token = tokenEncoder.createValidationInformation(tokenValue)
 
-        val session = sessionRepository.findByRefreshToken(token.validationInfo) ?: return failure(UserError.UserNotFoundOrInvalidCredentials)
+        val session = sessionRepository.findByRefreshTokenValidationInfo(token.validationInfo) ?: return failure(UserError.UserNotFoundOrInvalidCredentials)
 
         val now = clock.instant()
 

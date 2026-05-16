@@ -23,9 +23,9 @@ class TokenController (
             is Either.Success -> {
                 val accessToken = result.value.accessToken
                 val refreshToken = result.value.refreshToken
-
                 // Web
-                val cookie = ResponseCookie.from("token", refreshToken)
+                val cookie = ResponseCookie
+                    .from("token", refreshToken)
                     .httpOnly(true) // to block js code to gain access to it
                     .path("/api/users/refresh") // only this rote will be able to get access to this token
                     .maxAge(Duration.ofDays(30)) // the token will be available for 30 days

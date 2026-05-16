@@ -25,4 +25,5 @@ class CabinetService(private val cabinetRepo: CabinetRepository) {
                 status = status
             )))
     }
+
 }

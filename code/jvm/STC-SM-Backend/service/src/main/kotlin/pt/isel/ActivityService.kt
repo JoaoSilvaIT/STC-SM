@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component
 import org.springframework.data.repository.findByIdOrNull
 import pt.isel.activity.Activity
 import pt.isel.activity.ActivityType
-import pt.isel.user.UserRepository
 import pt.isel.utils.Either
 import pt.isel.utils.failure
 import pt.isel.utils.success

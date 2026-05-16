@@ -24,7 +24,7 @@ class Cabinet(
 ) {
     fun copy(
         description: String = this.description,
-        status: pt.isel.cabinet.CabinetStatus = this.status,
+        status: CabinetStatus = this.status,
         location: String = this.location
     ) = Cabinet(this.id, description, status, location)
 }

@@ -1,7 +1,6 @@
 package pt.isel
 
 import pt.isel.errors.UserError
-import pt.isel.user.UserRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service

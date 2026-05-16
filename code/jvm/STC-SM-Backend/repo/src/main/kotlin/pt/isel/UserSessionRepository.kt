@@ -7,6 +7,6 @@ import pt.isel.auth.UserSession
 
 @Repository
 interface UserSessionRepository : JpaRepository<UserSession, Int> {
-    fun findByAccessToken(accessToken: String): UserSession?
-    fun findByRefreshToken(refreshToken: String): UserSession?
+    fun findByAccessTokenValidationInfo(accessToken: String): UserSession?
+    fun findByRefreshTokenValidationInfo(refreshToken: String): UserSession?
 }

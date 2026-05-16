@@ -28,7 +28,7 @@ class UserController(
                     .header(
                         "Location",
                         "/api/users/${result.value.id}",
-                    ).body(UserOutputModel.Companion.fromDomain(result.value))
+                    ).body(UserOutputModel.fromDomain(result.value))
             is Either.Failure -> result.value.toProblemResponse()
         }
     }
