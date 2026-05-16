@@ -61,7 +61,7 @@ class AuthService(
     fun getUserByToken(
         token: String,
     ): User? {
-        if(!canBeToken(token)) {
+        if (!canBeToken(token)) {
             return null
         }
 
@@ -69,7 +69,8 @@ class AuthService(
 
         val session = sessionRepository.findByAccessTokenValidationInfo(tokenValidationInfo.validationInfo) ?: return null
 
-        if (session.accessTokenExpiresAt.isBefore(clock.instant()) ) {
+        if (session.accessTokenExpiresAt.isBefore(clock.instant())) {
+            sessionRepository.delete(session)
             return null
         }
 

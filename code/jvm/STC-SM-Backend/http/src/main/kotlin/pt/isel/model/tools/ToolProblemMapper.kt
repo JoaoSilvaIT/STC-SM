@@ -1,0 +1,12 @@
+package pt.isel.model.tools
+
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import pt.isel.errors.ToolError
+import pt.isel.model.Problem
+
+fun ToolError.toProblemResponse(): ResponseEntity<Any> =
+    when (this) {
+        ToolError.ToolNotFound -> Problem.ToolNotFound.response(HttpStatus.NOT_FOUND)
+        ToolError.ToolNotActive -> Problem.ToolNotFound.response(HttpStatus.CONFLICT)
+    }

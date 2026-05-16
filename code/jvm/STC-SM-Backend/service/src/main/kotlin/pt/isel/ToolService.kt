@@ -1,16 +1,16 @@
 package pt.isel
 
 import pt.isel.errors.ToolError
-import jakarta.transaction.Transactional
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import pt.isel.tools.Tool
 import pt.isel.tools.ToolStatus
 import pt.isel.utils.Either
 import pt.isel.utils.failure
 import pt.isel.utils.success
 
-@Component
+@Service
 class ToolService(private val toolRepo: ToolRepository) {
 
     fun getTool(tid: Int): Either<ToolError, Tool> {
@@ -23,4 +23,6 @@ class ToolService(private val toolRepo: ToolRepository) {
         val tool = toolRepo.findByIdOrNull(tid) ?: return failure(ToolError.ToolNotFound)
         return success(toolRepo.saveAndFlush(tool.copy(status = status)))
     }
+
+    fun getAllTools(): List<Tool> = toolRepo.findAll()
 }

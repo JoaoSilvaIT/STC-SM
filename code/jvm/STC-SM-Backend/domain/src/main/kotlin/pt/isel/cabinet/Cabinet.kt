@@ -18,7 +18,7 @@ class Cabinet(
     @Column(nullable = false)
     val description: String,
     @Enumerated(EnumType.STRING)
-    val status: pt.isel.cabinet.CabinetStatus,
+    val status: CabinetStatus,
     @Column(nullable = false)
     val location: String, // For now a text but can be a class in the future, for scalability cases
 ) {
