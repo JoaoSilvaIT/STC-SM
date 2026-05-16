@@ -29,13 +29,4 @@ sealed class Problem(
     data object EmailAlreadyInUse : Problem(URI("$PROBLEM_URI_PATH/email-already-in-use"))
 
     data object InsecurePassword : Problem(URI("$PROBLEM_URI_PATH/insecure-password"))
-
-    // Cabinet Errors
-
-    data object CabinetNotFound : Problem(URI("$PROBLEM_URI_PATH/cabinet-not-found"))
-
-    data object InvalidLocationForCabinet : Problem(URI("$PROBLEM_URI_PATH/invalid-location"))
-
-    data object InvalidDescriptionForCabinet : Problem(URI("$PROBLEM_URI_PATH/invalid-description-for-cabinet"))
-
 }

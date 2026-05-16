@@ -5,6 +5,7 @@ dependencyManagement = "1.1.7"
 kotlin = "2.2.21"
 ktlint = "12.1.1"
 jakarta = "3.2.0"
+mockk = "1.13.13"
 
 # This defines the name of the plugins used in this project
 [plugins]
@@ -38,3 +39,4 @@ kotlin-unit-test = { module = "org.jetbrains.kotlin:kotlin-test-junit5" }
 spring-boot-test = { module = "org.springframework.boot:spring-boot-starter-test" }
 # This is used in runtime
 kotlin-junit-test = { module = "org.junit.platform:junit-platform-launcher" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }

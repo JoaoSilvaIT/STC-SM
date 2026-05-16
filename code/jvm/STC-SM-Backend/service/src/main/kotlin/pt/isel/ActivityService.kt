@@ -1,8 +1,9 @@
 package pt.isel
 
 import pt.isel.errors.ActivityError
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.transaction.annotation.Transactional
 import pt.isel.activity.Activity
 import pt.isel.activity.ActivityType
 import pt.isel.user.UserRepository
@@ -11,8 +12,13 @@ import pt.isel.utils.failure
 import pt.isel.utils.success
 import java.time.Instant
 
-@Component
-class ActivityService(private val activityRepo: ActivityRepository, private val userRepo: UserRepository, private val cabinetRepo: CabinetRepository, private val toolRepo: ToolRepository) {
+@Service
+class ActivityService(
+    private val activityRepo: ActivityRepository,
+    private val userRepo: UserRepository,
+    private val cabinetRepo: CabinetRepository,
+    private val toolRepo: ToolRepository,
+) {
     fun getActivity(id: Int): Either<ActivityError, Activity> {
         val activity = activityRepo.findByIdOrNull(id) ?: return failure(ActivityError.ActivityNotFound)
         return success(activity)
@@ -33,6 +39,7 @@ class ActivityService(private val activityRepo: ActivityRepository, private val 
         return success(activities)
     }
 
+    @Transactional
     fun createActivity(uid: Int, tid: Int?, cid: Int?, type: ActivityType, date: Instant): Either<ActivityError, Activity> {
         val user = userRepo.findByIdOrNull(uid) ?: return failure(ActivityError.InvalidUserId)
 
