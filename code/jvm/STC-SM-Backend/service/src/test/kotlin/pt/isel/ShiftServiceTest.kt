@@ -44,7 +44,7 @@ class ShiftServiceTest {
         val shift = Shift(id = 5, cabinet = cabinet, user = user, startTime = start, endTime = end)
         every { shiftRepo.findById(5) } returns Optional.of(shift)
 
-        val result = service.getShift(5)
+        val result = service.findShiftById(5)
 
         assertIs<Either.Success<Shift>>(result)
         assertEquals(shift, result.value)
@@ -54,7 +54,7 @@ class ShiftServiceTest {
     fun `getShift returns ShiftNotFound when missing`() {
         every { shiftRepo.findById(99) } returns Optional.empty()
 
-        val result = service.getShift(99)
+        val result = service.findShiftById(99)
 
         assertIs<Either.Failure<ShiftError>>(result)
         assertEquals(ShiftError.ShiftNotFound, result.value)

@@ -11,7 +11,7 @@ import pt.isel.utils.success
 
 @Service
 class ShiftService(private val shiftRepo: ShiftRepository, private val userRepo: UserRepository, private val cabinetRepo: CabinetRepository) {
-    fun getShift(sid: Int): Either<ShiftError, Shift> {
+    fun findShiftById(sid: Int): Either<ShiftError, Shift> {
         val shift = shiftRepo.findById(sid).orElse(null)
         return if (shift != null) success(shift) else failure(ShiftError.ShiftNotFound)
     }
@@ -32,6 +32,15 @@ class ShiftService(private val shiftRepo: ShiftRepository, private val userRepo:
             startTime = startTime,
             endTime = endTime
         )))
+    }
+
+    fun findAllShifts(): Either<ShiftError, List<Shift>> {
+        val shifts = shiftRepo.findAll()
+        return if (shifts.isEmpty()) {
+            failure(ShiftError.ShiftNotFound)
+        } else {
+            success(shifts)
+        }
     }
 
     fun findShiftsByCabinet(cid: Int): Either<ShiftError, List<Shift>> {
