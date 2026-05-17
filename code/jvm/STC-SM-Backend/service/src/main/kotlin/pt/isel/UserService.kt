@@ -68,6 +68,11 @@ class UserService(
         return success(userRepo.save(newUser))
     }
 
+    fun getAllUsers(admin: User): Either<UserError, List<User>> {
+        if (admin.profile.role != Role.ADMIN) return failure(UserError.NotAuthorized)
+        return success(userRepo.findAll())
+    }
+
     // The !! is used because @Nullable is on the encode function even though never returns null unless the parameter passed is null
     private fun createPasswordValidationInformation(password: String) =
         PasswordValidationInfo(hash = passwordEncoder.encode(password)!!)

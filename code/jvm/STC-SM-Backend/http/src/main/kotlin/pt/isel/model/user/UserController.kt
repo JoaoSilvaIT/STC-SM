@@ -3,7 +3,7 @@ package pt.isel.model.user
 import pt.isel.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.PostMapping
@@ -43,7 +43,7 @@ class UserController(
     fun updateUser(
         @PathVariable id: Int,
         @RequestBody updateUserInput: UpdateUserInput,
-        user: User
+        @Suppress("UNUSED_PARAMETER") user: User
     ): ResponseEntity<*> {
         return when(val result = userService.updateUser(
             updateUserInput.state,
@@ -59,4 +59,16 @@ class UserController(
             is Either.Failure -> result.value.toProblemResponse()
         }
     }
+
+    @GetMapping("/api/users")
+    fun listUsers(user: User): ResponseEntity<*> {
+        return when (val result = userService.getAllUsers(user)) {
+            is Either.Success -> ResponseEntity.ok(result.value.map(UserOutputModel.Companion::fromDomain))
+            is Either.Failure -> result.value.toProblemResponse()
+        }
+    }
+
+    @GetMapping("/api/users/me")
+    fun me(user: User): ResponseEntity<UserOutputModel> =
+        ResponseEntity.ok(UserOutputModel.fromDomain(user))
 }

@@ -17,7 +17,9 @@ import kotlin.test.assertIs
 class ToolServiceTest {
 
     private val toolRepo: ToolRepository = mockk(relaxed = true)
-    private val service = ToolService(toolRepo)
+    private val cabinetRepo: CabinetRepository = mockk(relaxed = true)
+    private val activityService: ActivityService = mockk(relaxed = true)
+    private val service = ToolService(toolRepo, cabinetRepo, activityService)
 
     private val cabinet = Cabinet(id = 1, description = "C", status = CabinetStatus.OPEN, location = "loc")
     private val tool = Tool(id = 1, name = "Drill", cabinet = cabinet, status = ToolStatus.ACTIVE, location = "loc")

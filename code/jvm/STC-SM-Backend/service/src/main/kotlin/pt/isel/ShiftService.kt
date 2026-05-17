@@ -8,13 +8,20 @@ import pt.isel.shift.Shift
 import pt.isel.utils.Either
 import pt.isel.utils.failure
 import pt.isel.utils.success
+import java.time.Instant
 
 @Service
-class ShiftService(private val shiftRepo: ShiftRepository, private val userRepo: UserRepository, private val cabinetRepo: CabinetRepository) {
+class ShiftService(
+    private val shiftRepo: ShiftRepository,
+    private val userRepo: UserRepository,
+    private val cabinetRepo: CabinetRepository,
+) {
     fun getShift(sid: Int): Either<ShiftError, Shift> {
         val shift = shiftRepo.findById(sid).orElse(null)
         return if (shift != null) success(shift) else failure(ShiftError.ShiftNotFound)
     }
+
+    fun getAllShifts(): List<Shift> = shiftRepo.findAll()
 
     @Transactional
     fun createShift(uid: Int, cid: Int, startTime: String, endTime: String): Either<ShiftError, Shift> {
@@ -32,6 +39,19 @@ class ShiftService(private val shiftRepo: ShiftRepository, private val userRepo:
             startTime = startTime,
             endTime = endTime
         )))
+    }
+
+    @Transactional
+    fun endShift(sid: Int): Either<ShiftError, Shift> {
+        val shift = shiftRepo.findByIdOrNull(sid) ?: return failure(ShiftError.ShiftNotFound)
+        val updated = Shift(
+            id = shift.id,
+            user = shift.user,
+            cabinet = shift.cabinet,
+            startTime = shift.startTime,
+            endTime = Instant.now(),
+        )
+        return success(shiftRepo.saveAndFlush(updated))
     }
 
     fun findShiftsByCabinet(cid: Int): Either<ShiftError, List<Shift>> {

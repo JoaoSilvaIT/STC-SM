@@ -16,10 +16,14 @@ import pt.isel.utils.Either
 class CabinetController(
     private val cabinetService: CabinetService
 ) {
+    @GetMapping("/api/cabinets")
+    fun listCabinets(@Suppress("UNUSED_PARAMETER") user: User): ResponseEntity<List<CabinetOutputModel>> =
+        ResponseEntity.ok(cabinetService.getAllCabinets().map(CabinetOutputModel.Companion::fromDomain))
+
     @GetMapping("/api/cabinets/{id}")
     fun getCabinet(
         @PathVariable id: Int,
-        user: User
+        @Suppress("UNUSED_PARAMETER") user: User
     ): ResponseEntity<*> {
         return when(val result = cabinetService.getCabinet(id)){
             is Either.Success ->
@@ -36,7 +40,7 @@ class CabinetController(
         @RequestBody input: UpdateCabinetInputModel,
         user: User
     ): ResponseEntity<*> {
-        return when(val result = cabinetService.updateCabinet(input.status, id)){
+        return when(val result = cabinetService.updateCabinet(input.status, id, user)){
             is Either.Success ->
                 ResponseEntity
                 .status(HttpStatus.OK)
@@ -48,7 +52,7 @@ class CabinetController(
     @PostMapping("/api/cabinets")
     fun createCabinet(
         @RequestBody input: CreateCabinetInputModel,
-        user: User
+        @Suppress("UNUSED_PARAMETER") user: User
     ): ResponseEntity<*> {
         return when(val result = cabinetService.createCabinet(input.description, input.status, input.location)){
             is Either.Success -> ResponseEntity

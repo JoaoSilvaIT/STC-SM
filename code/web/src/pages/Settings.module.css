@@ -1,0 +1,388 @@
+.page {
+  padding: 24px 28px 32px;
+  animation: fade-up 0.3s ease forwards;
+}
+
+.pageHead { margin-bottom: 22px; }
+
+.pageTitle {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+
+.pageSubtitle {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  letter-spacing: 0.04em;
+}
+
+/* ── Two-column grid ── */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Section card ── */
+.section {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid var(--border-dim);
+  background: var(--bg-inset);
+}
+
+.sectionIcon { color: var(--text-muted); flex-shrink: 0; }
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.sectionBody { padding: 18px; }
+
+.sectionNote {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+/* ── Profile section ── */
+.profileRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.profileAvatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.avatarAdmin {
+  background: var(--amber-soft);
+  border: 1px solid var(--amber-dim);
+  color: var(--amber);
+}
+
+.avatarMech {
+  background: var(--info-soft);
+  border: 1px solid rgba(24, 173, 239, 0.25);
+  color: var(--info);
+}
+
+.profileName {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 5px;
+}
+
+.rolePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+
+.pillAdmin {
+  background: var(--amber-soft);
+  color: var(--amber);
+  border: 1px solid rgba(244, 163, 24, 0.2);
+}
+
+.pillMech {
+  background: var(--info-soft);
+  color: var(--info);
+  border: 1px solid rgba(24, 173, 239, 0.2);
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.label {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.input {
+  background: var(--bg-inset);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 8px 11px;
+  outline: none;
+  transition: border-color 0.12s;
+  width: 100%;
+}
+.input::placeholder { color: var(--text-muted); }
+.input:focus        { border-color: var(--border-strong); }
+
+.saveBtn {
+  padding: 8px 16px;
+  background: var(--amber);
+  border-radius: var(--radius-md);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  color: #03050B;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  transition: opacity 0.12s, background 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.saveBtn:hover    { opacity: 0.88; }
+.saveBtnDone      { background: var(--clear) !important; }
+
+/* ── Display preferences ── */
+.prefRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-dim);
+}
+.prefRow:last-child { border-bottom: none; padding-bottom: 0; }
+.prefRow:first-child { padding-top: 0; }
+
+.prefLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.prefName {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.prefHint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* Segmented control */
+.segControl {
+  display: flex;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  transition: all 0.12s;
+}
+.seg:hover { color: var(--text-primary); }
+
+.segActive {
+  background: var(--amber-soft);
+  color: var(--amber) !important;
+  border: 1px solid var(--amber-dim);
+  border-radius: var(--radius-md);
+  margin: 2px;
+}
+
+/* Toggle switch */
+.toggle {
+  width: 38px;
+  height: 20px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  position: relative;
+  transition: background 0.18s, border-color 0.18s;
+  flex-shrink: 0;
+}
+
+.toggleOn {
+  background: var(--clear-soft);
+  border-color: rgba(12, 232, 120, 0.35);
+}
+
+.toggleThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: transform 0.18s, background 0.18s;
+}
+
+.toggleOn .toggleThumb {
+  transform: translateX(18px);
+  background: var(--clear);
+}
+
+/* ── System info ── */
+.sysGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.sysRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-dim);
+}
+.sysRow:last-child { border-bottom: none; }
+
+.sysKey {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.sysVal {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.sysValOk   { color: var(--clear); }
+.sysValInfo { color: var(--text-secondary); }
+
+/* ── Role cards ── */
+.roleCards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.roleCard {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+}
+
+.roleCardHead {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 14px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.roleCardAdmin .roleCardHead {
+  background: var(--amber-soft);
+  color: var(--amber);
+  border-bottom: 1px solid rgba(244, 163, 24, 0.15);
+}
+
+.roleCardMech .roleCardHead {
+  background: var(--info-soft);
+  color: var(--info);
+  border-bottom: 1px solid rgba(24, 173, 239, 0.15);
+}
+
+.permList {
+  list-style: none;
+  padding: 10px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.permCan,
+.permCannot {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.permCan    { color: var(--text-secondary); }
+.permCannot { color: var(--text-muted); }
+
+.permX {
+  font-size: 9px;
+  color: var(--risk);
+  flex-shrink: 0;
+  margin-top: 2px;
+}

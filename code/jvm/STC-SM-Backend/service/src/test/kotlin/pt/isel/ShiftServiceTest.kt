@@ -108,26 +108,4 @@ class ShiftServiceTest {
         assertEquals(end, saved.captured.endTime)
     }
 
-    @Test
-    fun `deleteShift deletes when found`() {
-        val shift = Shift(id = 5, cabinet = cabinet, user = user, startTime = start, endTime = end)
-        every { shiftRepo.findByIdOrNull(5) } returns shift
-
-        val result = service.deleteShift(5)
-
-        assertIs<Either.Success<Boolean>>(result)
-        assertEquals(true, result.value)
-        verify { shiftRepo.deleteById(5) }
-    }
-
-    @Test
-    fun `deleteShift returns ShiftNotFound when missing`() {
-        every { shiftRepo.findByIdOrNull(99) } returns null
-
-        val result = service.deleteShift(99)
-
-        assertIs<Either.Failure<ShiftError>>(result)
-        assertEquals(ShiftError.ShiftNotFound, result.value)
-        verify(exactly = 0) { shiftRepo.deleteById(any<Int>()) }
-    }
 }

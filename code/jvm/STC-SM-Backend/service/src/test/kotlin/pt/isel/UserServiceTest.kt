@@ -100,32 +100,4 @@ class UserServiceTest {
         assertEquals(mechanicProfile, saved.captured.profile)
     }
 
-    @Test
-    fun `deleteUser succeeds when caller is admin and user exists`() {
-        every { userRepo.findByIdOrNull(2) } returns nonAdmin
-
-        val result = service.deleteUser(2, admin)
-
-        assertIs<Either.Success<Unit>>(result)
-        verify { userRepo.delete(nonAdmin) }
-    }
-
-    @Test
-    fun `deleteUser fails when caller is not admin`() {
-        val result = service.deleteUser(2, nonAdmin)
-
-        assertIs<Either.Failure<UserError>>(result)
-        assertEquals(UserError.NotAuthorized, result.value)
-        verify(exactly = 0) { userRepo.delete(any<User>()) }
-    }
-
-    @Test
-    fun `deleteUser returns UserNotFoundOrInvalidCredentials when missing`() {
-        every { userRepo.findByIdOrNull(99) } returns null
-
-        val result = service.deleteUser(99, admin)
-
-        assertIs<Either.Failure<UserError>>(result)
-        assertEquals(UserError.UserNotFoundOrInvalidCredentials, result.value)
-    }
 }

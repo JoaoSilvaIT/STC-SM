@@ -5,23 +5,23 @@ import pt.isel.tools.Tool
 import pt.isel.tools.ToolStatus
 
 data class ToolOutputModel(
-    val id: Int,
     val name: String,
     val partNumber: String,
-    val cabinetId: Int,
     val status: String,
     @get:JsonProperty("isActive")
     val isActive: Boolean,
+    val self: String,
+    val cabinet: String,
 ) {
     companion object {
         fun fromDomain(tool: Tool): ToolOutputModel =
             ToolOutputModel(
-                id = tool.id,
                 name = tool.name,
                 partNumber = "",
-                cabinetId = tool.cabinet.id,
                 status = mapStatus(tool.status),
                 isActive = true,
+                self = "/api/tools/${tool.id}",
+                cabinet = "/api/cabinets/${tool.cabinet.id}",
             )
 
         private fun mapStatus(status: ToolStatus): String = when (status) {

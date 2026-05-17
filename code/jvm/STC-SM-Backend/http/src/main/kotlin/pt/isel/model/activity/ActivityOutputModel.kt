@@ -5,28 +5,28 @@ import pt.isel.activity.ActivityType
 import java.time.Instant
 
 data class ActivityOutputModel(
-    val id: Int,
     val type: String,
     val timestamp: Instant,
-    val userId: Int,
     val userName: String,
-    val cabinetId: Int?,
     val cabinetName: String?,
-    val toolId: Int?,
     val toolName: String?,
+    val self: String,
+    val user: String,
+    val cabinet: String?,
+    val tool: String?,
 ) {
     companion object {
         fun fromDomain(activity: Activity): ActivityOutputModel =
             ActivityOutputModel(
-                id = activity.id,
                 type = mapType(activity.type),
                 timestamp = activity.date,
-                userId = activity.user.id,
                 userName = activity.user.name,
-                cabinetId = activity.cabinet?.id,
                 cabinetName = activity.cabinet?.description,
-                toolId = activity.tool?.id,
                 toolName = activity.tool?.name,
+                self = "/api/activities/${activity.id}",
+                user = "/api/users/${activity.user.id}",
+                cabinet = activity.cabinet?.let { "/api/cabinets/${it.id}" },
+                tool = activity.tool?.let { "/api/tools/${it.id}" },
             )
 
         private fun mapType(type: ActivityType): String = when (type) {
