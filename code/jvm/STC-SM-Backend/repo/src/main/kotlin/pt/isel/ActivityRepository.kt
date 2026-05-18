@@ -1,5 +1,7 @@
 package pt.isel
 
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import pt.isel.activity.Activity
@@ -14,7 +16,7 @@ interface ActivityRepository : JpaRepository<Activity, Int> {
     fun findByTool(tool: Tool): List<Activity>
     fun findByCabinet(cabinet: Cabinet): List<Activity>
 
-    fun findByUserId(userId: Int): List<Activity>
-    fun findByToolId(toolId: Int): List<Activity>
-    fun findByCabinetId(cabinetId: Int): List<Activity>
+    fun findByUserId(userId: Int, pageable: Pageable): Page<Activity>
+    fun findByToolId(toolId: Int, pageable: Pageable): Page<Activity>
+    fun findByCabinetId(cabinetId: Int, pageable: Pageable): Page<Activity>
 }

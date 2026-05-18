@@ -8,11 +8,8 @@ data class ActivityOutputModel(
     val id: Int,
     val type: String,
     val timestamp: Instant,
-    val userId: Int,
     val userName: String,
-    val cabinetId: Int?,
     val cabinetName: String?,
-    val toolId: Int?,
     val toolName: String?,
 ) {
     companion object {
@@ -21,11 +18,8 @@ data class ActivityOutputModel(
                 id = activity.id,
                 type = mapType(activity.type),
                 timestamp = activity.date,
-                userId = activity.user.id,
                 userName = activity.user.name,
-                cabinetId = activity.cabinet?.id,
                 cabinetName = activity.cabinet?.description,
-                toolId = activity.tool?.id,
                 toolName = activity.tool?.name,
             )
 

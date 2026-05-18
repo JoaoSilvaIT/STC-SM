@@ -30,3 +30,17 @@ Content-Type: application/json
   "startTime": "2024-06-01T08:00:00Z",
   "endTime": "2024-06-01T16:00:00Z"
 }
+
+### Create Activity
+POST http://localhost:8080/api/activities
+Authorization: Bearer ZcosQpeT-9wMCSex4GGX0HJ2Ry50CAKK3tWl3yAAfjk=
+Content-Type: application/json
+
+{
+  "type": "CLOSE_CABINET",
+  "uid": 1
+}
+
+### Get page of activities
+GET http://localhost:8080/api/activities?page=0&size=2
+Authorization: Bearer ZcosQpeT-9wMCSex4GGX0HJ2Ry50CAKK3tWl3yAAfjk=

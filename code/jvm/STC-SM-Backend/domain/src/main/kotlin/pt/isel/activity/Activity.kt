@@ -23,16 +23,16 @@ class Activity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Int = 0,
     @Enumerated(EnumType.STRING)
-    val type: pt.isel.activity.ActivityType,
+    val type: ActivityType,
     @Column(nullable = false)
     val date: Instant,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user", nullable = false)
-    val user: pt.isel.user.User,
+    val user: User,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tool")
-    val tool: pt.isel.tools.Tool? = null,
+    val tool: Tool? = null,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cabinet")
-    val cabinet: pt.isel.cabinet.Cabinet? = null,
+    val cabinet: Cabinet? = null,
 )

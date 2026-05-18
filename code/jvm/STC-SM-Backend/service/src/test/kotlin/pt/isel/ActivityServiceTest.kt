@@ -79,7 +79,7 @@ class ActivityServiceTest {
         val activities = listOf(Activity(type = ActivityType.REMOVE_TOOL, date = date, user = user, tool = tool))
         every { activityRepo.findByToolId(1) } returns activities
 
-        val result = service.getActivityByTool(1)
+        val result = service.getActivitiesByTool(1)
 
         assertIs<Either.Success<List<Activity>>>(result)
         assertEquals(activities, result.value)
@@ -89,7 +89,7 @@ class ActivityServiceTest {
     fun `getActivityByUser delegates to repo`() {
         every { activityRepo.findByUserId(1) } returns emptyList()
 
-        val result = service.getActivityByUser(1)
+        val result = service.getActivitiesByUser(1)
 
         assertIs<Either.Success<List<Activity>>>(result)
         assertEquals(emptyList(), result.value)
@@ -99,7 +99,7 @@ class ActivityServiceTest {
     fun `getActivityByCabinet delegates to repo`() {
         every { activityRepo.findByCabinetId(1) } returns emptyList()
 
-        val result = service.getActivityByCabinet(1)
+        val result = service.getActivitiesByCabinet(1)
 
         assertIs<Either.Success<List<Activity>>>(result)
         assertEquals(emptyList(), result.value)

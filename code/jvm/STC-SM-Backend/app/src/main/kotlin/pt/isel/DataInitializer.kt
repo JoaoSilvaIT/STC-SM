@@ -17,7 +17,6 @@ class DataInitializer(
     private val profileRepository: ProfileRepository,
     private val userRepository: UserRepository,
     private val cabinetRepository: CabinetRepository,
-    private val shiftRepository: ShiftRepository,
     private val passwordEncoder: PasswordEncoder
 ) : CommandLineRunner {
     override fun run(vararg args: String) {
