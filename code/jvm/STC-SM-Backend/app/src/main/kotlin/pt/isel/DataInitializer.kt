@@ -8,8 +8,10 @@ import pt.isel.cabinet.Cabinet
 import pt.isel.cabinet.CabinetStatus
 import pt.isel.profile.Profile
 import pt.isel.profile.Role
+import pt.isel.shift.Shift
 import pt.isel.user.User
 import pt.isel.user.UserStatus
+import java.time.Instant
 
 // Initializes the Database with the 3 Profiles and the Admin User.
 @Component
@@ -49,4 +51,3 @@ class DataInitializer(
         }
     }
 }
-

@@ -59,4 +59,8 @@ sealed class Problem(
     data object InvalidDescriptionForCabinet : Problem(URI("$PROBLEM_URI_PATH/invalid-description-for-cabinet"))
 
     data object NotAuthorized : Problem(URI("$PROBLEM_URI_PATH/not-authorized"))
+
+    data object BlankState : Problem(URI("$PROBLEM_URI_PATH/blank-state"))
+
+    data object InvalidState : Problem(URI("$PROBLEM_URI_PATH/invalid-state"))
 }

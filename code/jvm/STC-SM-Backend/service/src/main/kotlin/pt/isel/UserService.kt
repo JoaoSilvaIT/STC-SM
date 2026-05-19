@@ -54,12 +54,18 @@ class UserService(
     }
 
     @Transactional
-    fun deleteUser(id: Int, admin: User): Either<UserError, Unit> {
-        if (admin.profile.role != Role.ADMIN) return failure(UserError.NotAuthorized)
-        val user = userRepo.findByIdOrNull(id)
-            ?: return failure(UserError.UserNotFoundOrInvalidCredentials)
-        userRepo.delete(user)
-        return success(Unit)
+    fun updateUser(
+        state: String,
+        uid: Int
+    ): Either<UserError, User> {
+        if (state.isBlank()) return failure(UserError.BlankState)
+
+        val user = userRepo.findByIdOrNull(uid) ?: return failure(UserError.UserNotFound)
+        val status = state.toUserStatus() ?: return failure(UserError.InvalidState)
+
+        val newUser = user.copy(status = status)
+
+        return success(userRepo.save(newUser))
     }
 
     // The !! is used because @Nullable is on the encode function even though never returns null unless the parameter passed is null

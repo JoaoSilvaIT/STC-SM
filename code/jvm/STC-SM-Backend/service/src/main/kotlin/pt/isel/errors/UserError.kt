@@ -5,6 +5,8 @@ sealed class UserError {
 
     data object BlankPassword : UserError()
 
+    data object BlankState : UserError()
+
     data object UserNotFoundOrInvalidCredentials : UserError()
 
     data object UserNotFound : UserError()
@@ -14,6 +16,8 @@ sealed class UserError {
     data object EmailAlreadyInUse : UserError()
 
     data object InvalidProfileId : UserError()
+
+    data object InvalidState : UserError()
 
     data object NotAuthorized : UserError()
 }

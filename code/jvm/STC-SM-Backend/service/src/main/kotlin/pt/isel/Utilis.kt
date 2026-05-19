@@ -1,5 +1,6 @@
 package pt.isel
 
+import pt.isel.user.UserStatus
 import java.time.Instant
 import java.time.format.DateTimeParseException
 
@@ -11,5 +12,13 @@ fun String.toInstantOrNull(): Instant? {
         Instant.parse(this)
     } catch (e: DateTimeParseException) {
         null
+    }
+}
+
+fun String.toUserStatus(): UserStatus? {
+    return when(this) {
+        "ACTIVE" -> UserStatus.ACTIVE
+        "INACTIVE" -> UserStatus.INACTIVE
+        else -> null
     }
 }

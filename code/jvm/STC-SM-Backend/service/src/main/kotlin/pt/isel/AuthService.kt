@@ -124,8 +124,6 @@ class AuthService(
         return success(accessTokenValue)
     }
 
-
-
     private fun generateTokenValue(): String =
         ByteArray(config.tokenSizeInBytes).let { byteArray ->
             SecureRandom.getInstanceStrong().nextBytes(byteArray)
