@@ -1,5 +1,5 @@
 export type ToolStatus = 'AVAILABLE' | 'IN_USE' | 'MISSING' | 'MAINTENANCE';
-export type CabinetStatus = 'ONLINE' | 'OFFLINE' | 'MAINTENANCE';
+export type CabinetStatus = 'BROKEN' | 'INACTIVE' | 'OPEN' | 'CLOSED';
 export type ActivityType =
   | 'TOOL_REMOVED'
   | 'TOOL_RETURNED'

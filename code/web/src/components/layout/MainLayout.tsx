@@ -77,22 +77,14 @@ export default function MainLayout() {
 
         {/* FOD STATUS — the most critical instrument on screen */}
         <div className={styles.fodWrap}>
-          <div className={isFodRisk ? styles.fodRisk : styles.fodClear}>
-            <span className={styles.fodLed} />
-            {isFodRisk ? (
-              <>
-                <AlertTriangle size={13} strokeWidth={2.5} />
-                <span className={styles.fodText}>
-                  FOD RISK &nbsp;·&nbsp; {missingTools.length}&nbsp;TOOL{missingTools.length !== 1 ? 'S' : ''} UNACCOUNTED
-                </span>
-              </>
-            ) : (
-              <>
-                <CheckCircle2 size={13} strokeWidth={2.5} />
-                <span className={styles.fodText}>ALL TOOLS ACCOUNTED FOR</span>
-              </>
-            )}
-          </div>
+          {isFodRisk && (
+            <div className={styles.fodRisk}>
+              <AlertTriangle size={13} strokeWidth={2.5} />
+              <span className={styles.fodText}>
+                FOD RISK &nbsp;·&nbsp; {missingTools.length}&nbsp;TOOL{missingTools.length !== 1 ? 'S' : ''} UNACCOUNTED
+              </span>
+            </div>
+          )}
         </div>
 
         <div className={styles.headerRight}>

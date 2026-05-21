@@ -33,7 +33,7 @@ class ToolService(
         val tool = Tool(name = name, cabinet = cabinet, status = status, location = location)
         val saved = toolRepo.save(tool)
         if (actor != null) {
-            activityService.createActivity(actor.id, saved.id, cabinet.id, ActivityType.RETURN_TOOL, Instant.now())
+            activityService.createActivity(actor.id, saved.id, cabinet.id, null,ActivityType.RETURN_TOOL, Instant.now())
         }
         return success(saved)
     }
@@ -44,11 +44,12 @@ class ToolService(
         val saved = toolRepo.saveAndFlush(tool.copy(status = status))
         if (actor != null) {
             val activityType = when (status) {
-                ToolStatus.ACTIVE -> ActivityType.RETURN_TOOL
-                ToolStatus.BROKEN -> ActivityType.REMOVE_TOOL
-                ToolStatus.REPAIRING -> ActivityType.TOOL_BROKEN
+                ToolStatus.AVAILABLE -> ActivityType.RETURN_TOOL
+                ToolStatus.IN_USE -> ActivityType.REMOVE_TOOL
+                ToolStatus.BROKEN -> ActivityType.TOOL_BROKEN
+                ToolStatus.MISSING -> ActivityType.TOOL_MISSING
             }
-            activityService.createActivity(actor.id, saved.id, tool.cabinet.id, activityType, Instant.now())
+            activityService.createActivity(actor.id, saved.id, tool.cabinet.id, null,activityType, Instant.now())
         }
         return success(saved)
     }

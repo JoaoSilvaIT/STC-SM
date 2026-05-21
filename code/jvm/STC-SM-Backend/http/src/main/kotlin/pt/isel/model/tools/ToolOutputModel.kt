@@ -25,9 +25,10 @@ data class ToolOutputModel(
             )
 
         private fun mapStatus(status: ToolStatus): String = when (status) {
-            ToolStatus.ACTIVE -> "AVAILABLE"
-            ToolStatus.BROKEN -> "MISSING"
-            ToolStatus.REPAIRING -> "MAINTENANCE"
+            ToolStatus.AVAILABLE -> "AVAILABLE"
+            ToolStatus.BROKEN -> "BROKEN"
+            ToolStatus.IN_USE -> "IN_USE"
+            ToolStatus.MISSING -> "MISSING"
         }
     }
 }

@@ -1,7 +1,7 @@
 import { idFromHref, parseLocationId, request, requestWithHeaders } from './client'
 import type { Cabinet, CabinetStatus } from '@/types/domain'
 
-type BeCabinetStatus = 'OPEN' | 'CLOSED' | 'BROKEN' | 'INACTIVE'
+type BeCabinetStatus = 'BROKEN' | 'INACTIVE' | 'OPEN' | 'CLOSED'
 
 interface CabinetResponse {
   description: string
@@ -11,10 +11,10 @@ interface CabinetResponse {
 }
 
 const STATUS_FROM_BE: Record<BeCabinetStatus, CabinetStatus> = {
-  OPEN: 'ONLINE',
-  CLOSED: 'ONLINE',
-  BROKEN: 'OFFLINE',
-  INACTIVE: 'MAINTENANCE',
+  OPEN: 'OPEN',
+  CLOSED: 'CLOSED',
+  BROKEN: 'BROKEN',
+  INACTIVE: 'INACTIVE',
 }
 
 const STATUS_TO_BE: Record<CabinetStatus, BeCabinetStatus> = {

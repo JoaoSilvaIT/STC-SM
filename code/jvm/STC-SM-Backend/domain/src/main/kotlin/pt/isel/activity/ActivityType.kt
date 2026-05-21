@@ -6,5 +6,8 @@ enum class ActivityType {
     REMOVE_TOOL,
     RETURN_TOOL,
     TOOL_BROKEN, // This type appends whenever a mechanic clicks on the button broken tool
+    TOOL_MISSING,
     CABINET_ANOMALY,
+    STARTED_SHIFT,
+    ENDED_SHIFT
 }

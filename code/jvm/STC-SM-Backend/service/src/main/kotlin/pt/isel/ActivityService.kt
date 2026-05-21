@@ -17,6 +17,7 @@ class ActivityService(
     private val userRepo: UserRepository,
     private val cabinetRepo: CabinetRepository,
     private val toolRepo: ToolRepository,
+    private val shiftRepo: ShiftRepository,
 ) {
     fun getAllActivities(): List<Activity> = activityRepo.findAll()
 
@@ -41,11 +42,15 @@ class ActivityService(
     }
 
     @Transactional
-    fun createActivity(uid: Int, tid: Int?, cid: Int?, type: ActivityType, date: Instant): Either<ActivityError, Activity> {
+    fun createActivity(uid: Int, tid: Int?, cid: Int?, sid: Int?, type: ActivityType, date: Instant): Either<ActivityError, Activity> {
         val user = userRepo.findByIdOrNull(uid) ?: return failure(ActivityError.InvalidUserId)
 
         val tool = if (tid != null) {
             toolRepo.findByIdOrNull(tid) ?: return failure(ActivityError.InvalidToolId)
+        } else null
+
+        val shift = if (sid != null) {
+            shiftRepo.findByIdOrNull(sid) ?: return failure(ActivityError.InvalidToolId)
         } else null
 
         val cabinet = if (cid != null) {
@@ -57,6 +62,7 @@ class ActivityService(
             type = type,
             date = date,
             tool = tool,
+            shift = shift,
             cabinet = cabinet
         )
 

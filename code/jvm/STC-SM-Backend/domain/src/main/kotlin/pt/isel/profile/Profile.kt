@@ -13,7 +13,7 @@ data class Profile(
     @Id
     val id: Int,
     @Enumerated(EnumType.STRING)
-    val role: pt.isel.profile.Role, // This also defines the access level of the app itself
+    val role: Role, // This also defines the access level of the app itself
     @Column(nullable = false)
     val description: String,
 )

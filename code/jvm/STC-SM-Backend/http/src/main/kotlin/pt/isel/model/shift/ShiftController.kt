@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.ShiftService
@@ -40,13 +41,48 @@ class ShiftController(
         }
     }
 
-    @PostMapping("/api/shifts/{id}/end")
+    @PutMapping("/api/shifts/start/{id}")
+    fun startShift(
+        @PathVariable id: Int,
+        user: User
+    ): ResponseEntity<*> {
+        return when(val result = shiftService.startShift(id, user.id)) {
+            is Either.Success -> {
+                ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(ShiftOutputModel.fromDomain(result.value))
+            }
+            is Either.Failure -> result.value.toProblemResponse()
+        }
+    }
+
+    @PutMapping("/api/shifts/end/{id}")
     fun endShift(
         @PathVariable id: Int,
-        @Suppress("UNUSED_PARAMETER") user: User
+        user: User
     ): ResponseEntity<*> {
-        return when (val result = shiftService.endShift(id)) {
-            is Either.Success -> ResponseEntity.ok(ShiftOutputModel.fromDomain(result.value))
+        return when(val result = shiftService.endShift(id, user.id)) {
+            is Either.Success -> {
+                ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ShiftOutputModel.fromDomain(result.value))
+            }
+            is Either.Failure -> result.value.toProblemResponse()
+        }
+    }
+
+    @PutMapping("/api/shifts/hours/{id}")
+    fun editShiftHours(
+        @PathVariable id: Int,
+        user: User,
+        @RequestBody shiftInputHours : ShiftInputHours
+    ) :ResponseEntity<*> {
+        return when(val result = shiftService.editShiftHours(id, shiftInputHours.startTime, shiftInputHours.endTime)) {
+            is Either.Success -> {
+                ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ShiftOutputModel.fromDomain(result.value))
+            }
             is Either.Failure -> result.value.toProblemResponse()
         }
     }

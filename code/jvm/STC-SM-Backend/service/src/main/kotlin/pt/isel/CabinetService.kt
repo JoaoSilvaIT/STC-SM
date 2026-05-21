@@ -38,7 +38,7 @@ class CabinetService(
                 CabinetStatus.CLOSED -> ActivityType.CLOSE_CABINET
                 CabinetStatus.BROKEN, CabinetStatus.INACTIVE -> ActivityType.CABINET_ANOMALY
             }
-            activityService.createActivity(actor.id, null, saved.id, activityType, Instant.now())
+            activityService.createActivity(actor.id, null, saved.id, null,activityType, Instant.now())
         }
 
         return success(saved)

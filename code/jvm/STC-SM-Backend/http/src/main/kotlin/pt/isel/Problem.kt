@@ -63,4 +63,6 @@ sealed class Problem(
     data object BlankState : Problem(URI("$PROBLEM_URI_PATH/blank-state"))
 
     data object InvalidState : Problem(URI("$PROBLEM_URI_PATH/invalid-state"))
+
+    data object ShiftAlreadyStarted : Problem(URI("$PROBLEM_URI_PATH/shift-already-started"))
 }

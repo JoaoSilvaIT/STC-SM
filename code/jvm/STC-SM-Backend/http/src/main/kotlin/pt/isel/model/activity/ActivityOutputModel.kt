@@ -36,6 +36,9 @@ data class ActivityOutputModel(
             ActivityType.RETURN_TOOL -> "TOOL_RETURNED"
             ActivityType.TOOL_BROKEN -> "TOOL_MISSING_DETECTED"
             ActivityType.CABINET_ANOMALY -> "CABINET_OFFLINE"
+            ActivityType.STARTED_SHIFT -> "STARTED_SHIFT"
+            ActivityType.ENDED_SHIFT -> "ENDED_SHIFT"
+            ActivityType.TOOL_MISSING -> "TOOL_MISSING"
         }
     }
 }

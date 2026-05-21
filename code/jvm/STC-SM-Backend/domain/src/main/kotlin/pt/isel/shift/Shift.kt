@@ -3,6 +3,8 @@ package pt.isel.shift
 import pt.isel.cabinet.Cabinet
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -25,8 +27,25 @@ class Shift(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user", referencedColumnName = "id")
     val user: User,
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
     val startTime: Instant,
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
     val endTime: Instant,
-)
+    @Enumerated(EnumType.STRING)
+    val status: ShiftStatus
+) {
+    fun copy(
+        cabinet: Cabinet = this.cabinet,
+        user: User = this.user,
+        startTime: Instant = this.startTime,
+        endTime: Instant = this.endTime,
+        status: ShiftStatus = this.status
+    ) = Shift(
+        this.id,
+        cabinet,
+        user,
+        startTime,
+        endTime,
+        status
+    )
+}

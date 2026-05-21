@@ -23,16 +23,16 @@ class Tool(
     val name: String,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cabinet", referencedColumnName = "id")
-    val cabinet: pt.isel.cabinet.Cabinet,
+    val cabinet: Cabinet,
     @Enumerated(EnumType.STRING)
-    val status: pt.isel.tools.ToolStatus,
+    val status: ToolStatus,
     @Column(nullable = false)
     val location: String, // Same as the cabinet
 ) {
     fun copy(
         name: String = this.name,
-        cabinet: pt.isel.cabinet.Cabinet = this.cabinet,
-        status: pt.isel.tools.ToolStatus = this.status,
+        cabinet: Cabinet = this.cabinet,
+        status: ToolStatus = this.status,
         location: String = this.location,
     ) = Tool(
         this.id,

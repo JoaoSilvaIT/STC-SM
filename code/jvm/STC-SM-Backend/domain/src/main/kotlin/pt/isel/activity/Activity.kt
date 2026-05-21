@@ -12,9 +12,12 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
+import pt.isel.shift.Shift
 import pt.isel.tools.Tool
 import pt.isel.user.User
 import java.time.Instant
+import java.time.LocalDateTime
+
 
 @Entity
 @Table(name = "activities")
@@ -23,16 +26,19 @@ class Activity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Int = 0,
     @Enumerated(EnumType.STRING)
-    val type: pt.isel.activity.ActivityType,
-    @Column(nullable = false)
+    val type: ActivityType,
+    @Column(nullable = false, columnDefinition = "TIMESTAMP(0)") // To guarantee the format "YYYY-MM-DD HH:MM:SS"
     val date: Instant,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user", nullable = false)
-    val user: pt.isel.user.User,
+    val user: User,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tool")
-    val tool: pt.isel.tools.Tool? = null,
+    val tool: Tool? = null,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cabinet")
-    val cabinet: pt.isel.cabinet.Cabinet? = null,
+    val cabinet: Cabinet? = null,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="id_shift")
+    val shift: Shift? = null,
 )
