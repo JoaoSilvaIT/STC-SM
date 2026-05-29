@@ -31,7 +31,7 @@ export default function ShiftDrawer({
 
   const occupiedIds       = activeShifts.map(s => s.cabinetId)
   const availableCabinets = cabinets.filter(
-    c => c.status === 'ONLINE' && c.isActive && !occupiedIds.includes(c.id)
+    c => c.status === 'OPEN' && c.isActive && !occupiedIds.includes(c.id)
   )
 
   const validate = () => {

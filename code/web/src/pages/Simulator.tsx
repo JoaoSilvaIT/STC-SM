@@ -33,14 +33,14 @@ function CabinetPanel({ cs, onToggleTool, onToggleDoor }: {
   onToggleTool: (toolId: number) => void
   onToggleDoor: () => void
 }) {
-  const interactive = cs.cabinet.status === 'ONLINE'
+  const interactive = cs.cabinet.status === 'OPEN'
   const isOpen = cs.door === 'OPEN'
   const removedCount = cs.slots.filter(s => !s.present).length
 
   const badgeCls =
-    cs.cabinet.status === 'ONLINE'      ? styles.badgeOnline :
-    cs.cabinet.status === 'MAINTENANCE' ? styles.badgeMaint  :
-                                          styles.badgeOffline
+    cs.cabinet.status === 'OPEN'   ? styles.badgeOnline :
+    cs.cabinet.status === 'BROKEN' ? styles.badgeMaint  :
+                                     styles.badgeOffline
 
   return (
     <div className={`${styles.panel} ${!interactive ? styles.panelInactive : ''}`}>

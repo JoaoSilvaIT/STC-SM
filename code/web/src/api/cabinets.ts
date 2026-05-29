@@ -1,26 +1,11 @@
 import { idFromHref, parseLocationId, request, requestWithHeaders } from './client'
 import type { Cabinet, CabinetStatus } from '@/types/domain'
 
-type BeCabinetStatus = 'BROKEN' | 'INACTIVE' | 'OPEN' | 'CLOSED'
-
 interface CabinetResponse {
   description: string
-  status: BeCabinetStatus
+  status: CabinetStatus
   location: string
   self: string
-}
-
-const STATUS_FROM_BE: Record<BeCabinetStatus, CabinetStatus> = {
-  OPEN: 'OPEN',
-  CLOSED: 'CLOSED',
-  BROKEN: 'BROKEN',
-  INACTIVE: 'INACTIVE',
-}
-
-const STATUS_TO_BE: Record<CabinetStatus, BeCabinetStatus> = {
-  ONLINE: 'OPEN',
-  OFFLINE: 'BROKEN',
-  MAINTENANCE: 'INACTIVE',
 }
 
 function toDomain(raw: CabinetResponse, fallbackId = 0): Cabinet {
@@ -28,7 +13,7 @@ function toDomain(raw: CabinetResponse, fallbackId = 0): Cabinet {
     id: idFromHref(raw.self) || fallbackId,
     name: raw.description,
     location: raw.location,
-    status: STATUS_FROM_BE[raw.status],
+    status: raw.status,
     isActive: raw.status !== 'INACTIVE',
     activeShiftId: null,
   }
@@ -50,7 +35,7 @@ export async function createCabinet(input: { name: string; location: string; sta
     body: {
       description: input.name,
       location: input.location,
-      status: STATUS_TO_BE[input.status],
+      status: input.status,
     },
     auth: true,
   })
@@ -60,7 +45,7 @@ export async function createCabinet(input: { name: string; location: string; sta
 export async function updateCabinet(id: number, status: CabinetStatus): Promise<Cabinet> {
   const raw = await request<CabinetResponse>(`/api/cabinets/${id}`, {
     method: 'PUT',
-    body: { status: STATUS_TO_BE[status] },
+    body: { status },
     auth: true,
   })
   return toDomain(raw, id)

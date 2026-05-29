@@ -12,14 +12,14 @@ interface CabinetDrawerProps {
   onDeactivate: (id: number) => void
 }
 
-const STATUSES: CabinetStatus[] = ['ONLINE', 'OFFLINE', 'MAINTENANCE']
+const STATUSES: CabinetStatus[] = ['OPEN', 'CLOSED', 'BROKEN', 'INACTIVE']
 
 export default function CabinetDrawer({
   mode, cabinet, onSave, onClose, onDeactivate,
 }: CabinetDrawerProps) {
   const [name,              setName]              = useState('')
   const [location,          setLocation]          = useState('')
-  const [status,            setStatus]            = useState<CabinetStatus>('ONLINE')
+  const [status,            setStatus]            = useState<CabinetStatus>('OPEN')
   const [confirmDeactivate, setConfirmDeactivate] = useState(false)
   const [errors,            setErrors]            = useState<Record<string, string>>({})
 
@@ -31,7 +31,7 @@ export default function CabinetDrawer({
     } else if (mode === 'create') {
       setName('')
       setLocation('')
-      setStatus('ONLINE')
+      setStatus('OPEN')
     }
     setConfirmDeactivate(false)
     setErrors({})

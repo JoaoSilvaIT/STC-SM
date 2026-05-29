@@ -2,7 +2,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import {
   LayoutDashboard, Package, Wrench, Activity, Clock,
-  AlertTriangle, CheckCircle2, Shield, Users, Settings, LogOut, FlaskConical,
+  AlertTriangle, Shield, Users, Settings, LogOut, FlaskConical,
 } from 'lucide-react'
 import { listShifts } from '@/api/shifts'
 import { useAuth } from '@/context/AuthContext'

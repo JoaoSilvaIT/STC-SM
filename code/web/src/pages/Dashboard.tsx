@@ -54,8 +54,8 @@ function CabinetCard({ cabinet, tools, activeShift }: CabinetCardProps) {
 
   const cardClass = [
     styles.cabCard,
-    cabinet.status === 'OFFLINE'     ? styles.cabOffline     : '',
-    cabinet.status === 'MAINTENANCE' ? styles.cabMaintenance : '',
+    cabinet.status === 'INACTIVE'     ? styles.cabOffline     : '',
+    cabinet.status === 'BROKEN' ? styles.cabMaintenance : '',
   ].join(' ')
 
   return (
@@ -66,15 +66,15 @@ function CabinetCard({ cabinet, tools, activeShift }: CabinetCardProps) {
           <span className={styles.cabLoc}>{cabinet.location}</span>
         </div>
         <span className={
-          cabinet.status === 'ONLINE'      ? styles.badgeOnline :
-          cabinet.status === 'OFFLINE'     ? styles.badgeOffline :
+          cabinet.status === 'OPEN'      ? styles.badgeOnline :
+          cabinet.status === 'INACTIVE'     ? styles.badgeOffline :
                                              styles.badgeMaint
         }>
           {cabinet.status}
         </span>
       </div>
 
-      {cabinet.status !== 'OFFLINE' && tools.length > 0 && (
+      {cabinet.status !== 'INACTIVE' && tools.length > 0 && (
         <>
           <div className={styles.toolBar}>
             {avail > 0 && <div className={`${styles.seg} ${styles.segAvail}`} style={{ flex: avail }} />}
@@ -190,11 +190,11 @@ export default function Dashboard() {
           </div>
           <div className={styles.statBody}>
             <span className={styles.statVal}>
-              {cabinets.filter(c => c.status === 'ONLINE').length}
+              {cabinets.filter(c => c.status === 'OPEN').length}
               <span className={styles.statOf}>/{cabinets.length}</span>
             </span>
             <span className={styles.statLabel}>Cabinets Online</span>
-            <span className={styles.statSub}>{cabinets.filter(c => c.status !== 'ONLINE').length} offline / maint.</span>
+            <span className={styles.statSub}>{cabinets.filter(c => c.status !== 'OPEN').length} offline / maint.</span>
           </div>
         </div>
       </div>

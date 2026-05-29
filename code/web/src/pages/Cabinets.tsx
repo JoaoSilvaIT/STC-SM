@@ -28,12 +28,12 @@ function CabinetPanel({ cabinet, tools, activeShift, onEdit }: CabinetPanelProps
   const miss  = tools.filter(t => t.status === 'MISSING').length
   const maint = tools.filter(t => t.status === 'MAINTENANCE').length
   const total = tools.length
-  const isOnline = cabinet.status === 'ONLINE'
+  const isOnline = cabinet.status === 'OPEN'
 
   return (
     <div className={`${styles.panel}
-      ${cabinet.status === 'OFFLINE'     ? styles.panelOffline  : ''}
-      ${cabinet.status === 'MAINTENANCE' ? styles.panelMaint    : ''}
+      ${cabinet.status === 'INACTIVE'     ? styles.panelOffline  : ''}
+      ${cabinet.status === 'BROKEN' ? styles.panelMaint    : ''}
       ${miss > 0                         ? styles.panelMissing  : ''}
       ${!cabinet.isActive                ? styles.panelInactive : ''}
     `}>
@@ -41,9 +41,9 @@ function CabinetPanel({ cabinet, tools, activeShift, onEdit }: CabinetPanelProps
       <div className={styles.panelHead}>
         <div className={styles.panelHeadLeft}>
           <div className={`${styles.statusDot}
-            ${cabinet.status === 'ONLINE'      ? styles.dotOnline  : ''}
-            ${cabinet.status === 'OFFLINE'     ? styles.dotOffline : ''}
-            ${cabinet.status === 'MAINTENANCE' ? styles.dotMaint   : ''}
+            ${cabinet.status === 'OPEN'      ? styles.dotOnline  : ''}
+            ${cabinet.status === 'INACTIVE'     ? styles.dotOffline : ''}
+            ${cabinet.status === 'BROKEN' ? styles.dotMaint   : ''}
           `} />
           <div>
             <div className={styles.cabId}>{cabinet.name}</div>
@@ -65,13 +65,13 @@ function CabinetPanel({ cabinet, tools, activeShift, onEdit }: CabinetPanelProps
 
       <div className={styles.statusRow}>
         <span className={`${styles.statusBadge}
-          ${cabinet.status === 'ONLINE'      ? styles.badgeOnline  : ''}
-          ${cabinet.status === 'OFFLINE'     ? styles.badgeOffline : ''}
-          ${cabinet.status === 'MAINTENANCE' ? styles.badgeMaint   : ''}
+          ${cabinet.status === 'OPEN'      ? styles.badgeOnline  : ''}
+          ${cabinet.status === 'INACTIVE'     ? styles.badgeOffline : ''}
+          ${cabinet.status === 'BROKEN' ? styles.badgeMaint   : ''}
         `}>
-          {cabinet.status === 'ONLINE'      && <Wifi     size={10} />}
-          {cabinet.status === 'OFFLINE'     && <WifiOff  size={10} />}
-          {cabinet.status === 'MAINTENANCE' && <Wrench   size={10} />}
+          {cabinet.status === 'OPEN'      && <Wifi     size={10} />}
+          {cabinet.status === 'INACTIVE'     && <WifiOff  size={10} />}
+          {cabinet.status === 'BROKEN' && <Wrench   size={10} />}
           {cabinet.status}
         </span>
         {miss > 0 && (
@@ -102,7 +102,7 @@ function CabinetPanel({ cabinet, tools, activeShift, onEdit }: CabinetPanelProps
 
       {!isOnline && (
         <div className={styles.offlineMsg}>
-          {cabinet.status === 'OFFLINE'
+          {cabinet.status === 'INACTIVE'
             ? 'Cabinet is offline. No real-time data available.'
             : 'Cabinet is under scheduled maintenance.'}
         </div>
@@ -164,7 +164,7 @@ export default function Cabinets() {
     return () => { cancelled = true }
   }, [])
 
-  const online  = cabinets.filter(c => c.status === 'ONLINE' && c.isActive).length
+  const online  = cabinets.filter(c => c.status === 'OPEN' && c.isActive).length
   const missing = tools.filter(t => t.status === 'MISSING').length
   const activeShifts = shifts.filter(s => s.status === 'ACTIVE')
 
@@ -187,7 +187,7 @@ export default function Cabinets() {
   const handleDeactivate = async (id: number) => {
     setLoadError(null)
     try {
-      await updateCabinet(id, 'MAINTENANCE')
+      await updateCabinet(id, 'BROKEN')
       const [c, t, s] = await Promise.all([listCabinets(), listTools(), listShifts()])
       setCabinets(c); setTools(t); setShifts(s)
       closeDrawer()

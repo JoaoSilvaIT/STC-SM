@@ -13,12 +13,12 @@ export const mockUsers: User[] = [
 ];
 
 export const mockCabinets: Cabinet[] = [
-  { id: 1, name: 'CAB-001', location: 'Bay Alpha · Wing Station',  status: 'ONLINE',       isActive: true, activeShiftId: 1 },
-  { id: 2, name: 'CAB-002', location: 'Bay Alpha · Auxiliary',     status: 'ONLINE',       isActive: true, activeShiftId: null },
-  { id: 3, name: 'CAB-003', location: 'Bay Bravo · Engine Shop',   status: 'ONLINE',       isActive: true, activeShiftId: 2 },
-  { id: 4, name: 'CAB-004', location: 'Bay Bravo · Power Plant',   status: 'MAINTENANCE',  isActive: true, activeShiftId: null },
-  { id: 5, name: 'CAB-005', location: 'Bay Charlie · Avionics',    status: 'ONLINE',       isActive: true, activeShiftId: 3 },
-  { id: 6, name: 'CAB-006', location: 'Bay Delta · Landing Gear',  status: 'OFFLINE',      isActive: true, activeShiftId: null },
+  { id: 1, name: 'CAB-001', location: 'Bay Alpha · Wing Station',  status: 'OPEN',       isActive: true, activeShiftId: 1 },
+  { id: 2, name: 'CAB-002', location: 'Bay Alpha · Auxiliary',     status: 'OPEN',       isActive: true, activeShiftId: null },
+  { id: 3, name: 'CAB-003', location: 'Bay Bravo · Engine Shop',   status: 'OPEN',       isActive: true, activeShiftId: 2 },
+  { id: 4, name: 'CAB-004', location: 'Bay Bravo · Power Plant',   status: 'BROKEN',  isActive: true, activeShiftId: null },
+  { id: 5, name: 'CAB-005', location: 'Bay Charlie · Avionics',    status: 'OPEN',       isActive: true, activeShiftId: 3 },
+  { id: 6, name: 'CAB-006', location: 'Bay Delta · Landing Gear',  status: 'INACTIVE',      isActive: true, activeShiftId: null },
 ];
 
 export const mockTools: Tool[] = [
