@@ -1,0 +1,69 @@
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AuthProvider, useAuth } from './src/context/AuthContext';
+import { ShiftProvider } from './src/context/ShiftContext';
+
+import LoginScreen          from './src/screens/LoginScreen';
+import HomeScreen           from './src/screens/HomeScreen';
+import StartShiftScreen     from './src/screens/StartShiftScreen';
+import ShiftDashboardScreen from './src/screens/ShiftDashboardScreen';
+import ToolListScreen       from './src/screens/ToolListScreen';
+import ToolDetailScreen     from './src/screens/ToolDetailScreen';
+import AnomalyScreen        from './src/screens/AnomalyScreen';
+import ActivityScreen       from './src/screens/ActivityScreen';
+import EndShiftScreen       from './src/screens/EndShiftScreen';
+
+export type RootStackParamList = {
+  Login:          undefined;
+  Home:           undefined;
+  StartShift:     undefined;
+  ShiftDashboard: undefined;
+  ToolList:       undefined;
+  ToolDetail:     { toolId: number };
+  Anomaly:        undefined;
+  Activity:       undefined;
+  EndShift:       undefined;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+function AppNavigator() {
+  return (
+    <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Login"          component={LoginScreen} />
+      <Stack.Screen name="Home"           component={HomeScreen} />
+      <Stack.Screen name="StartShift"     component={StartShiftScreen} />
+      <Stack.Screen name="ShiftDashboard" component={ShiftDashboardScreen} />
+      <Stack.Screen name="ToolList"       component={ToolListScreen} />
+      <Stack.Screen name="ToolDetail"     component={ToolDetailScreen} />
+      <Stack.Screen name="Anomaly"        component={AnomalyScreen} />
+      <Stack.Screen name="Activity"       component={ActivityScreen} />
+      <Stack.Screen name="EndShift"       component={EndShiftScreen} />
+    </Stack.Navigator>
+  );
+}
+
+function ShiftProviderWrapper({ children }: { children: React.ReactNode }) {
+  const { currentUser } = useAuth();
+  return (
+    <ShiftProvider userId={currentUser?.id ?? 0}>
+      {children}
+    </ShiftProvider>
+  );
+}
+
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <AuthProvider>
+        <ShiftProviderWrapper>
+          <NavigationContainer>
+            <AppNavigator />
+          </NavigationContainer>
+        </ShiftProviderWrapper>
+      </AuthProvider>
+    </SafeAreaProvider>
+  );
+}

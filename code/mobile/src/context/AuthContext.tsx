@@ -1,0 +1,56 @@
+import React, { createContext, useContext, useState } from 'react';
+import type { User } from '../types/domain';
+import { login as apiLogin, me, clearToken } from '../api/auth';
+
+type LoginResult = 'ok' | 'invalid_credentials' | 'not_mechanic' | 'error';
+
+interface AuthContextType {
+  currentUser: User | null;
+  loading: boolean;
+  login(email: string, password: string): Promise<LoginResult>;
+  logout(): void;
+}
+
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function login(email: string, password: string): Promise<LoginResult> {
+    setLoading(true);
+    try {
+      await apiLogin(email, password);
+      const user = await me();
+      if (user.role !== 'MECHANIC') {
+        clearToken();
+        return 'not_mechanic';
+      }
+      setCurrentUser(user);
+      return 'ok';
+    } catch (e: unknown) {
+      const status = (e as { status?: number }).status;
+      if (status === 401 || status === 403) return 'invalid_credentials';
+      return 'error';
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function logout() {
+    clearToken();
+    setCurrentUser(null);
+  }
+
+  return (
+    <AuthContext.Provider value={{ currentUser, loading, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth(): AuthContextType {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
+  return ctx;
+}
