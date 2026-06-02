@@ -29,6 +29,7 @@ data class ToolOutputModel(
             ToolStatus.BROKEN -> "BROKEN"
             ToolStatus.IN_USE -> "IN_USE"
             ToolStatus.MISSING -> "MISSING"
+            ToolStatus.IN_MAINTENANCE -> "IN_MAINTENANCE"
         }
     }
 }

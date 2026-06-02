@@ -39,6 +39,7 @@ data class ActivityOutputModel(
             ActivityType.STARTED_SHIFT -> "STARTED_SHIFT"
             ActivityType.ENDED_SHIFT -> "ENDED_SHIFT"
             ActivityType.TOOL_MISSING -> "TOOL_MISSING"
+            ActivityType.TOOL_IN_MAINTENANCE -> "TOOL_IN_MAINTENANCE"
         }
     }
 }

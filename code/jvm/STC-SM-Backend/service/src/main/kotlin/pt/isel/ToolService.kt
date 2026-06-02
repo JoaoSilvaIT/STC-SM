@@ -48,6 +48,7 @@ class ToolService(
                 ToolStatus.IN_USE -> ActivityType.REMOVE_TOOL
                 ToolStatus.BROKEN -> ActivityType.TOOL_BROKEN
                 ToolStatus.MISSING -> ActivityType.TOOL_MISSING
+                ToolStatus.IN_MAINTENANCE -> ActivityType.TOOL_IN_MAINTENANCE
             }
             activityService.createActivity(actor.id, saved.id, tool.cabinet.id, null,activityType, Instant.now())
         }
