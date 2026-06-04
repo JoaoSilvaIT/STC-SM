@@ -19,7 +19,7 @@ import java.time.Duration
 private const val REFRESH_TOKEN_COOKIE = "refreshToken"
 
 @RestController
-class TokenController (
+class UserSessionController (
     private val authService: AuthService
 ) {
     @PostMapping("/api/users/login")
@@ -33,7 +33,7 @@ class TokenController (
                     .httpOnly(true)
                     .path("/api/users/refresh")
                     .maxAge(Duration.ofDays(30))
-                    .sameSite("Strict")
+                    .sameSite("Lax")  // More flexible because it's two different ports backend and frontend
                     .build()
 
                 ResponseEntity

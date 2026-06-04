@@ -8,13 +8,16 @@ interface CabinetResponse {
   self: string
 }
 
-function toDomain(raw: CabinetResponse, fallbackId = 0): Cabinet {
+function toDomain(raw: CabinetResponse, explicitId?: number): Cabinet {
+  const id = explicitId ?? idFromHref(raw.self)
+  if (!id) {
+    throw new Error('Invalid Cabinet ID')
+  }
   return {
-    id: idFromHref(raw.self) || fallbackId,
+    id,
     name: raw.description,
     location: raw.location,
     status: raw.status,
-    isActive: raw.status !== 'INACTIVE',
     activeShiftId: null,
   }
 }

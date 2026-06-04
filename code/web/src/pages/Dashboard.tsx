@@ -66,9 +66,10 @@ function CabinetCard({ cabinet, tools, activeShift }: CabinetCardProps) {
           <span className={styles.cabLoc}>{cabinet.location}</span>
         </div>
         <span className={
-          cabinet.status === 'OPEN'      ? styles.badgeOnline :
-          cabinet.status === 'INACTIVE'     ? styles.badgeOffline :
-                                             styles.badgeMaint
+          cabinet.status === 'OPEN'      ? styles.badgeOnline  :
+          cabinet.status === 'CLOSED'    ? styles.badgeOnline  :
+          cabinet.status === 'INACTIVE'  ? styles.badgeOffline :
+              styles.badgeMaint
         }>
           {cabinet.status}
         </span>
@@ -82,8 +83,8 @@ function CabinetCard({ cabinet, tools, activeShift }: CabinetCardProps) {
             {miss  > 0 && <div className={`${styles.seg}`} style={{ flex: miss, background: 'var(--risk, #d33)' }} />}
           </div>
           <div className={styles.toolCounts}>
-            <span className={styles.countAvail}>{avail}<em>A</em></span>
-            <span className={styles.countInUse}>{inUse}<em>U</em></span>
+            <span className={styles.countAvail}>{avail}<em>Stored Tools</em></span>
+            <span className={styles.countInUse}>{inUse}<em>In Use Tools</em></span>
             {miss > 0 && <span style={{ color: 'var(--risk, #d33)' }}>{miss}<em>M</em></span>}
           </div>
         </>
@@ -94,8 +95,6 @@ function CabinetCard({ cabinet, tools, activeShift }: CabinetCardProps) {
           <div className={styles.shiftRow}>
             <Play size={10} />
             <span>{activeShift.userName ?? `User #${activeShift.userId}`}</span>
-            <span className={styles.dot}>·</span>
-            <span>{activeShift.aircraftReg || '—'}</span>
             <span className={styles.dot}>·</span>
             <span>{shiftDuration(activeShift.startTime)}</span>
           </div>
@@ -190,11 +189,13 @@ export default function Dashboard() {
           </div>
           <div className={styles.statBody}>
             <span className={styles.statVal}>
-              {cabinets.filter(c => c.status === 'OPEN').length}
+              {cabinets.filter(c => ['OPEN', 'CLOSED'].includes(c.status)).length}
               <span className={styles.statOf}>/{cabinets.length}</span>
             </span>
             <span className={styles.statLabel}>Cabinets Online</span>
-            <span className={styles.statSub}>{cabinets.filter(c => c.status !== 'OPEN').length} offline / maint.</span>
+            <span className={styles.statSub}>
+              {cabinets.filter(c => !['OPEN', 'CLOSED'].includes(c.status)).length} offline / maint.
+            </span>
           </div>
         </div>
       </div>

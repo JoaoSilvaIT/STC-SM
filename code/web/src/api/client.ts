@@ -2,6 +2,9 @@ const BASE_URL = (import.meta.env.VITE_API_BASE as string | undefined) ?? 'http:
 
 const TOKEN_KEY = 'stc_token'
 
+// Variable to decide whether a token refresh is in progress. If so, other requests will wait for it to complete instead of triggering multiple refreshes.
+let refreshPromise: Promise<string | null> | null = null;
+
 export class ApiError extends Error {
   status: number
   problem: unknown
@@ -26,12 +29,47 @@ interface RequestOptions {
   body?: unknown
   auth?: boolean
   credentials?: RequestCredentials
+  _isRetry?: boolean
 }
 
 interface RawResponse<T> {
   body: T
   headers: Headers
   status: number
+}
+
+async function refreshSession(): Promise<string | null> {
+  if (refreshPromise) {
+    return refreshPromise;
+  }
+
+  refreshPromise = (async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/api/users/refresh`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+
+      if (!res.ok) {
+        setToken(null);
+        return null;
+      }
+
+      const data = await res.json();
+
+      const newToken = data.token;
+
+      setToken(newToken);
+      return newToken;
+    } catch (error) {
+      setToken(null);
+      return null;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
 }
 
 async function send<T>(path: string, opts: RequestOptions): Promise<RawResponse<T>> {
@@ -49,6 +87,17 @@ async function send<T>(path: string, opts: RequestOptions): Promise<RawResponse<
     body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
     credentials: opts.credentials ?? 'include',
   })
+
+  if (res.status === 401 && opts.auth && !opts._isRetry) {
+    const newToken = await refreshSession()
+
+    if (newToken) {
+      opts._isRetry = true
+      return send<T>(path, opts)
+    } else {
+      window.location.href = '/login'
+    }
+  }
 
   const text = res.status === 204 ? '' : await res.text()
   const data = text ? safeJson(text) : undefined

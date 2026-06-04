@@ -1,15 +1,21 @@
-export type ToolStatus = 'AVAILABLE' | 'IN_USE' | 'MISSING' | 'MAINTENANCE';
-export type CabinetStatus = 'BROKEN' | 'INACTIVE' | 'OPEN' | 'CLOSED';
-export type ActivityType =
-  | 'TOOL_REMOVED'
-  | 'TOOL_RETURNED'
-  | 'DOOR_OPENED'
-  | 'DOOR_CLOSED'
-  | 'SHIFT_STARTED'
-  | 'SHIFT_ENDED'
-  | 'CABINET_ONLINE'
-  | 'CABINET_OFFLINE'
-  | 'TOOL_MISSING_DETECTED';
+export type ToolStatus = 'AVAILABLE'
+    | 'IN_USE'
+    | 'MISSING'
+    | 'IN_MAINTENANCE'
+    | 'BROKEN';
+export type CabinetStatus = 'BROKEN'
+    | 'INACTIVE'
+    | 'OPEN'
+    | 'CLOSED';
+export type ActivityType = 'OPEN_CABINET'
+    | 'CLOSE_CABINET'
+    | 'REMOVE_TOOL'
+    | 'TOOL_BROKEN'
+    | 'TOOL_MISSING'
+    | 'TOOL_IN_MAINTENANCE'
+    | 'CABINET_ANOMALY'
+    | 'STARTED_SHIFT'
+    | 'ENDED_SHIFT';
 export type UserRole = 'ADMIN' | 'MECHANIC' | 'BACK_OFFICE';
 export type UserStatus = 'ACTIVE' | 'INACTIVE';
 export type ShiftStatus = 'ACTIVE' | 'COMPLETED';
@@ -27,7 +33,6 @@ export interface Cabinet {
   name: string;
   location: string;
   status: CabinetStatus;
-  isActive: boolean;
   activeShiftId: number | null;
 }
 
@@ -37,7 +42,6 @@ export interface Tool {
   partNumber: string;
   cabinetId: number;
   status: ToolStatus;
-  isActive: boolean;
 }
 
 export interface Shift {
@@ -49,7 +53,6 @@ export interface Shift {
   status: ShiftStatus;
   startTime: string;
   endTime: string | null;
-  aircraftReg: string;
 }
 
 export interface Activity {

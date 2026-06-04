@@ -28,22 +28,21 @@ function CabinetPanel({ cabinet, tools, activeShift, onEdit }: CabinetPanelProps
   const miss  = tools.filter(t => t.status === 'MISSING').length
   const maint = tools.filter(t => t.status === 'MAINTENANCE').length
   const total = tools.length
-  const isOnline = cabinet.status === 'OPEN'
+  const isOnline = cabinet.status === 'OPEN' || cabinet.status === 'CLOSED'
 
   return (
     <div className={`${styles.panel}
-      ${cabinet.status === 'INACTIVE'     ? styles.panelOffline  : ''}
-      ${cabinet.status === 'BROKEN' ? styles.panelMaint    : ''}
-      ${miss > 0                         ? styles.panelMissing  : ''}
-      ${!cabinet.isActive                ? styles.panelInactive : ''}
+      ${cabinet.status === 'INACTIVE'     ? styles.panelMaint  : ''}
+      ${cabinet.status === 'BROKEN'       ? styles.panelOffline    : ''}
+      ${miss > 0                          ? styles.panelMissing  : ''}
     `}>
 
       <div className={styles.panelHead}>
         <div className={styles.panelHeadLeft}>
           <div className={`${styles.statusDot}
-            ${cabinet.status === 'OPEN'      ? styles.dotOnline  : ''}
-            ${cabinet.status === 'INACTIVE'     ? styles.dotOffline : ''}
-            ${cabinet.status === 'BROKEN' ? styles.dotMaint   : ''}
+            ${cabinet.status === 'OPEN' || cabinet.status === 'CLOSED'  ? styles.dotOnline  : ''}
+            ${cabinet.status === 'INACTIVE'     ? styles.dotMaint : ''}
+            ${cabinet.status === 'BROKEN' ? styles.dotOffline   : ''}
           `} />
           <div>
             <div className={styles.cabId}>{cabinet.name}</div>
@@ -164,7 +163,7 @@ export default function Cabinets() {
     return () => { cancelled = true }
   }, [])
 
-  const online  = cabinets.filter(c => c.status === 'OPEN' && c.isActive).length
+  const online = cabinets.filter(c => ['OPEN', 'CLOSED'].includes(c.status)).length
   const missing = tools.filter(t => t.status === 'MISSING').length
   const activeShifts = shifts.filter(s => s.status === 'ACTIVE')
 
@@ -234,7 +233,8 @@ export default function Cabinets() {
         <div className={styles.legend} style={{ color: 'var(--color-danger, #c00)' }}>{loadError}</div>
       ) : (
         <div className={styles.grid}>
-          {cabinets.filter(c => c.isActive).map(cab => (
+          {cabinets.filter(c => c.status != 'BROKEN')
+              .map(cab => (
             <CabinetPanel
               key={cab.id}
               cabinet={cab}

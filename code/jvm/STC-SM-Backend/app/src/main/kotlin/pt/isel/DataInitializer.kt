@@ -8,8 +8,15 @@ import pt.isel.cabinet.Cabinet
 import pt.isel.cabinet.CabinetStatus
 import pt.isel.profile.Profile
 import pt.isel.profile.Role
+import pt.isel.shift.Shift
+import pt.isel.shift.ShiftStatus
+import pt.isel.tools.Tool
+import pt.isel.tools.ToolStatus
 import pt.isel.user.User
 import pt.isel.user.UserStatus
+import java.time.Instant
+import java.time.LocalDateTime
+import kotlin.time.Duration
 
 // Initializes the Database with the 3 Profiles and the Admin User.
 @Component
@@ -18,6 +25,7 @@ class DataInitializer(
     private val userRepository: UserRepository,
     private val cabinetRepository: CabinetRepository,
     private val shiftRepository: ShiftRepository,
+    private val toolRepository: ToolRepository,
     private val passwordEncoder: PasswordEncoder
 ) : CommandLineRunner {
     override fun run(vararg args: String) {
@@ -30,23 +38,42 @@ class DataInitializer(
             )
             profileRepository.saveAll(profiles)
         }
+        val userAdmin = User(
+            name = "Admin",
+            email = "admin@isel.pt",
+            profile = Profile(id = 3, role = Role.ADMIN, description = "Administrator"),
+            status = UserStatus.ACTIVE,
+            passwordValidation = PasswordValidationInfo(passwordEncoder.encode("admin")!!)
+        )
         if (userRepository.count() == 0L) {
-            val userAdmin = User(
-                name = "Admin",
-                email = "admin@isel.pt",
-                profile = Profile(id = 3, role = Role.ADMIN, description = "Administrator"),
-                status = UserStatus.ACTIVE,
-                passwordValidation = PasswordValidationInfo(passwordEncoder.encode("admin")!!)
-            )
             userRepository.save(userAdmin)
         }
+        val cabinet = Cabinet(
+            description = "White and Red Cabinet",
+            status = CabinetStatus.CLOSED,
+            location = "Sector 2"
+        )
         if (cabinetRepository.count() == 0L) {
-            val cabinet = Cabinet(
-                description = "White and Red Cabinet",
-                status = CabinetStatus.CLOSED,
+            cabinetRepository.save(cabinet)
+        }
+        if (toolRepository.count() == 0L) {
+            val tool = Tool(
+                name = "Screwdriver",
+                cabinet = cabinet,
+                status = ToolStatus.AVAILABLE,
                 location = "Sector 2"
             )
-            cabinetRepository.save(cabinet)
+            toolRepository.save(tool)
+        }
+        if (shiftRepository.count() == 0L) {
+            val shift = Shift(
+                cabinet = cabinet,
+                user = userAdmin,
+                startTime = Instant.now(),
+                endTime = Instant.now().plusSeconds(15 * 60),
+                status = ShiftStatus.ON_GOING,
+            )
+            shiftRepository.save(shift)
         }
     }
 }

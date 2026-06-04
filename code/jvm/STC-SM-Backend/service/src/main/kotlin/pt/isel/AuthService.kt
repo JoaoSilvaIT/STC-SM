@@ -70,7 +70,6 @@ class AuthService(
         val session = sessionRepository.findByAccessTokenValidationInfo(tokenValidationInfo.validationInfo) ?: return null
 
         if (session.accessTokenExpiresAt.isBefore(clock.instant())) {
-            sessionRepository.delete(session)
             return null
         }
 
