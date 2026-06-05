@@ -43,16 +43,10 @@ function ShiftCard({
     <div className={`${styles.card} ${isActive ? styles.cardActive : styles.cardDone}`}>
       <div className={styles.cardHead}>
         <div className={styles.cardHeadLeft}>
-          <div className={`${styles.statusLed} ${isActive ? styles.ledActive : styles.ledDone}`} />
           <div>
             <div className={styles.shiftId}>SHIFT-{shift.id.toString().padStart(3, '0')}</div>
-            <div className={styles.aircraftReg}>{shift.aircraftReg || '—'}</div>
           </div>
         </div>
-        <span className={`${styles.statusTag} ${isActive ? styles.tagActive : styles.tagDone}`}>
-          {isActive ? <Play size={10} /> : <CheckCircle2 size={10} />}
-          {isActive ? 'ACTIVE' : 'COMPLETED'}
-        </span>
       </div>
 
       <div className={styles.metaGrid}>
@@ -190,10 +184,6 @@ export default function Shifts() {
           </p>
         </div>
         <div className={styles.headRight}>
-          <div className={styles.rule}>
-            <span className={styles.ruleLabel}>Shift Locking Rule</span>
-            <span className={styles.ruleText}>One mechanic per cabinet · Cabinet locked without active shift</span>
-          </div>
           {canStartShift && (
             <button className={styles.startBtn} onClick={() => setDrawerOpen(true)}>
               <Play size={13} />
@@ -212,23 +202,23 @@ export default function Shifts() {
           <div className={styles.sectionTitle}>
             <span className={styles.activeLed} />
             Active Shifts
+            <span className={styles.sectionCount}>{active.length}</span>
           </div>
-          <span className={styles.sectionCount}>{active.length}</span>
         </div>
         <div className={styles.cards}>
           {active.length === 0
-            ? <div className={styles.empty}>No active shifts</div>
-            : active.map(s => (
-                <ShiftCard
-                  key={s.id}
-                  shift={s}
-                  currentUserId={user?.id ?? 0}
-                  isAdmin={isAdmin}
-                  isConfirming={confirmEndId === s.id}
-                  onRequestEnd={() => setConfirmEndId(s.id)}
-                  onConfirmEnd={() => handleEndShift(s.id)}
-                  onCancelEnd={() => setConfirmEndId(null)}
-                />
+              ? <div className={styles.empty}>No active shifts</div>
+              : active.map(s => (
+                  <ShiftCard
+                      key={s.id}
+                      shift={s}
+                      currentUserId={user?.id ?? 0}
+                      isAdmin={isAdmin}
+                      isConfirming={confirmEndId === s.id}
+                      onRequestEnd={() => setConfirmEndId(s.id)}
+                      onConfirmEnd={() => handleEndShift(s.id)}
+                      onCancelEnd={() => setConfirmEndId(null)}
+                  />
               ))
           }
         </div>
@@ -239,23 +229,23 @@ export default function Shifts() {
           <div className={styles.sectionTitle}>
             <CheckCircle2 size={13} />
             Completed Shifts
+            <span className={styles.sectionCount}>{completed.length}</span>
           </div>
-          <span className={styles.sectionCount}>{completed.length}</span>
         </div>
         <div className={styles.cards}>
           {completed.length === 0
-            ? <div className={styles.empty}>No completed shifts</div>
-            : completed.map(s => (
-                <ShiftCard
-                  key={s.id}
-                  shift={s}
-                  currentUserId={user?.id ?? 0}
-                  isAdmin={isAdmin}
-                  isConfirming={false}
-                  onRequestEnd={() => {}}
-                  onConfirmEnd={() => {}}
-                  onCancelEnd={() => {}}
-                />
+              ? <div className={styles.empty}>No completed shifts</div>
+              : completed.map(s => (
+                  <ShiftCard
+                      key={s.id}
+                      shift={s}
+                      currentUserId={user?.id ?? 0}
+                      isAdmin={isAdmin}
+                      isConfirming={false}
+                      onRequestEnd={() => {}}
+                      onConfirmEnd={() => {}}
+                      onCancelEnd={() => {}}
+                  />
               ))
           }
         </div>

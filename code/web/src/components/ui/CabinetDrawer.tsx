@@ -115,37 +115,7 @@ export default function CabinetDrawer({
             </button>
             <button className={styles.cancelBtn} onClick={onClose}>Cancel</button>
           </div>
-
-          {mode === 'edit' && cabinet && (
-            <div className={styles.destructiveZone}>
-              {!confirmDeactivate ? (
-                <button
-                  className={`${styles.deactivateBtn} ${!cabinet.isActive ? styles.reactivateBtn : ''}`}
-                  onClick={() => setConfirmDeactivate(true)}
-                >
-                  {cabinet.isActive ? 'Deactivate Cabinet' : 'Reactivate Cabinet'}
-                </button>
-              ) : (
-                <div className={styles.confirmRow}>
-                  <AlertTriangle size={12} className={styles.confirmIcon} />
-                  <span className={styles.confirmText}>
-                    {cabinet.isActive ? `Deactivate ${cabinet.name}?` : `Reactivate ${cabinet.name}?`}
-                  </span>
-                  <button
-                    className={styles.confirmYes}
-                    onClick={() => { onDeactivate(cabinet.id); setConfirmDeactivate(false) }}
-                  >
-                    Confirm
-                  </button>
-                  <button className={styles.confirmNo} onClick={() => setConfirmDeactivate(false)}>
-                    Cancel
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
         </div>
-
       </div>
     </>
   )

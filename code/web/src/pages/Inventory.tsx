@@ -167,7 +167,6 @@ export default function Inventory() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>Part No.</th>
               <th>Tool Name</th>
               <th>Cabinet</th>
               <th>Location</th>
@@ -178,7 +177,7 @@ export default function Inventory() {
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={6} className={styles.empty}>No tools match the current filters</td>
+                <td colSpan={5} className={styles.empty}>No tools match the current filters</td>
               </tr>
             ) : filtered.map(tool => {
               const cab = liveCabinets.find(c => c.id === tool.cabinetId)
@@ -187,7 +186,6 @@ export default function Inventory() {
                   key={tool.id}
                   className={`${styles.row} ${tool.status === 'MISSING' ? styles.rowMissing : ''}`}
                 >
-                  <td className={styles.mono}>{tool.partNumber}</td>
                   <td className={styles.toolName}>
                     {tool.status === 'MISSING' && <AlertTriangle size={11} className={styles.rowAlert} />}
                     {tool.name}

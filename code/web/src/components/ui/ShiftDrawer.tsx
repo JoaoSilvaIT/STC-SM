@@ -8,7 +8,7 @@ interface ShiftDrawerProps {
   currentUser:  UserType
   cabinets:     Cabinet[]
   activeShifts: Shift[]
-  onSave:       (data: { cabinetId: number; aircraftReg: string }) => void
+  onSave:       (data: { cabinetId: number }) => void
   onClose:      () => void
 }
 
@@ -16,13 +16,11 @@ export default function ShiftDrawer({
   open, currentUser, cabinets, activeShifts, onSave, onClose,
 }: ShiftDrawerProps) {
   const [cabinetId,   setCabinetId]   = useState<number | ''>('')
-  const [aircraftReg, setAircraftReg] = useState('')
   const [errors,      setErrors]      = useState<Record<string, string>>({})
 
   useEffect(() => {
     if (open) {
       setCabinetId('')
-      setAircraftReg('')
       setErrors({})
     }
   }, [open])
@@ -31,13 +29,12 @@ export default function ShiftDrawer({
 
   const occupiedIds       = activeShifts.map(s => s.cabinetId)
   const availableCabinets = cabinets.filter(
-    c => c.status === 'OPEN' && c.isActive && !occupiedIds.includes(c.id)
+      c => (c.status === 'OPEN' || c.status === 'CLOSED') && !occupiedIds.includes(c.id)
   )
 
   const validate = () => {
     const e: Record<string, string> = {}
     if (!cabinetId)          e.cabinet     = 'Select a cabinet'
-    if (!aircraftReg.trim()) e.aircraftReg = 'Aircraft registration is required'
     return e
   }
 
@@ -46,7 +43,6 @@ export default function ShiftDrawer({
     if (Object.keys(e).length) { setErrors(e); return }
     onSave({
       cabinetId:   cabinetId as number,
-      aircraftReg: aircraftReg.trim().toUpperCase(),
     })
   }
 
@@ -92,18 +88,6 @@ export default function ShiftDrawer({
                 {errors.cabinet && <span className={styles.errMsg}>{errors.cabinet}</span>}
               </>
             )}
-          </div>
-
-          <div className={styles.field}>
-            <label className={styles.label}>Aircraft Registration</label>
-            <input
-              className={`${styles.input} ${errors.aircraftReg ? styles.inputErr : ''}`}
-              value={aircraftReg}
-              onChange={e => setAircraftReg(e.target.value.toUpperCase())}
-              placeholder="e.g. CS-TUG"
-              maxLength={12}
-            />
-            {errors.aircraftReg && <span className={styles.errMsg}>{errors.aircraftReg}</span>}
           </div>
         </div>
 

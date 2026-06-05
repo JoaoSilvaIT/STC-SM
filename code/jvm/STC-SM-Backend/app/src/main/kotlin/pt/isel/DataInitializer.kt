@@ -30,23 +30,39 @@ class DataInitializer(
 ) : CommandLineRunner {
     override fun run(vararg args: String) {
         // Checks if the table is empty
+        val profiles = listOf(
+            Profile(id = 1, role = Role.MECHANIC, description = "Mechanic"),
+            Profile(id = 2, role = Role.BACK_OFFICE, description = "Back Office"),
+            Profile(id = 3, role = Role.ADMIN, description = "Administrator")
+        )
         if (profileRepository.count() == 0L) {
-            val profiles = listOf(
-                Profile(id = 1, role = Role.MECHANIC, description = "Mechanic"),
-                Profile(id = 2, role = Role.BACK_OFFICE, description = "Back Office"),
-                Profile(id = 3, role = Role.ADMIN, description = "Administrator")
-            )
             profileRepository.saveAll(profiles)
         }
-        val userAdmin = User(
-            name = "Admin",
-            email = "admin@isel.pt",
-            profile = Profile(id = 3, role = Role.ADMIN, description = "Administrator"),
-            status = UserStatus.ACTIVE,
-            passwordValidation = PasswordValidationInfo(passwordEncoder.encode("admin")!!)
+        val users = listOf(
+            User(
+                name = "Admin",
+                email = "admin@isel.pt",
+                profile = profiles[2],
+                status = UserStatus.ACTIVE,
+                passwordValidation = PasswordValidationInfo(passwordEncoder.encode("admin")!!)
+            ),
+            User(
+                name = "Back Office",
+                email = "back@isel.pt",
+                profile = profiles[1],
+                status = UserStatus.ACTIVE,
+                passwordValidation = PasswordValidationInfo(passwordEncoder.encode("back")!!)
+            ),
+            User(
+                name = "Mechanic",
+                email = "mechanic@isel.pt",
+                profile = profiles[0],
+                status = UserStatus.ACTIVE,
+                passwordValidation = PasswordValidationInfo(passwordEncoder.encode("mechanic")!!)
+            )
         )
         if (userRepository.count() == 0L) {
-            userRepository.save(userAdmin)
+            userRepository.saveAll(users)
         }
         val cabinet = Cabinet(
             description = "White and Red Cabinet",
@@ -68,7 +84,7 @@ class DataInitializer(
         if (shiftRepository.count() == 0L) {
             val shift = Shift(
                 cabinet = cabinet,
-                user = userAdmin,
+                user = users[2],
                 startTime = Instant.now(),
                 endTime = Instant.now().plusSeconds(15 * 60),
                 status = ShiftStatus.ON_GOING,

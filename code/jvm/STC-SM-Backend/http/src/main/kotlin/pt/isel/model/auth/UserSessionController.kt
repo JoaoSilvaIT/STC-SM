@@ -33,7 +33,7 @@ class UserSessionController (
                     .httpOnly(true)
                     .path("/api/users/refresh")
                     .maxAge(Duration.ofDays(30))
-                    .sameSite("Lax")  // More flexible because it's two different ports backend and frontend
+                    .sameSite("Strict")
                     .build()
 
                 ResponseEntity

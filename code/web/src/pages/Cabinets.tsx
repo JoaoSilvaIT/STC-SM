@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Wifi, WifiOff, Wrench, Play, Lock, Unlock, Plus, Pencil } from 'lucide-react'
+import { Play, Lock, Unlock, Plus, Pencil, Settings } from 'lucide-react'
 import { createCabinet, listCabinets, updateCabinet } from '@/api/cabinets'
 import { listTools } from '@/api/tools'
 import { listShifts } from '@/api/shifts'
@@ -28,114 +28,109 @@ function CabinetPanel({ cabinet, tools, activeShift, onEdit }: CabinetPanelProps
   const miss  = tools.filter(t => t.status === 'MISSING').length
   const maint = tools.filter(t => t.status === 'MAINTENANCE').length
   const total = tools.length
+
   const isOnline = cabinet.status === 'OPEN' || cabinet.status === 'CLOSED'
 
   return (
-    <div className={`${styles.panel}
-      ${cabinet.status === 'INACTIVE'     ? styles.panelMaint  : ''}
-      ${cabinet.status === 'BROKEN'       ? styles.panelOffline    : ''}
-      ${miss > 0                          ? styles.panelMissing  : ''}
+      <div className={`${styles.panel}
+      ${cabinet.status === 'INACTIVE' ? styles.panelMaint : ''}
+      ${miss > 0                      ? styles.panelMissing : ''}
+      /* Removido o check de BROKEN aqui */
     `}>
 
-      <div className={styles.panelHead}>
-        <div className={styles.panelHeadLeft}>
-          <div className={`${styles.statusDot}
-            ${cabinet.status === 'OPEN' || cabinet.status === 'CLOSED'  ? styles.dotOnline  : ''}
-            ${cabinet.status === 'INACTIVE'     ? styles.dotMaint : ''}
-            ${cabinet.status === 'BROKEN' ? styles.dotOffline   : ''}
+        <div className={styles.panelHead}>
+          <div className={styles.panelHeadLeft}>
+            <div className={`${styles.statusDot}
+            ${isOnline                       ? styles.dotOnline : ''}
+            ${cabinet.status === 'INACTIVE'   ? styles.dotMaint  : ''}
           `} />
-          <div>
-            <div className={styles.cabId}>{cabinet.name}</div>
-            <div className={styles.cabLoc}>{cabinet.location}</div>
+            <div>
+              <div className={styles.cabId}>{cabinet.name}</div>
+              <div className={styles.cabLoc}>{cabinet.location}</div>
+            </div>
+          </div>
+          <div className={styles.panelActions}>
+            <button className={styles.editBtn} onClick={onEdit} title="Edit cabinet">
+              <Pencil size={12} />
+            </button>
+            <div className={styles.lockIcon}>
+              {isOnline && activeShift
+                  ? <Unlock size={14} className={styles.iconUnlocked} />
+                  : <Lock   size={14} className={styles.iconLocked}   />
+              }
+            </div>
           </div>
         </div>
-        <div className={styles.panelActions}>
-          <button className={styles.editBtn} onClick={onEdit} title="Edit cabinet">
-            <Pencil size={12} />
-          </button>
-          <div className={styles.lockIcon}>
-            {isOnline && activeShift
-              ? <Unlock size={14} className={styles.iconUnlocked} />
-              : <Lock   size={14} className={styles.iconLocked}   />
-            }
-          </div>
-        </div>
-      </div>
 
-      <div className={styles.statusRow}>
-        <span className={`${styles.statusBadge}
-          ${cabinet.status === 'OPEN'      ? styles.badgeOnline  : ''}
-          ${cabinet.status === 'INACTIVE'     ? styles.badgeOffline : ''}
-          ${cabinet.status === 'BROKEN' ? styles.badgeMaint   : ''}
+        <div className={styles.statusRow}>
+          <span className={`${styles.statusBadge}
+          ${cabinet.status === 'OPEN'       ? styles.badgeOnline : ''}
+          ${cabinet.status === 'CLOSED'     ? styles.badgeClosed : ''} /* Vermelho (risk) */
+          ${cabinet.status === 'INACTIVE'   ? styles.badgeMaint  : ''} /* Laranja (amber) - ALTERADO AQUI */
         `}>
-          {cabinet.status === 'OPEN'      && <Wifi     size={10} />}
-          {cabinet.status === 'INACTIVE'     && <WifiOff  size={10} />}
-          {cabinet.status === 'BROKEN' && <Wrench   size={10} />}
-          {cabinet.status}
+            {cabinet.status === 'OPEN'     && <Unlock size={10} />}
+            {cabinet.status === 'CLOSED'   && <Lock size={10} />}
+            {cabinet.status === 'INACTIVE' && <Settings size={10} />}
+
+            {cabinet.status}
         </span>
-        {miss > 0 && (
-          <span className={styles.missAlert}>⚠ {miss} MISSING</span>
-        )}
-      </div>
-
-      {isOnline && total > 0 && (
-        <div className={styles.gauge}>
-          <div className={styles.gaugeLabel}>
-            <span className={styles.gaugeLabelText}>Tool Inventory</span>
-            <span className={styles.gaugeFraction}>{avail}/{total} available</span>
-          </div>
-          <div className={styles.gaugeBar}>
-            {avail > 0 && <div className={`${styles.gaugeSeg} ${styles.gsAvail}`} style={{ flex: avail }} />}
-            {inUse > 0 && <div className={`${styles.gaugeSeg} ${styles.gsInUse}`} style={{ flex: inUse }} />}
-            {miss  > 0 && <div className={`${styles.gaugeSeg} ${styles.gsMiss}`}  style={{ flex: miss  }} />}
-            {maint > 0 && <div className={`${styles.gaugeSeg} ${styles.gsMaint}`} style={{ flex: maint }} />}
-          </div>
-          <div className={styles.gaugeLegend}>
-            <span className={styles.legAvail}>{avail} Avail</span>
-            <span className={styles.legInUse}>{inUse} In Use</span>
-            {miss  > 0 && <span className={styles.legMiss}>{miss} Missing</span>}
-            {maint > 0 && <span className={styles.legMaint}>{maint} Maint.</span>}
-          </div>
+          {miss > 0 && (
+              <span className={styles.missAlert}>⚠ {miss} MISSING</span>
+          )}
         </div>
-      )}
 
-      {!isOnline && (
-        <div className={styles.offlineMsg}>
-          {cabinet.status === 'INACTIVE'
-            ? 'Cabinet is offline. No real-time data available.'
-            : 'Cabinet is under scheduled maintenance.'}
-        </div>
-      )}
-
-      <div className={styles.shiftBlock}>
-        {activeShift ? (
-          <>
-            <div className={styles.shiftLabel}>
-              <Play size={10} /><span>Active Shift</span>
-            </div>
-            <div className={styles.shiftInfo}>
-              <div className={styles.shiftRow}>
-                <span className={styles.shiftKey}>Mechanic</span>
-                <span className={styles.shiftVal}>{activeShift.userName ?? `User #${activeShift.userId}`}</span>
+        {isOnline && total > 0 && (
+            <div className={styles.gauge}>
+              <div className={styles.gaugeLabel}>
+                <span className={styles.gaugeLabelText}>Tool Inventory</span>
+                <span className={styles.gaugeFraction}>{avail}/{total} available</span>
               </div>
-              <div className={styles.shiftRow}>
-                <span className={styles.shiftKey}>Aircraft</span>
-                <span className={styles.shiftVal}>{activeShift.aircraftReg || '—'}</span>
+              <div className={styles.gaugeBar}>
+                {avail > 0 && <div className={`${styles.gaugeSeg} ${styles.gsAvail}`} style={{ flex: avail }} />}
+                {inUse > 0 && <div className={`${styles.gaugeSeg} ${styles.gsInUse}`} style={{ flex: inUse }} />}
+                {miss  > 0 && <div className={`${styles.gaugeSeg} ${styles.gsMiss}`}  style={{ flex: miss  }} />}
+                {maint > 0 && <div className={`${styles.gaugeSeg} ${styles.gsMaint}`} style={{ flex: maint }} />}
               </div>
-              <div className={styles.shiftRow}>
-                <span className={styles.shiftKey}>Duration</span>
-                <span className={styles.shiftVal}>{shiftDuration(activeShift.startTime)}</span>
+              <div className={styles.gaugeLegend}>
+                <span className={styles.legAvail}>{avail} Available </span>
+                <span className={styles.legInUse}>{inUse} In Use</span>
+                {miss  > 0 && <span className={styles.legMiss}>{miss} Missing</span>}
+                {maint > 0 && <span className={styles.legMaint}>{maint} Maint.</span>}
               </div>
             </div>
-          </>
-        ) : (
-          <div className={styles.noShift}>
-            <Lock size={11} /><span>No active shift — cabinet locked</span>
-          </div>
         )}
-      </div>
 
-    </div>
+        {!isOnline && (
+            <div className={styles.offlineMsg}>
+              Cabinet is inactive (under maintenance or setup).
+            </div>
+        )}
+
+        <div className={styles.shiftBlock}>
+          {activeShift ? (
+              <>
+                <div className={styles.shiftLabel}>
+                  <Play size={10} /><span>Active Shift</span>
+                </div>
+                <div className={styles.shiftInfo}>
+                  <div className={styles.shiftRow}>
+                    <span className={styles.shiftKey}>Mechanic</span>
+                    <span className={styles.shiftVal}>{activeShift.userName ?? `User #${activeShift.userId}`}</span>
+                  </div>
+                  <div className={styles.shiftRow}>
+                    <span className={styles.shiftKey}>Duration</span>
+                    <span className={styles.shiftVal}>{shiftDuration(activeShift.startTime)}</span>
+                  </div>
+                </div>
+              </>
+          ) : (
+              <div className={styles.noShift}>
+                <Lock size={11} /><span>No active shift — cabinet locked</span>
+              </div>
+          )}
+        </div>
+
+      </div>
   )
 }
 
@@ -163,7 +158,7 @@ export default function Cabinets() {
     return () => { cancelled = true }
   }, [])
 
-  const online = cabinets.filter(c => ['OPEN', 'CLOSED'].includes(c.status)).length
+  const cabinetsOnline = cabinets.filter(c => ['OPEN', 'CLOSED'].includes(c.status)).length
   const missing = tools.filter(t => t.status === 'MISSING').length
   const activeShifts = shifts.filter(s => s.status === 'ACTIVE')
 
@@ -211,7 +206,7 @@ export default function Cabinets() {
         <div>
           <h1 className={styles.pageTitle}>Cabinet Status</h1>
           <p className={styles.pageSubtitle}>
-            {online}/{cabinets.filter(c => c.isActive).length} online
+            {cabinetsOnline}/{cabinets.filter(c => c.status !== 'BROKEN').length} online
             {missing > 0 ? ` · ${missing} tools missing` : ' · all tools accounted for'}
           </p>
         </div>
@@ -223,7 +218,6 @@ export default function Cabinets() {
       <div className={styles.legend}>
         <span className={styles.legItem}><span className={`${styles.legDot} ${styles.ldGreen}`}  /> Online</span>
         <span className={styles.legItem}><span className={`${styles.legDot} ${styles.ldAmber}`} /> Maintenance</span>
-        <span className={styles.legItem}><span className={`${styles.legDot} ${styles.ldGray}`}  /> Offline</span>
         <span className={styles.legItem}><span className={`${styles.legDot} ${styles.ldRed}`}   /> Missing tools</span>
       </div>
 

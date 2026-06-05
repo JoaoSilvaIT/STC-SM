@@ -44,7 +44,6 @@
 
 .ldGreen { background: var(--clear); }
 .ldAmber { background: var(--amber); }
-.ldGray  { background: var(--offline); }
 .ldRed   { background: var(--risk); }
 
 /* Panel grid */
@@ -67,10 +66,6 @@
 }
 
 .panel:hover { border-color: var(--border-default); }
-
-.panelOffline {
-  opacity: 0.6;
-}
 
 .panelMaint {
   border-color: rgba(244, 163, 24, 0.18);
@@ -104,7 +99,6 @@
 }
 
 .dotOnline  { background: var(--clear); box-shadow: 0 0 7px var(--clear); animation: pulse-clear 2.5s ease-in-out infinite; }
-.dotOffline { background: var(--offline); }
 .dotMaint   { background: var(--amber); box-shadow: 0 0 6px rgba(244,163,24,0.5); }
 
 .cabId {
@@ -147,7 +141,7 @@
 }
 
 .badgeOnline  { background: var(--clear-soft);  color: var(--clear);           border: 1px solid rgba(12,232,120,0.25); }
-.badgeOffline { background: rgba(58,68,96,0.18); color: var(--text-secondary);  border: 1px solid rgba(58,68,96,0.3); }
+.badgeClosed  { background: var(--risk-soft);   color: var(--risk);            border: 1px solid rgba(240,48,24,0.25); }
 .badgeMaint   { background: var(--amber-soft);  color: var(--amber);           border: 1px solid rgba(244,163,24,0.25); }
 
 .missAlert {
