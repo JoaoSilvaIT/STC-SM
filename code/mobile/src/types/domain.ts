@@ -11,10 +11,11 @@ export type ActivityType =
   | 'CABINET_OFFLINE'
   | 'TOOL_MISSING_DETECTED'
   | 'TOOL_BROKEN'        // mobile-local: logged when mechanic marks a tool broken
-  | 'CABINET_ANOMALY';   // mobile-local: logged when mechanic reports an anomaly
+  | 'CABINET_ANOMALY'
+  | 'TOOL_MISSING';
 export type UserRole = 'ADMIN' | 'MECHANIC' | 'BACK_OFFICE';
 export type UserStatus = 'ACTIVE' | 'INACTIVE';
-export type ShiftStatus = 'ACTIVE' | 'COMPLETED';
+export type ShiftStatus = 'ON_GOING' | 'ENDED';
 
 export interface User {
   id: number;
@@ -50,7 +51,6 @@ export interface Shift {
   status: ShiftStatus;
   startTime: string;
   endTime: string | null;
-  aircraftReg: string;
 }
 
 export interface Activity {

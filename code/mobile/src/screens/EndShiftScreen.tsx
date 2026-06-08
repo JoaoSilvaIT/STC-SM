@@ -56,9 +56,6 @@ export default function EndShiftScreen({ navigation }: Props) {
             <Text style={s.durBig}>{dur.m}</Text>
             <Text style={s.durUnit}>M</Text>
           </View>
-          <Text style={s.summarySub} selectable>
-            Aircraft <Text style={{ color: colors.amber, fontFamily: fonts.mono }}>{activeShift.aircraftReg}</Text>
-          </Text>
         </View>
 
         <View style={s.statsGrid}>

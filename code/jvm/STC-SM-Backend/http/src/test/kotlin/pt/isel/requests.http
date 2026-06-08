@@ -3,8 +3,8 @@ POST http://localhost:8080/api/users/login
 Content-Type: application/json
 
 {
-  "username": "admin@isel.pt",
-  "password": "admin"
+  "username": "mechanic@isel.pt",
+  "password": "mechanic"
 }
 
 ### Create user

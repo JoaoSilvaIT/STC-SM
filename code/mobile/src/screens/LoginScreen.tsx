@@ -21,6 +21,7 @@ export default function LoginScreen({ navigation }: Props) {
   const [error, setError]       = useState('');
   const [emailFocus, setEmailFocus] = useState(false);
   const [passFocus, setPassFocus]   = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleLogin() {
     setError('');
@@ -99,8 +100,11 @@ export default function LoginScreen({ navigation }: Props) {
               onChangeText={setPassword}
               onFocus={() => setPassFocus(true)}
               onBlur={() => setPassFocus(false)}
-              secureTextEntry
+              secureTextEntry={!showPassword}
             />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color={colors.textDim} />
+            </TouchableOpacity>
           </View>
 
           {error ? (

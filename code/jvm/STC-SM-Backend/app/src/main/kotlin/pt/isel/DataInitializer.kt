@@ -14,6 +14,8 @@ import pt.isel.tools.Tool
 import pt.isel.tools.ToolStatus
 import pt.isel.user.User
 import pt.isel.user.UserStatus
+import pt.isel.activity.Activity
+import pt.isel.activity.ActivityType
 import java.time.Instant
 import java.time.LocalDateTime
 import kotlin.time.Duration
@@ -26,6 +28,7 @@ class DataInitializer(
     private val cabinetRepository: CabinetRepository,
     private val shiftRepository: ShiftRepository,
     private val toolRepository: ToolRepository,
+    private val activityRepository: ActivityRepository,
     private val passwordEncoder: PasswordEncoder
 ) : CommandLineRunner {
     override fun run(vararg args: String) {
@@ -72,25 +75,37 @@ class DataInitializer(
         if (cabinetRepository.count() == 0L) {
             cabinetRepository.save(cabinet)
         }
+        val tool = Tool(
+            name = "Screwdriver",
+            cabinet = cabinet,
+            status = ToolStatus.AVAILABLE,
+            location = "Sector 2"
+        )
         if (toolRepository.count() == 0L) {
-            val tool = Tool(
-                name = "Screwdriver",
-                cabinet = cabinet,
-                status = ToolStatus.AVAILABLE,
-                location = "Sector 2"
-            )
             toolRepository.save(tool)
         }
+        val shift = Shift(
+            cabinet = cabinet,
+            user = users[2],
+            startTime = Instant.now(),
+            endTime = Instant.now().plusSeconds(15 * 60),
+            status = ShiftStatus.ENDED,
+        )
         if (shiftRepository.count() == 0L) {
-            val shift = Shift(
-                cabinet = cabinet,
-                user = users[2],
-                startTime = Instant.now(),
-                endTime = Instant.now().plusSeconds(15 * 60),
-                status = ShiftStatus.ON_GOING,
-            )
             shiftRepository.save(shift)
+        }
+        if (activityRepository.count() == 0L) {
+            val activity = Activity(
+                user = users[2],
+                type = ActivityType.STARTED_SHIFT,
+                date = Instant.now(),
+                tool = null,
+                cabinet = cabinet,
+                shift = shift
+            )
+            activityRepository.save(activity)
         }
     }
 }
+
 

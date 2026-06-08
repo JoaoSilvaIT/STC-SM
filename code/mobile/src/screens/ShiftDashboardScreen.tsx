@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../App';
-import { useShift } from '../context/ShiftContext';
+import { useShift, type AnomalyType } from '../context/ShiftContext';
 import { colors, fonts, spacing, radius, typography, btn, layout } from '../theme';
 import GridBackdrop from '../components/GridBackdrop';
 import Panel from '../components/Panel';
 import LED from '../components/LED';
+import ScreenHeader from '../components/ScreenHeader';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ShiftDashboard'>;
 
@@ -19,6 +20,12 @@ function shiftDuration(iso: string): { h: string; m: string } {
   return { h: String(h).padStart(2, '0'), m: String(m).padStart(2, '0') };
 }
 
+const ANOMALY_OPTIONS: { label: string; value: AnomalyType; icon: keyof typeof import('@expo/vector-icons').Ionicons.glyphMap; hint: string }[] = [
+  { label: 'Broken Tool', value: 'TOOL_BROKEN', icon: 'hammer-outline', hint: 'A tool is damaged' },
+  { label: 'Missing Tool', value: 'TOOL_MISSING', icon: 'search-outline', hint: 'A tool cannot be found' },
+  { label: 'Cabinet Anomaly', value: 'CABINET_ANOMALY', icon: 'lock-open-outline', hint: 'Issue with the cabinet hardware' },
+];
+
 type ActionRow = {
   label: string;
   hint: string;
@@ -28,8 +35,6 @@ type ActionRow = {
 };
 
 const ACTION_ROWS: ActionRow[] = [
-  { label: 'Tools',          hint: 'Take or return tools',     icon: 'construct-outline',    screen: 'ToolList', accent: 'amber' },
-  { label: 'Report Anomaly', hint: 'Log cabinet malfunction',  icon: 'alert-circle-outline', screen: 'Anomaly',  accent: 'stop'  },
   { label: 'Activity Log',   hint: 'Shift timeline',           icon: 'pulse-outline',        screen: 'Activity', accent: 'sky'   },
 ];
 
@@ -40,22 +45,58 @@ const accentInk: Record<ActionRow['accent'], string> = {
 };
 
 export default function ShiftDashboardScreen({ navigation }: Props) {
-  const { activeShift, activeCabinet, cabinetTools } = useShift();
+  const { activeShift, assignedShift, activeCabinet, logAnomaly, startShift, loading: shiftLoading } = useShift();
   const [, setTick] = useState(0);
+
+  // Anomaly form state
+  const [selectedAnomaly, setSelectedAnomaly] = useState<AnomalyType | null>(null);
+  const [anomalyNotes, setAnomalyNotes] = useState('');
+  const [notesFocus, setNotesFocus] = useState(false);
+  const [anomalySubmitted, setAnomalySubmitted] = useState(false);
 
   useEffect(() => {
     const id = setInterval(() => setTick(t => t + 1), 1000);
     return () => clearInterval(id);
   }, []);
 
-  if (!activeShift) return null;
+  // Use activeShift if available, otherwise fallback to assignedShift
+  const shift = activeShift || assignedShift;
+  const cabinet = activeCabinet;
+  const isOngoing = activeShift?.status === 'ON_GOING';
 
-  const cabinet   = activeCabinet;
-  const available = cabinetTools.filter(t => t.status === 'AVAILABLE').length;
-  const inUse     = cabinetTools.filter(t => t.status === 'IN_USE').length;
-  const broken    = cabinetTools.filter(t => t.status === 'BROKEN' || t.status === 'MISSING').length;
-  const total     = cabinetTools.length;
-  const duration  = shiftDuration(activeShift.startTime);
+  if (!shift) {
+    return (
+      <SafeAreaView style={layout.screen}>
+        <ScreenHeader title="Shift" onBack={() => navigation.goBack()} />
+        <View style={s.center}>
+          <Text style={typography.body}>No shift assigned to you.</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const duration  = shiftDuration(shift.startTime);
+
+  async function handleStart() {
+    if (!assignedShift) return;
+    await startShift(assignedShift);
+  }
+
+  function handleReportAnomaly() {
+    if (!selectedAnomaly) return;
+    logAnomaly(selectedAnomaly);
+    setSelectedAnomaly(null);
+    setAnomalySubmitted(true);
+    setTimeout(() => setAnomalySubmitted(false), 3000);
+  }
+
+  const formatTime = (ts: string) => {
+    try {
+      return new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    } catch {
+      return '--:--';
+    }
+  };
 
   return (
     <SafeAreaView style={layout.screen} edges={['top', 'left', 'right']}>
@@ -63,10 +104,12 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
 
       <View style={s.statusBar}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
-          <LED color={colors.go} size={6} pulse />
-          <Text style={s.statusText}>ACTIVE SHIFT</Text>
+          <LED color={isOngoing ? colors.go : colors.textDim} size={6} pulse={isOngoing} />
+          <Text style={[s.statusText, !isOngoing && { color: colors.textMuted }]}>
+            {isOngoing ? 'ON GOING' : 'ASSIGNED'}
+          </Text>
         </View>
-        <Text style={s.statusCode}>SH-{String(activeShift.id).padStart(4, '0')}</Text>
+        <Text style={s.statusCode}>SH-{String(shift.id).padStart(4, '0')}</Text>
       </View>
 
       <ScrollView contentContainerStyle={s.scroll}>
@@ -78,72 +121,139 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
               <Text style={s.heroCabinet}>{cabinet?.name ?? '—'}</Text>
               <Text style={s.heroLocation}>{cabinet?.location}</Text>
             </View>
-            <View style={s.regBadge}>
-              <Text style={s.regLabel}>A/C REG</Text>
-              <Text style={s.regValue} selectable>{activeShift.aircraftReg}</Text>
-            </View>
           </View>
 
           <View style={s.timerRow}>
-            <Text style={s.timerLabel}>ELAPSED</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-              <Text style={s.timerBig}>{duration.h}</Text>
-              <Text style={s.timerUnit}>H</Text>
-              <Text style={s.timerSep}>:</Text>
-              <Text style={s.timerBig}>{duration.m}</Text>
-              <Text style={s.timerUnit}>M</Text>
-            </View>
-          </View>
-        </View>
-
-        <Panel label="Inventory · Live" accent="amber" trailing={
-          <Text style={s.panelMeta}>{total} TOOLS</Text>
-        }>
-          <View style={s.invRow}>
-            <InvBlock value={available} label="AVAILABLE" color={colors.go} />
-            <View style={s.invDivider} />
-            <InvBlock value={inUse}     label="IN-USE"    color={colors.amber} />
-            <View style={s.invDivider} />
-            <InvBlock value={broken}    label="BROKEN"    color={colors.stop} muted={broken === 0} />
-          </View>
-          {inUse > 0 && (
-            <View style={s.warningStrip}>
-              <Ionicons name="information-circle" size={14} color={colors.amber} />
-              <Text style={s.warningText} selectable>
-                {inUse} tool{inUse !== 1 ? 's' : ''} currently checked out under your shift.
+            <View>
+              <Text style={s.timerLabel}>SHIFT HOURS</Text>
+              <Text style={s.timeText}>
+                {formatTime(shift.startTime)} - {shift.endTime ? formatTime(shift.endTime) : 'TBD'}
               </Text>
             </View>
-          )}
-        </Panel>
-
-        <View style={{ height: spacing.sm }} />
-
-        <View style={{ gap: spacing.sm }}>
-          {ACTION_ROWS.map(({ label, hint, icon, screen, accent }) => (
-            <TouchableOpacity
-              key={screen}
-              style={s.actionRow}
-              onPress={() => navigation.navigate(screen as any)}
-              activeOpacity={0.8}
-            >
-              <View style={[s.actionIcon, { borderColor: accentInk[accent] + '40' }]}>
-                <Ionicons name={icon} size={20} color={accentInk[accent]} />
+            {isOngoing && (
+              <View style={{ alignItems: 'flex-end' }}>
+                <Text style={s.timerLabel}>ELAPSED</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+                  <Text style={s.timerBig}>{duration.h}</Text>
+                  <Text style={s.timerUnit}>H</Text>
+                  <Text style={s.timerSep}>:</Text>
+                  <Text style={s.timerBig}>{duration.m}</Text>
+                  <Text style={s.timerUnit}>M</Text>
+                </View>
               </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[typography.subtitle, { color: colors.textHi }]}>{label}</Text>
-                <Text style={typography.small}>{hint}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={16} color={colors.textDim} />
-            </TouchableOpacity>
-          ))}
+            )}
+          </View>
         </View>
+
+        {isOngoing && (
+          <>
+            <View style={{ gap: spacing.sm }}>
+              {ACTION_ROWS.map(({ label, hint, icon, screen, accent }) => (
+                <TouchableOpacity
+                  key={screen}
+                  style={s.actionRow}
+                  onPress={() => navigation.navigate(screen as any)}
+                  activeOpacity={0.8}
+                >
+                  <View style={[s.actionIcon, { borderColor: accentInk[accent] + '40' }]}>
+                    <Ionicons name={icon} size={20} color={accentInk[accent]} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[typography.subtitle, { color: colors.textHi }]}>{label}</Text>
+                    <Text style={typography.small}>{hint}</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={16} color={colors.textDim} />
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <View style={{ height: spacing.md }} />
+
+            <Panel label="Report Anomaly" accent="stop">
+              {anomalySubmitted ? (
+                <View style={s.successBanner}>
+                  <Ionicons name="checkmark-circle" size={20} color={colors.go} />
+                  <Text style={s.successText}>Report submitted successfully.</Text>
+                </View>
+              ) : (
+                <View>
+                  <Text style={[typography.label, { marginBottom: spacing.sm }]}>CATEGORY</Text>
+                  <View style={{ gap: spacing.sm, marginBottom: spacing.md }}>
+                    {ANOMALY_OPTIONS.map(opt => {
+                      const active = selectedAnomaly === opt.value;
+                      return (
+                        <TouchableOpacity
+                          key={opt.value}
+                          style={[s.option, active && s.optionActive]}
+                          onPress={() => setSelectedAnomaly(opt.value)}
+                          activeOpacity={0.8}
+                        >
+                          <View style={[s.optionIcon, active && { backgroundColor: colors.amber + '22', borderColor: colors.amber }]}>
+                            <Ionicons name={opt.icon} size={18} color={active ? colors.amber : colors.text} />
+                          </View>
+                          <View style={{ flex: 1 }}>
+                            <Text style={[typography.subtitle, { color: active ? colors.amber : colors.textHi }]}>
+                              {opt.label}
+                            </Text>
+                            <Text style={typography.small}>{opt.hint}</Text>
+                          </View>
+                          <View style={[s.radio, active && s.radioActive]}>
+                            {active && <View style={s.radioDot} />}
+                          </View>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+
+                  <TouchableOpacity
+                    style={[btn.primary, !selectedAnomaly && s.btnDisabled, { backgroundColor: colors.stop }]}
+                    onPress={handleReportAnomaly}
+                    disabled={!selectedAnomaly}
+                    activeOpacity={0.85}
+                  >
+                    <Ionicons name="send" size={14} color="#FFFFFF" />
+                    <Text style={[btn.primaryLabel, { color: '#FFFFFF' }]}>Submit Report</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </Panel>
+          </>
+        )}
+        {!isOngoing && (
+          <View style={{ flex: 1, justifyContent: 'center', paddingVertical: spacing.xxl }}>
+            <View style={s.stbyCard}>
+              <Ionicons name="information-circle-outline" size={24} color={colors.amber} />
+              <Text style={[typography.body, { textAlign: 'center', color: colors.text }]}>
+                Your shift is assigned to this station. Press below to begin your work session.
+              </Text>
+            </View>
+          </View>
+        )}
       </ScrollView>
 
       <View style={s.footer}>
-        <TouchableOpacity style={btn.danger} onPress={() => navigation.navigate('EndShift')} activeOpacity={0.85}>
-          <Ionicons name="stop" size={14} color="#FFFFFF" />
-          <Text style={btn.dangerLabel}>End Shift</Text>
-        </TouchableOpacity>
+        {isOngoing ? (
+          <TouchableOpacity style={btn.danger} onPress={() => navigation.navigate('EndShift')} activeOpacity={0.85}>
+            <Ionicons name="stop" size={14} color="#FFFFFF" />
+            <Text style={btn.dangerLabel}>End Shift</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity 
+            style={[btn.primary, shiftLoading && s.btnDisabled]} 
+            onPress={handleStart} 
+            disabled={shiftLoading}
+            activeOpacity={0.85}
+          >
+            {shiftLoading ? (
+              <ActivityIndicator color="#0A0A0A" size="small" />
+            ) : (
+              <>
+                <Text style={btn.primaryLabel}>Start Shift</Text>
+                <Ionicons name="play" size={16} color="#0A0A0A" />
+              </>
+            )}
+          </TouchableOpacity>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -175,6 +285,7 @@ function InvBlock({ value, label, color, muted = false }: { value: number; label
 }
 
 const s = StyleSheet.create({
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   statusBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -241,28 +352,6 @@ const s = StyleSheet.create({
     color: colors.text,
     marginTop: 2,
   },
-  regBadge: {
-    borderWidth: 1,
-    borderColor: colors.amber + '55',
-    backgroundColor: colors.amberGlow,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: radius.sm,
-    alignItems: 'center',
-  },
-  regLabel: {
-    fontFamily: fonts.mono,
-    fontSize: 9,
-    color: colors.amber,
-    letterSpacing: 1.5,
-  },
-  regValue: {
-    fontFamily: fonts.mono,
-    fontSize: 14,
-    color: colors.textHi,
-    letterSpacing: 1,
-    marginTop: 2,
-  },
   timerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -276,6 +365,12 @@ const s = StyleSheet.create({
     fontSize: 10,
     color: colors.textMuted,
     letterSpacing: 2,
+  },
+  timeText: {
+    fontFamily: fonts.mono,
+    fontSize: 18,
+    color: colors.amber,
+    marginTop: 2,
   },
   timerBig: {
     fontFamily: fonts.mono,
@@ -357,5 +452,99 @@ const s = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.hairline,
     backgroundColor: colors.bg,
+  },
+
+  stbyCard: {
+    alignItems: 'center',
+    gap: spacing.md,
+    padding: spacing.xl,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+
+  // Anomaly styles
+  option: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.md,
+  },
+  optionActive: {
+    borderColor: colors.amber,
+    backgroundColor: colors.surfaceAlt,
+  },
+  optionIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.bgElevated,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  radio: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 1,
+    borderColor: colors.borderHi,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  radioActive: { borderColor: colors.amber },
+  radioDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.amber,
+  },
+  textareaWrap: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    paddingBottom: spacing.sm,
+    minHeight: 100,
+  },
+  textareaFocus: {
+    borderColor: colors.amber,
+    backgroundColor: colors.surfaceAlt,
+  },
+  textarea: {
+    color: colors.textHi,
+    fontSize: 14,
+    lineHeight: 19,
+    minHeight: 60,
+  },
+  charCount: {
+    fontFamily: fonts.mono,
+    fontSize: 10,
+    color: colors.textDim,
+    letterSpacing: 1,
+    textAlign: 'right',
+  },
+  btnDisabled: { opacity: 0.3 },
+  successBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    backgroundColor: colors.goSoft + '55',
+    borderWidth: 1,
+    borderColor: colors.go + '55',
+  },
+  successText: {
+    color: colors.go,
+    fontFamily: fonts.displayBold,
+    fontSize: 13,
   },
 });

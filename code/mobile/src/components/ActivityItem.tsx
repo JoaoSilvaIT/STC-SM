@@ -10,6 +10,7 @@ const iconMap: Record<ActivityType, { name: keyof typeof Ionicons.glyphMap; colo
   TOOL_REMOVED:         { name: 'arrow-up',          color: colors.warn },
   TOOL_RETURNED:        { name: 'arrow-down',        color: colors.go },
   TOOL_BROKEN:          { name: 'warning',           color: colors.stop },
+  TOOL_MISSING:         { name: 'search',            color: colors.stop },
   TOOL_MISSING_DETECTED:{ name: 'search',            color: colors.stop },
   DOOR_OPENED:          { name: 'lock-open-outline', color: colors.sky },
   DOOR_CLOSED:          { name: 'lock-closed',       color: colors.sky },
@@ -33,6 +34,7 @@ function describeActivity(act: Activity): string {
     case 'TOOL_REMOVED':          return tool ? `${tool} Removed` : 'Tool Removed';
     case 'TOOL_RETURNED':         return tool ? `${tool} Returned` : 'Tool Returned';
     case 'TOOL_BROKEN':           return tool ? `${tool} Marked Broken` : 'Tool Marked Broken';
+    case 'TOOL_MISSING':          return tool ? `${tool} Marked Missing` : 'Tool Marked Missing';
     case 'TOOL_MISSING_DETECTED': return tool ? `${tool} Missing` : 'Tool Missing';
     case 'DOOR_OPENED':           return 'Cabinet Door Opened';
     case 'DOOR_CLOSED':           return 'Cabinet Door Closed';

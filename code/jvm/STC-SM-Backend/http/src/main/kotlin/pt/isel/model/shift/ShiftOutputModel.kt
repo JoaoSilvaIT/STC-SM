@@ -20,7 +20,7 @@ data class ShiftOutputModel(
                 cabinetDescription = shift.cabinet.description,
                 startTime = shift.startTime.toString(),
                 endTime = shift.endTime.toString(),
-                status = if (shift.endTime.isAfter(Instant.now())) "ACTIVE" else "COMPLETED",
+                status = shift.status.name,
                 self = "/api/shifts/${shift.id}",
                 user = "/api/users/${shift.user.id}",
                 cabinet = "/api/cabinets/${shift.cabinet.id}",

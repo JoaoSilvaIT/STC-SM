@@ -1,12 +1,17 @@
 package pt.isel.model.activity
 
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.ActivityService
+import pt.isel.model.shift.ShiftOutputModel
 import pt.isel.user.User
 import pt.isel.utils.Either
+import java.time.Instant
 
 @RestController
 class ActivityController(private val activityService: ActivityService) {
@@ -21,4 +26,25 @@ class ActivityController(private val activityService: ActivityService) {
             is Either.Success -> ResponseEntity.ok(ActivityOutputModel.fromDomain(result.value))
             is Either.Failure -> result.value.toProblemResponse()
         }
+
+    @PostMapping("/api/activities")
+    fun create(
+        @Suppress("UNUSED_PARAMETER") user: User, 
+        @RequestBody input: ActivityInputModel
+    ): ResponseEntity<*> =
+        when (val result = activityService.createActivity(
+            uid = input.uid,
+            tid = input.tid,
+            cid = input.cid,
+            sid = input.sid,
+            type = input.type,
+            date = Instant.now()
+        )) {
+            is Either.Success -> ResponseEntity
+                .status(HttpStatus.CREATED)
+                .header("Location", "/api/activities/${result.value.id}")
+                .body(ActivityOutputModel.fromDomain(result.value))
+            is Either.Failure -> result.value.toProblemResponse()
+        }
 }
+

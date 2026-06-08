@@ -1,8 +1,23 @@
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 
-// Android emulator can't reach host's localhost; iOS simulator can
-export const BASE_URL =
-  Platform.OS === 'android' ? 'http://10.0.2.2:8080' : 'http://localhost:8080';
+function getApiUrl(): string {
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
+  
+  // If running in Expo Go over LAN, dynamically get the computer's IP
+  const debuggerHost = Constants.expoConfig?.hostUri;
+  if (debuggerHost) {
+    const ip = debuggerHost.split(':')[0];
+    return `http://${ip}:8080`;
+  }
+
+  // Fallback for Emulators / Web
+  return Platform.OS === 'android' ? 'http://10.0.2.2:8080' : 'http://localhost:8080';
+}
+
+export const BASE_URL = getApiUrl();
 
 let _token: string | null = null;
 

@@ -1,12 +1,16 @@
 import React from 'react';
 import { renderHook, act } from '@testing-library/react-native';
 import { ShiftProvider, useShift } from '../context/ShiftContext';
-import type { Cabinet, Tool } from '../types/domain';
+import type { Cabinet, Tool, Shift } from '../types/domain';
 
 // Mock API modules so tests don't need a running backend
 jest.mock('../api/shifts', () => ({
-  createShift: jest.fn(),
+  startShift: jest.fn(),
   endShift: jest.fn(),
+}));
+
+jest.mock('../api/cabinets', () => ({
+  getCabinet: jest.fn(),
 }));
 
 jest.mock('../api/tools', () => ({
@@ -15,10 +19,12 @@ jest.mock('../api/tools', () => ({
 }));
 
 import * as shiftsApi from '../api/shifts';
+import * as cabinetsApi from '../api/cabinets';
 import * as toolsApi  from '../api/tools';
 
-const mockCreateShift = shiftsApi.createShift as jest.Mock;
+const mockStartShift  = shiftsApi.startShift  as jest.Mock;
 const mockEndShift    = shiftsApi.endShift    as jest.Mock;
+const mockGetCabinet  = cabinetsApi.getCabinet as jest.Mock;
 const mockListTools   = toolsApi.listTools    as jest.Mock;
 const mockUpdateTool  = toolsApi.updateTool   as jest.Mock;
 
@@ -31,13 +37,15 @@ const mockTools: Tool[] = [
   { id: 102, name: 'Rivet Gun',     partNumber: 'RG-4',  cabinetId: 1, status: 'AVAILABLE', isActive: true },
 ];
 
-const mockShift = {
+const mockShift: Shift = {
   id: 10, userId: 2, userName: 'C. Ferreira',
   cabinetId: 1, cabinetName: 'CAB-001',
-  status: 'ACTIVE' as const,
+  status: 'ON_GOING',
   startTime: new Date().toISOString(),
-  endTime: null, aircraftReg: '',
+  endTime: null,
 };
+
+const mockAssignedShift: Shift = { ...mockShift, status: 'ENDED' };
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <ShiftProvider userId={2}>{children}</ShiftProvider>
@@ -46,8 +54,9 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 describe('ShiftContext', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockCreateShift.mockResolvedValue(mockShift);
-    mockEndShift.mockResolvedValue({ ...mockShift, status: 'COMPLETED' });
+    mockStartShift.mockResolvedValue(mockShift);
+    mockEndShift.mockResolvedValue({ ...mockShift, status: 'ENDED' });
+    mockGetCabinet.mockResolvedValue(mockCabinet);
     mockListTools.mockResolvedValue(mockTools);
   });
 
@@ -56,11 +65,11 @@ describe('ShiftContext', () => {
     expect(result.current.activeShift).toBeNull();
   });
 
-  it('startShift sets active shift with aircraftReg and loads cabinet tools', async () => {
+  it('startShift sets active shift and loads cabinet tools', async () => {
     const { result } = renderHook(() => useShift(), { wrapper });
-    await act(async () => { await result.current.startShift(mockCabinet, 'CS-TUG'); });
+    await act(async () => { await result.current.startShift(mockAssignedShift); });
     expect(result.current.activeShift?.cabinetId).toBe(1);
-    expect(result.current.activeShift?.aircraftReg).toBe('CS-TUG');
+    expect(result.current.activeShift?.status).toBe('ON_GOING');
     expect(result.current.cabinetTools.length).toBe(2);
   });
 
@@ -69,7 +78,7 @@ describe('ShiftContext', () => {
     mockUpdateTool.mockResolvedValue(updatedTool);
 
     const { result } = renderHook(() => useShift(), { wrapper });
-    await act(async () => { await result.current.startShift(mockCabinet, 'CS-TUG'); });
+    await act(async () => { await result.current.startShift(mockAssignedShift); });
     await act(async () => { await result.current.takeTool(101); });
 
     expect(mockUpdateTool).toHaveBeenCalledWith(101, 'IN_USE');
@@ -86,7 +95,7 @@ describe('ShiftContext', () => {
       .mockResolvedValueOnce(returnedTool);
 
     const { result } = renderHook(() => useShift(), { wrapper });
-    await act(async () => { await result.current.startShift(mockCabinet, 'CS-TUG'); });
+    await act(async () => { await result.current.startShift(mockAssignedShift); });
     await act(async () => { await result.current.takeTool(101); });
     await act(async () => { await result.current.returnTool(101); });
 
@@ -100,7 +109,7 @@ describe('ShiftContext', () => {
     mockUpdateTool.mockResolvedValue(brokenTool);
 
     const { result } = renderHook(() => useShift(), { wrapper });
-    await act(async () => { await result.current.startShift(mockCabinet, 'CS-TUG'); });
+    await act(async () => { await result.current.startShift(mockAssignedShift); });
     await act(async () => { await result.current.markBroken(101); });
 
     expect(mockUpdateTool).toHaveBeenCalledWith(101, 'BROKEN');
@@ -111,14 +120,14 @@ describe('ShiftContext', () => {
 
   it('logAnomaly logs CABINET_ANOMALY activity', async () => {
     const { result } = renderHook(() => useShift(), { wrapper });
-    await act(async () => { await result.current.startShift(mockCabinet, 'CS-TUG'); });
-    act(() => { result.current.logAnomaly('DOOR_MALFUNCTION', 'Door stuck'); });
+    await act(async () => { await result.current.startShift(mockAssignedShift); });
+    act(() => { result.current.logAnomaly('CABINET_ANOMALY'); });
     expect(result.current.activities.some(a => a.type === 'CABINET_ANOMALY')).toBe(true);
   });
 
   it('endShift calls API and clears state', async () => {
     const { result } = renderHook(() => useShift(), { wrapper });
-    await act(async () => { await result.current.startShift(mockCabinet, 'CS-TUG'); });
+    await act(async () => { await result.current.startShift(mockAssignedShift); });
     await act(async () => { await result.current.endShift(); });
 
     expect(mockEndShift).toHaveBeenCalledWith(10);

@@ -27,10 +27,6 @@ export default function HomeScreen({ navigation }: Props) {
   const { activeShift }         = useShift();
   const now = useClock();
 
-  useEffect(() => {
-    if (activeShift) navigation.replace('ShiftDashboard');
-  }, [activeShift, navigation]);
-
   const firstName = currentUser?.name.split(' ')[0] ?? '';
   const hh = String(now.getHours()).padStart(2, '0');
   const mm = String(now.getMinutes()).padStart(2, '0');
@@ -67,19 +63,23 @@ export default function HomeScreen({ navigation }: Props) {
             <Text style={s.clockLabel}>LOCAL TIME</Text>
           </View>
           <View style={s.clockBox}>
-            <Text style={[s.clockNum, { color: colors.amber }]}>STBY</Text>
+            <Text style={[s.clockNum, { color: colors.amber }]}>{activeShift ? 'ON_GOING' : 'STBY'}</Text>
             <Text style={s.clockLabel}>SHIFT STATE</Text>
           </View>
         </View>
 
-        <Panel label="No Active Shift" accent="amber" style={{ marginTop: spacing.lg }}>
+        <Panel label={activeShift ? "Active Shift" : "No Active Shift"} accent="amber" style={{ marginTop: spacing.lg }}>
           <Text style={[typography.body, { color: colors.text, marginBottom: spacing.md }]}>
-            Begin a new shift to access cabinet tools and report activity.
+            {activeShift ? 'You have an ongoing shift.' : 'Begin a new shift to access cabinet tools and report activity.'}
           </Text>
 
-          <TouchableOpacity style={btn.primary} onPress={() => navigation.navigate('StartShift')} activeOpacity={0.85}>
-            <Ionicons name="play" size={14} color="#0A0A0A" />
-            <Text style={btn.primaryLabel}>Start Shift</Text>
+          <TouchableOpacity 
+            style={btn.primary} 
+            onPress={() => navigation.navigate('ShiftDashboard')} 
+            activeOpacity={0.85}
+          >
+            <Ionicons name={activeShift ? "settings" : "play"} size={14} color="#0A0A0A" />
+            <Text style={btn.primaryLabel}>Shift</Text>
           </TouchableOpacity>
         </Panel>
 
@@ -87,7 +87,7 @@ export default function HomeScreen({ navigation }: Props) {
           <Text style={s.checklistLabel}>PRE-SHIFT CHECKLIST</Text>
           {[
             { icon: 'shield-checkmark-outline' as const, text: 'Verify cabinet status before selection' },
-            { icon: 'document-text-outline' as const,    text: 'Aircraft reg required to begin' },
+            { icon: 'time-outline' as const,             text: 'Ensure enough time is allocated' },
             { icon: 'warning-outline' as const,          text: 'Return all tools before ending shift' },
           ].map(item => (
             <View key={item.text} style={s.checkRow}>

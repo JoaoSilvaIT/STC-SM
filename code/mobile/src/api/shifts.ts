@@ -22,7 +22,6 @@ function toDomain(raw: ShiftResponse): Shift {
     status: raw.status,
     startTime: raw.startTime,
     endTime: raw.endTime,
-    aircraftReg: '',
   };
 }
 
@@ -33,6 +32,19 @@ export async function createShift(userId: number, cabinetId: number): Promise<Sh
   const raw = await request<ShiftResponse>('/api/shifts', {
     method: 'POST',
     body: { uid: userId, cid: cabinetId, startTime, endTime },
+    auth: true,
+  });
+  return toDomain(raw);
+}
+
+export async function getShiftsByUser(userId: number): Promise<Shift[]> {
+  const raw = await request<ShiftResponse[]>(`/api/shifts/user/${userId}`, { auth: true });
+  return raw.map(toDomain);
+}
+
+export async function startShift(id: number): Promise<Shift> {
+  const raw = await request<ShiftResponse>(`/api/shifts/start/${id}`, {
+    method: 'PUT',
     auth: true,
   });
   return toDomain(raw);

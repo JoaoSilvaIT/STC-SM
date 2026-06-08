@@ -18,7 +18,7 @@ export type ActivityType = 'OPEN_CABINET'
     | 'ENDED_SHIFT';
 export type UserRole = 'ADMIN' | 'MECHANIC' | 'BACK_OFFICE';
 export type UserStatus = 'ACTIVE' | 'INACTIVE';
-export type ShiftStatus = 'ACTIVE' | 'COMPLETED';
+export type ShiftStatus = 'ON_GOING' | 'ENDED';
 
 export interface User {
   id: number;

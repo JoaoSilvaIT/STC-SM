@@ -36,7 +36,7 @@ function ShiftCard({
 }: ShiftCardProps) {
   const userName    = shift.userName    ?? `User #${shift.userId}`
   const cabinetName = shift.cabinetName ?? `Cabinet #${shift.cabinetId}`
-  const isActive    = shift.status === 'ACTIVE'
+  const isActive    = shift.status === 'ON_GOING'
   const canEnd      = isActive && (isAdmin || shift.userId === currentUserId)
 
   return (
@@ -138,11 +138,11 @@ export default function Shifts() {
     return () => { cancelled = true }
   }, [])
 
-  const active    = shifts.filter(s => s.status === 'ACTIVE')
-  const completed = shifts.filter(s => s.status === 'COMPLETED')
+  const active    = shifts.filter(s => s.status === 'ON_GOING')
+  const completed = shifts.filter(s => s.status === 'ENDED')
   const isAdmin   = user?.role === 'ADMIN'
 
-  const myActiveShift = shifts.find(s => s.userId === user?.id && s.status === 'ACTIVE')
+  const myActiveShift = shifts.find(s => s.userId === user?.id && s.status === 'ON_GOING')
   const canStartShift = isAdmin || !myActiveShift
 
   const handleStartShift = async (data: { cabinetId: number; aircraftReg: string }) => {

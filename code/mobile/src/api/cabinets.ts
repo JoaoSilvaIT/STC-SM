@@ -23,3 +23,8 @@ export async function listCabinets(): Promise<Cabinet[]> {
   const raw = await request<CabinetResponse[]>('/api/cabinets', { auth: true });
   return raw.map(toDomain);
 }
+
+export async function getCabinet(id: number): Promise<Cabinet> {
+  const raw = await request<CabinetResponse>(`/api/cabinets/${id}`, { auth: true });
+  return toDomain(raw);
+}

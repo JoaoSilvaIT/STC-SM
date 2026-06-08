@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -11,22 +11,23 @@ import ScreenHeader from '../components/ScreenHeader';
 type Props = NativeStackScreenProps<RootStackParamList, 'Anomaly'>;
 
 const ANOMALY_OPTIONS: { label: string; value: AnomalyType; icon: keyof typeof import('@expo/vector-icons').Ionicons.glyphMap; hint: string }[] = [
-  { label: 'Door Malfunction', value: 'DOOR_MALFUNCTION', icon: 'lock-open-outline',    hint: 'Door fails to open, close or seal'      },
-  { label: 'Power Issue',      value: 'POWER_ISSUE',      icon: 'flash-outline',        hint: 'Cabinet is unpowered or unstable'       },
-  { label: 'Sensor Failure',   value: 'SENSOR_FAILURE',   icon: 'pulse-outline',        hint: 'False readings or unresponsive sensor'  },
-  { label: 'Other',            value: 'OTHER',            icon: 'help-circle-outline',  hint: 'Anything not covered above'             },
+  { label: 'Broken Tool', value: 'TOOL_BROKEN', icon: 'hammer-outline', hint: 'A tool is damaged' },
+  { label: 'Missing Tool', value: 'TOOL_MISSING', icon: 'search-outline', hint: 'A tool cannot be found' },
+  { label: 'Cabinet Anomaly', value: 'CABINET_ANOMALY', icon: 'lock-open-outline', hint: 'Issue with the cabinet hardware' },
 ];
 
 export default function AnomalyScreen({ navigation }: Props) {
   const { logAnomaly }            = useShift();
   const [selected, setSelected]   = useState<AnomalyType | null>(null);
-  const [notes, setNotes]         = useState('');
-  const [notesFocus, setNotesFocus] = useState(false);
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!selected) return;
-    logAnomaly(selected, notes.trim());
-    navigation.goBack();
+    try {
+      await logAnomaly(selected);
+      navigation.goBack();
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   return (
@@ -71,23 +72,6 @@ export default function AnomalyScreen({ navigation }: Props) {
               </TouchableOpacity>
             );
           })}
-        </View>
-
-        <Text style={[typography.label, { marginBottom: spacing.sm }]}>OBSERVATIONS · OPTIONAL</Text>
-        <View style={[s.textareaWrap, notesFocus && s.textareaFocus]}>
-          <TextInput
-            style={s.textarea}
-            placeholder="Describe what you observed…"
-            placeholderTextColor={colors.textDim}
-            value={notes}
-            onChangeText={setNotes}
-            onFocus={() => setNotesFocus(true)}
-            onBlur={() => setNotesFocus(false)}
-            multiline
-            numberOfLines={4}
-            textAlignVertical="top"
-          />
-          <Text style={s.charCount}>{notes.length}/240</Text>
         </View>
 
         <View style={{ height: spacing.lg }} />
@@ -166,33 +150,6 @@ const s = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     backgroundColor: colors.amber,
-  },
-
-  textareaWrap: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    paddingBottom: spacing.sm,
-    minHeight: 120,
-  },
-  textareaFocus: {
-    borderColor: colors.amber,
-    backgroundColor: colors.surfaceAlt,
-  },
-  textarea: {
-    color: colors.textHi,
-    fontSize: 14,
-    lineHeight: 19,
-    minHeight: 80,
-  },
-  charCount: {
-    fontFamily: fonts.mono,
-    fontSize: 10,
-    color: colors.textDim,
-    letterSpacing: 1,
-    textAlign: 'right',
   },
   btnDisabled: { opacity: 0.3 },
 });
