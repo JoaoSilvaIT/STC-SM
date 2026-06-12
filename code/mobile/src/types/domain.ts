@@ -1,18 +1,14 @@
 export type ToolStatus = 'AVAILABLE' | 'IN_USE' | 'BROKEN' | 'MISSING';
 export type CabinetStatus = 'OPEN' | 'CLOSED' | 'BROKEN' | 'INACTIVE';
-export type ActivityType =
-  | 'TOOL_REMOVED'
-  | 'TOOL_RETURNED'
-  | 'DOOR_OPENED'
-  | 'DOOR_CLOSED'
-  | 'SHIFT_STARTED'
-  | 'SHIFT_ENDED'
-  | 'CABINET_ONLINE'
-  | 'CABINET_OFFLINE'
-  | 'TOOL_MISSING_DETECTED'
-  | 'TOOL_BROKEN'        // mobile-local: logged when mechanic marks a tool broken
-  | 'CABINET_ANOMALY'
-  | 'TOOL_MISSING';
+export type ActivityType = 'OPEN_CABINET'
+| 'CLOSE_CABINET'
+| 'REMOVE_TOOL'
+| 'TOOL_BROKEN'
+| 'TOOL_MISSING'
+| 'TOOL_IN_MAINTENANCE'
+| 'CABINET_ANOMALY'
+| 'STARTED_SHIFT'
+| 'ENDED_SHIFT';
 export type UserRole = 'ADMIN' | 'MECHANIC' | 'BACK_OFFICE';
 export type UserStatus = 'ACTIVE' | 'INACTIVE';
 export type ShiftStatus = 'ON_GOING' | 'ENDED';

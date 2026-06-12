@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Search, UserPlus, Shield, User } from 'lucide-react'
+import { Search, UserPlus, Shield, User, Briefcase } from 'lucide-react'
 import { createUser, listUsers, updateUserState } from '@/api/users'
 import { ApiError } from '@/api/client'
 import type { User as UserType, UserRole } from '@/types/domain'
@@ -48,6 +48,7 @@ export default function Users() {
     ALL:      users.length,
     ADMIN:    users.filter(u => u.role === 'ADMIN').length,
     MECHANIC: users.filter(u => u.role === 'MECHANIC').length,
+    BACK_OFFICE: users.filter(u => u.role === 'BACK_OFFICE').length,
   }
 
   const handleSave = async (data: { name: string; email: string; role: UserRole; password?: string }) => {
@@ -117,13 +118,13 @@ export default function Users() {
       {/* Toolbar */}
       <div className={styles.toolbar}>
         <div className={styles.filters}>
-          {(['ALL', 'MECHANIC', 'ADMIN'] as const).map(r => (
+          {(['ALL', 'MECHANIC', 'ADMIN', 'BACK_OFFICE'] as const).map(r => (
             <button
               key={r}
               className={`${styles.filterBtn} ${roleFilter === r ? styles.filterActive : ''}`}
               onClick={() => setRoleFilter(r)}
             >
-              {r === 'ALL' ? 'All Roles' : r === 'ADMIN' ? 'Admin' : 'Mechanic'}
+              {r === 'ALL' ? 'All Roles' : r === 'ADMIN' ? 'Admin' : r === 'BACK_OFFICE' ? 'BackOffice' : 'Mechanic'}
               <span className={styles.filterCount}>{counts[r]}</span>
             </button>
           ))}
@@ -213,9 +214,9 @@ export default function Users() {
 
 function RoleBadge({ role }: { role: UserRole }) {
   return (
-    <span className={`${styles.roleBadge} ${role === 'ADMIN' ? styles.roleAdmin : styles.roleMech}`}>
-      {role === 'ADMIN' ? <Shield size={10} /> : <User size={10} />}
-      {role === 'ADMIN' ? 'Admin' : 'Mechanic'}
+    <span className={`${styles.roleBadge} ${role === 'ADMIN' ? styles.roleAdmin : role === 'BACK_OFFICE' ? styles.roleBack : styles.roleMech}`}>
+      {role === 'ADMIN' ? <Shield size={10} /> : role === 'BACK_OFFICE' ? <Briefcase size={10} /> : <User size={10} />}
+      {role === 'ADMIN' ? 'Admin' : role === 'BACK_OFFICE' ? 'BackOffice' : 'Mechanic'}
     </span>
   )
 }

@@ -18,7 +18,7 @@ export type ActivityType = 'OPEN_CABINET'
     | 'ENDED_SHIFT';
 export type UserRole = 'ADMIN' | 'MECHANIC' | 'BACK_OFFICE';
 export type UserStatus = 'ACTIVE' | 'INACTIVE';
-export type ShiftStatus = 'ON_GOING' | 'ENDED';
+export type ShiftStatus = 'ACTIVE' | 'INACTIVE';
 
 export interface User {
   id: number;
@@ -47,9 +47,9 @@ export interface Tool {
 export interface Shift {
   id: number;
   userId: number;
-  userName?: string;
+  userName: string | null;
   cabinetId: number;
-  cabinetName?: string;
+  cabinetName: string | null;
   status: ShiftStatus;
   startTime: string;
   endTime: string | null;
@@ -57,12 +57,12 @@ export interface Shift {
 
 export interface Activity {
   id: number;
-  cabinetId: number;
-  cabinetName?: string;
+  cabinetId: number | null;
+  cabinetName: string | null;
   toolId: number | null;
-  toolName?: string;
+  toolName: string | null;
   userId: number;
-  userName?: string;
+  userName: string | null;
   type: ActivityType;
   timestamp: string;
   notes: string | null;

@@ -27,6 +27,24 @@
   letter-spacing: 0.04em;
 }
 
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .headRight {
   display: flex;
   align-items: flex-start;
@@ -141,6 +159,7 @@
 
 /* ── SHIFT CARD ── */
 .card {
+  position: relative;
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
@@ -153,13 +172,24 @@
 
 .card:hover { border-color: var(--border-default); }
 
-.cardActive {
-  border-color: rgba(12, 232, 120, 0.15);
-  background: linear-gradient(135deg, rgba(1,232,120,0.04));
+/* ── Status Dot ── */
+.statusDot {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
 }
 
-.cardDone {
-  opacity: 0.7;
+.dotActive {
+  background: var(--clear);
+  box-shadow: 0 0 6px rgba(12, 232, 120, 0.6);
+}
+
+.dotInactive {
+  background: var(--amber);
+  box-shadow: 0 0 6px rgba(244, 163, 24, 0.6);
 }
 
 /* Card header */

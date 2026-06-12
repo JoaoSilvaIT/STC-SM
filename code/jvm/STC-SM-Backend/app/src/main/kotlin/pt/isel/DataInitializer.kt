@@ -17,8 +17,6 @@ import pt.isel.user.UserStatus
 import pt.isel.activity.Activity
 import pt.isel.activity.ActivityType
 import java.time.Instant
-import java.time.LocalDateTime
-import kotlin.time.Duration
 
 // Initializes the Database with the 3 Profiles and the Admin User.
 @Component
@@ -32,12 +30,12 @@ class DataInitializer(
     private val passwordEncoder: PasswordEncoder
 ) : CommandLineRunner {
     override fun run(vararg args: String) {
-        // Checks if the table is empty
         val profiles = listOf(
             Profile(id = 1, role = Role.MECHANIC, description = "Mechanic"),
             Profile(id = 2, role = Role.BACK_OFFICE, description = "Back Office"),
             Profile(id = 3, role = Role.ADMIN, description = "Administrator")
         )
+        // Checks if the table is empty
         if (profileRepository.count() == 0L) {
             profileRepository.saveAll(profiles)
         }
@@ -84,15 +82,22 @@ class DataInitializer(
         if (toolRepository.count() == 0L) {
             toolRepository.save(tool)
         }
-        val shift = Shift(
-            cabinet = cabinet,
-            user = users[2],
-            startTime = Instant.now(),
-            endTime = Instant.now().plusSeconds(15 * 60),
-            status = ShiftStatus.ENDED,
+        val shifts = listOf<Shift>(
+            Shift(
+                cabinet = cabinet,
+                user = users[2],
+                startTime = Instant.now(),
+                endTime = Instant.now().plusSeconds(15 * 60),
+                status = ShiftStatus.INACTIVE),
+            Shift(
+                cabinet = cabinet,
+                user = users[2],
+                startTime = Instant.now().plusSeconds(15 * 60),
+                endTime = Instant.now().plusSeconds(30 * 60),
+                status = ShiftStatus.ACTIVE),
         )
         if (shiftRepository.count() == 0L) {
-            shiftRepository.save(shift)
+            shiftRepository.saveAll(shifts)
         }
         if (activityRepository.count() == 0L) {
             val activity = Activity(
@@ -101,7 +106,7 @@ class DataInitializer(
                 date = Instant.now(),
                 tool = null,
                 cabinet = cabinet,
-                shift = shift
+                shift = shifts[0]
             )
             activityRepository.save(activity)
         }

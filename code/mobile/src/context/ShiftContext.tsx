@@ -4,8 +4,7 @@ import { startShift as apiStartShift, endShift as apiEndShift } from '../api/shi
 import { listTools, updateTool } from '../api/tools';
 import { getCabinet } from '../api/cabinets';
 import { createActivity } from '../api/activities';
-
-export type AnomalyType = 'TOOL_BROKEN' | 'TOOL_MISSING' | 'CABINET_ANOMALY';
+import { ActivityType } from '../types/domain';
 
 interface ShiftContextType {
   activeShift: Shift | null;
@@ -20,7 +19,7 @@ interface ShiftContextType {
   takeTool(toolId: number): Promise<void>;
   returnTool(toolId: number): Promise<void>;
   markBroken(toolId: number): Promise<void>;
-  logAnomaly(type: AnomalyType): Promise<void>;
+  logAnomaly(type: ActivityType): Promise<void>;
   endShift(): Promise<void>;
 }
 
@@ -170,7 +169,7 @@ export function ShiftProvider({
     });
   }
 
-  async function logAnomaly(type: AnomalyType): Promise<void> {
+  async function logAnomaly(type: ActivityType): Promise<void> {
     if (!activeShift) return;
     try {
       await createActivity(

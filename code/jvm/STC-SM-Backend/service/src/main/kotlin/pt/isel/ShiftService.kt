@@ -1,6 +1,5 @@
 package pt.isel
 
-import org.springframework.data.jpa.domain.AbstractPersistable_.id
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import pt.isel.errors.ShiftError
@@ -42,7 +41,7 @@ class ShiftService(
             cabinet = cabinet,
             startTime = startTime,
             endTime = endTime,
-                status = ShiftStatus.ENDED // the only person that turns this into ON_GOING is the mechanic when he starts the shift itself
+                status = ShiftStatus.INACTIVE // the only person that turns this into ON_GOING is the mechanic when he starts the shift itself
         )))
     }
 
@@ -63,7 +62,7 @@ class ShiftService(
     fun startShift(sid: Int, uid: Int): Either<ShiftError, Shift> {
         val shift = shiftRepo.findByIdOrNull(sid) ?: return failure(ShiftError.ShiftNotFound)
         val user = userRepo.findByIdOrNull(uid) ?: return failure(ShiftError.InvalidUserId)
-        if (shift.status == ShiftStatus.ON_GOING) return failure(ShiftError.ShiftAlreadyStarted)
+        if (shift.status == ShiftStatus.ACTIVE) return failure(ShiftError.ShiftAlreadyStarted)
         activityService.createActivity(
             uid = user.id, sid = shift.id,
             tid = null,
@@ -71,14 +70,14 @@ class ShiftService(
             type = ActivityType.STARTED_SHIFT,
             date = Instant.now()
         )
-        return success(shiftRepo.save(shift.copy(status = ShiftStatus.ON_GOING)))
+        return success(shiftRepo.save(shift.copy(status = ShiftStatus.ACTIVE)))
     }
 
     @Transactional
     fun endShift(sid: Int, uid: Int): Either<ShiftError, Shift> {
         val shift = shiftRepo.findByIdOrNull(sid) ?: return failure(ShiftError.ShiftNotFound)
         val user = userRepo.findByIdOrNull(uid) ?: return failure(ShiftError.InvalidUserId)
-        if (shift.status == ShiftStatus.ENDED) return failure(ShiftError.ShiftAlreadyEnded)
+        if (shift.status == ShiftStatus.INACTIVE) return failure(ShiftError.ShiftAlreadyEnded)
         activityService.createActivity(
             uid = user.id, sid = shift.id,
             tid = null,
@@ -86,7 +85,7 @@ class ShiftService(
             type = ActivityType.ENDED_SHIFT,
             date = Instant.now()
         )
-        return success(shiftRepo.save(shift.copy(status = ShiftStatus.ENDED)))
+        return success(shiftRepo.save(shift.copy(status = ShiftStatus.INACTIVE)))
     }
 
 

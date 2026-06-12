@@ -30,12 +30,12 @@ data class ActivityOutputModel(
             )
 
         private fun mapType(type: ActivityType): String = when (type) {
-            ActivityType.OPEN_CABINET -> "DOOR_OPENED"
-            ActivityType.CLOSE_CABINET -> "DOOR_CLOSED"
-            ActivityType.REMOVE_TOOL -> "TOOL_REMOVED"
-            ActivityType.RETURN_TOOL -> "TOOL_RETURNED"
-            ActivityType.TOOL_BROKEN -> "TOOL_MISSING_DETECTED"
-            ActivityType.CABINET_ANOMALY -> "CABINET_OFFLINE"
+            ActivityType.OPEN_CABINET -> "OPEN_CABINET"
+            ActivityType.CLOSE_CABINET -> "CLOSE_CABINET"
+            ActivityType.REMOVE_TOOL -> "REMOVE_TOOL"
+            ActivityType.RETURN_TOOL -> "RETURN_TOOL"
+            ActivityType.TOOL_BROKEN -> "TOOL_BROKEN"
+            ActivityType.CABINET_ANOMALY -> "CABINET_ANOMALY"
             ActivityType.STARTED_SHIFT -> "STARTED_SHIFT"
             ActivityType.ENDED_SHIFT -> "ENDED_SHIFT"
             ActivityType.TOOL_MISSING -> "TOOL_MISSING"

@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  Play, Square, LockOpen, Lock, LogOut, LogIn,
-  AlertTriangle, Wifi, WifiOff, Filter,
-} from 'lucide-react'
+import { Unlock, Lock, Wrench, AlertTriangle, Search, Settings,
+  Siren, Play, Square, Filter} from 'lucide-react'
 import { listActivities } from '@/api/activities'
 import { listCabinets } from '@/api/cabinets'
 import { ApiError } from '@/api/client'
@@ -27,22 +25,22 @@ function relTime(iso: string): string {
 }
 
 const TYPE_META: Record<ActivityType, { label: string; icon: React.ElementType; color: string }> = {
-  SHIFT_STARTED:         { label: 'Shift Started',    icon: Play,          color: 'info'    },
-  SHIFT_ENDED:           { label: 'Shift Ended',      icon: Square,        color: 'muted'   },
-  DOOR_OPENED:           { label: 'Door Opened',      icon: LockOpen,      color: 'amber'   },
-  DOOR_CLOSED:           { label: 'Door Closed',      icon: Lock,          color: 'muted'   },
-  TOOL_REMOVED:          { label: 'Tool Removed',     icon: LogOut,        color: 'amber'   },
-  TOOL_RETURNED:         { label: 'Tool Returned',    icon: LogIn,         color: 'clear'   },
-  TOOL_MISSING_DETECTED: { label: 'Tool Missing',     icon: AlertTriangle, color: 'risk'    },
-  CABINET_ONLINE:        { label: 'Cabinet Online',   icon: Wifi,          color: 'clear'   },
-  CABINET_OFFLINE:       { label: 'Cabinet Offline',  icon: WifiOff,       color: 'risk'    },
+  OPEN_CABINET:         { label: 'Opened Cabinet',      icon: Unlock,        color: 'clear'   },
+  CLOSE_CABINET:        { label: 'Closed Cabinet',      icon: Lock,          color: 'muted'   },
+  REMOVE_TOOL:          { label: 'Removed Tool',        icon: Wrench,        color: 'info'    },
+  TOOL_BROKEN:          { label: 'Broken Tool',         icon: AlertTriangle, color: 'risk'    },
+  TOOL_MISSING:         { label: 'Missing Tool',        icon: Search,        color: 'risk'    },
+  TOOL_IN_MAINTENANCE:  { label: 'Tool in Maintenance', icon: Settings,      color: 'amber'   },
+  CABINET_ANOMALY:      { label: 'Cabinet Anomaly',     icon: Siren,         color: 'risk'    },
+  STARTED_SHIFT:        { label: 'Started Shift',       icon: Play,          color: 'clear'   },
+  ENDED_SHIFT:          { label: 'Ended Shift',         icon: Square,        color: 'muted'   },
 }
 
 function ActivityRow({ act, index }: { act: Activity; index: number }) {
   const meta   = TYPE_META[act.type]
   const Icon   = meta.icon
   const ts     = formatTs(act.timestamp)
-  const isCrit = act.type === 'TOOL_MISSING_DETECTED'
+  const isCrit = act.type === 'TOOL_MISSING'
 
   return (
     <tr
@@ -110,7 +108,7 @@ export default function ActivityLog() {
     }),
   [activities, typeF, cabinetF])
 
-  const missCount = activities.filter(a => a.type === 'TOOL_MISSING_DETECTED').length
+  const missCount = activities.filter(a => a.type === 'TOOL_MISSING').length
 
   return (
     <div className={styles.page}>
