@@ -50,8 +50,8 @@ export function ShiftProvider({
       const { getShiftsByUser } = require('../api/shifts');
       const shifts: Shift[] = await getShiftsByUser(userId);
       
-      const ongoing = shifts.find(s => s.status === 'ON_GOING');
-      const ended = shifts.find(s => s.status === 'ENDED');
+      const ongoing = shifts.find(s => s.status === 'ACTIVE');
+      const ended = shifts.find(s => s.status === 'INACTIVE');
       
       const target = ongoing || ended;
       
@@ -219,8 +219,6 @@ export function ShiftProvider({
     } finally {
       setLoading(false);
       setActiveShift(null);
-      setActiveCabinet(null);
-      setCabinetTools([]);
       setActivities([]);
     }
   }

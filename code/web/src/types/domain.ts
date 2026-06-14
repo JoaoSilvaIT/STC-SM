@@ -19,6 +19,8 @@ export type ActivityType = 'OPEN_CABINET'
 export type UserRole = 'ADMIN' | 'MECHANIC' | 'BACK_OFFICE';
 export type UserStatus = 'ACTIVE' | 'INACTIVE';
 export type ShiftStatus = 'ACTIVE' | 'INACTIVE';
+export type AlertType = 'LATE_START';
+export type AlertStatus = 'UNREAD' | 'READ' | 'RESOLVED';
 
 export interface User {
   id: number;
@@ -26,6 +28,18 @@ export interface User {
   email: string;
   role: UserRole;
   isActive: boolean;
+}
+
+export interface Alert {
+  id: number,
+  type: AlertType,
+  status: AlertStatus,
+  message: string;
+  userName: string;
+  timestamp: string;
+  cabinetName: string | null;
+  toolName: string | null;
+  shiftId: number | null;
 }
 
 export interface Cabinet {

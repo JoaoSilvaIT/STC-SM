@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import pt.isel.errors.ShiftError
 import org.springframework.transaction.annotation.Transactional
 import pt.isel.activity.ActivityType
+import pt.isel.alert.AlertType
 import pt.isel.shift.Shift
 import pt.isel.shift.ShiftStatus
 import pt.isel.utils.Either
@@ -17,6 +18,7 @@ class ShiftService(
     private val shiftRepo: ShiftRepository,
     private val userRepo: UserRepository,
     private val cabinetRepo: CabinetRepository,
+    private val alertService: AlertService,
     private val activityService: ActivityService ,
 ) {
     fun getShift(sid: Int): Either<ShiftError, Shift> {
@@ -62,6 +64,7 @@ class ShiftService(
     fun startShift(sid: Int, uid: Int): Either<ShiftError, Shift> {
         val shift = shiftRepo.findByIdOrNull(sid) ?: return failure(ShiftError.ShiftNotFound)
         val user = userRepo.findByIdOrNull(uid) ?: return failure(ShiftError.InvalidUserId)
+        alertService.evaluateLateStart(shift, user)
         if (shift.status == ShiftStatus.ACTIVE) return failure(ShiftError.ShiftAlreadyStarted)
         activityService.createActivity(
             uid = user.id, sid = shift.id,

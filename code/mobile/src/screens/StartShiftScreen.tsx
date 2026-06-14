@@ -46,7 +46,7 @@ export default function StartShiftScreen({ navigation }: Props) {
           return;
         }
 
-        const ongoing = shifts.find(s => s.status === 'ON_GOING');
+        const ongoing = shifts.find(s => s.status === 'ACTIVE');
         const selected = ongoing || shifts[shifts.length - 1];
         setAssignedShift(selected);
 
@@ -67,7 +67,7 @@ export default function StartShiftScreen({ navigation }: Props) {
   async function handleToggleShift() {
     if (!assignedShift) return;
     try {
-      if (assignedShift.status === 'ON_GOING') {
+      if (assignedShift.status === 'ACTIVE') {
         await endShift();
         navigation.goBack();
       } else {
@@ -87,7 +87,7 @@ export default function StartShiftScreen({ navigation }: Props) {
     }
   };
   
-  const isOngoing = assignedShift?.status === 'ON_GOING';
+  const isOngoing = assignedShift?.status === 'ACTIVE';
 
   return (
     <SafeAreaView style={layout.screen} edges={['top', 'left', 'right']}>

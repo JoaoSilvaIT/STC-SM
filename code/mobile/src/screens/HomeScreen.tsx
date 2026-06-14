@@ -24,7 +24,7 @@ function useClock() {
 
 export default function HomeScreen({ navigation }: Props) {
   const { currentUser, logout } = useAuth();
-  const { activeShift }         = useShift();
+  const { activeShift }  = useShift();
   const now = useClock();
 
   const firstName = currentUser?.name.split(' ')[0] ?? '';
@@ -63,7 +63,7 @@ export default function HomeScreen({ navigation }: Props) {
             <Text style={s.clockLabel}>LOCAL TIME</Text>
           </View>
           <View style={s.clockBox}>
-            <Text style={[s.clockNum, { color: colors.amber }]}>{activeShift ? 'ON_GOING' : 'STBY'}</Text>
+            <Text style={[s.clockNum, { color: colors.amber }]}>{activeShift ? 'ACTIVE' : 'STBY'}</Text>
             <Text style={s.clockLabel}>SHIFT STATE</Text>
           </View>
         </View>

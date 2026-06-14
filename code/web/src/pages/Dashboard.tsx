@@ -129,7 +129,7 @@ export default function Dashboard() {
     return () => { cancelled = true }
   }, [])
 
-  const activeShifts = shifts.filter(s => s.status === 'INACTIVE')
+  const activeShifts = shifts.filter(s => s.status === 'ACTIVE')
   const inUseTools   = tools.filter(t => t.status === 'IN_USE')
   const missingTools = tools.filter(t => t.status === 'MISSING')
   const recent       = activities.slice(0, 12)

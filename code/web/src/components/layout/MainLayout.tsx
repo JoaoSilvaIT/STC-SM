@@ -1,15 +1,25 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef} from 'react'
 import {
   LayoutDashboard, Package, Wrench, Activity, Clock,
   AlertTriangle, Shield, Users, Settings, LogOut, FlaskConical,
+    Bell, CheckCircle, X
 } from 'lucide-react'
 import { listShifts } from '@/api/shifts'
 import { useAuth } from '@/context/AuthContext'
 import { usePrefs } from '@/context/PrefsContext'
 import { useSimulator, useSimulatorTools } from '@/context/SimulatorContext'
-import type { Shift } from '@/types/domain'
+import type { Shift, Alert, AlertType} from '@/types/domain'
 import styles from './MainLayout.module.css'
+import { getUnreadAlerts } from '@/api/alerts'
+
+const POP_UP_ICON: Record<string, React.ReactNode> = {
+  LATE_START:    <Clock        size={16} color="#3b82f6" />,
+}
+
+const TYPE_META: Record<AlertType, {label: string}> = {
+  LATE_START: { label: 'Clocked in late'}
+}
 
 const NAV_PRIMARY = [
   { to: '/dashboard', label: 'Dashboard',    icon: LayoutDashboard },
@@ -32,6 +42,49 @@ export default function MainLayout() {
   const navSecondary                  = NAV_SECONDARY_ALL.filter(n => !n.adminOnly || isAdmin)
   const navigate                      = useNavigate()
   const [utcTime, setUtcTime]         = useState(new Date())
+
+  // Alerts that were ignored
+  const [alerts, setAlerts] = useState<Alert[]>([])
+
+  // Pop-Up Alerts
+  const [popUp, setPopUp] = useState([])
+
+  // To not show the same alerts
+  const knownAlertIds =   useRef(new Set())
+
+  const closePopUp = (id: number) => {
+    setPopUp(prev => prev.filter(t => t.id !== id))
+  }
+
+  useEffect(() => {
+    const fetchAlerts = async () => {
+      const unread = await getUnreadAlerts()
+
+      const newAlerts = unread.filter(a => !knownAlertIds.current.has(a.id))
+
+      if (newAlerts.length > 0) {
+        setPopUp(prev => [...prev, ...newAlerts])
+        newAlerts.forEach(a => knownAlertIds.current.add(a.id))
+      }
+
+      setAlerts(unread)
+    }
+
+    const pollingTimer = setInterval(fetchAlerts, 10000)
+
+    return () => clearInterval(pollingTimer)
+  }, [])
+
+  useEffect(() => {
+    if (popUp.length > 0) {
+
+      const timer = setTimeout(() => {
+        setPopUp(prev => prev.slice(1))
+      }, 5000)
+
+      return () => clearTimeout(timer)
+    }
+  }, [popUp])
 
   useEffect(() => {
     const t = setInterval(() => setUtcTime(new Date()), 1000)
@@ -67,6 +120,24 @@ export default function MainLayout() {
 
   return (
     <div className={styles.layout}>
+
+      {/* ── Popups ── */}
+      <div className={styles.toastContainer}>
+        {popUp.map((toast: any) => (
+            <div key={toast.id} className={`${styles.toast} ${styles[toast.type] ?? ''}`}>
+              <div className={styles.toastIconWrap}>
+                {POP_UP_ICON[toast.type] ?? <AlertTriangle size={16} />}
+              </div>
+              <div className={styles.toastContent}>
+                <span className={styles.toastType}>{TYPE_META[toast.type].label}</span>
+                <span className={styles.toastMsg}>{toast.message}</span>
+              </div>
+              <button className={styles.toastClose} onClick={() => closePopUp(toast.id)}>
+                <X size={14} />
+              </button>
+            </div>
+        ))}
+      </div>
 
       {/* ── HEADER ── */}
       <header className={styles.header}>

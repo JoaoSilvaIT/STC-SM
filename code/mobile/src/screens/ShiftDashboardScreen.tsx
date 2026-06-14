@@ -62,7 +62,7 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
   // Use activeShift if available, otherwise fallback to assignedShift
   const shift = activeShift || assignedShift;
   const cabinet = activeCabinet;
-  const isOngoing = activeShift?.status === 'ON_GOING';
+  const isOngoing = activeShift?.status === 'ACTIVE';
 
   if (!shift) {
     return (

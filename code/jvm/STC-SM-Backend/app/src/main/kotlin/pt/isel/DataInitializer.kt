@@ -82,19 +82,13 @@ class DataInitializer(
         if (toolRepository.count() == 0L) {
             toolRepository.save(tool)
         }
-        val shifts = listOf<Shift>(
+        val shifts = listOf(
             Shift(
                 cabinet = cabinet,
                 user = users[2],
                 startTime = Instant.now(),
                 endTime = Instant.now().plusSeconds(15 * 60),
-                status = ShiftStatus.INACTIVE),
-            Shift(
-                cabinet = cabinet,
-                user = users[2],
-                startTime = Instant.now().plusSeconds(15 * 60),
-                endTime = Instant.now().plusSeconds(30 * 60),
-                status = ShiftStatus.ACTIVE),
+                status = ShiftStatus.INACTIVE)
         )
         if (shiftRepository.count() == 0L) {
             shiftRepository.saveAll(shifts)
