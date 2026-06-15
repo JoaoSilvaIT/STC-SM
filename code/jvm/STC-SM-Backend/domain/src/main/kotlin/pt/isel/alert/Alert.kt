@@ -43,4 +43,21 @@ class Alert(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="id_shift")
     val shift: Shift? = null
-)
+) {
+    fun copy(
+        type: AlertType = this.type,
+        status: AlertStatus = this.status,
+        message: String = this.message
+    ): Alert =
+        Alert(
+            id = this.id,
+            date = date,
+            type = type,
+            status = status,
+            message = message,
+            tool = this.tool,
+            cabinet = this.cabinet,
+            shift = this.shift,
+            user = this.user
+        )
+}

@@ -1,5 +1,7 @@
 package pt.isel
 
+import org.springframework.transaction.annotation.Transactional
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import pt.isel.alert.Alert
 import pt.isel.alert.AlertStatus
@@ -15,12 +17,11 @@ import java.time.Instant
 
 @Service
 class AlertService (private val alertRepo: AlertRepository) {
-
     fun evaluateLateStart(shift: Shift, user: User) {
         val currentTime = Instant.now()
         val delayMinutes = Duration.between(shift.startTime, currentTime).toMinutes()
 
-        if (delayMinutes >= 5) {
+        if (delayMinutes >= 1) {
             val alert = Alert(
                 type = AlertType.LATE_START,
                 date = currentTime,
@@ -35,11 +36,14 @@ class AlertService (private val alertRepo: AlertRepository) {
 
     fun getUnreadAlerts(): Either<AlertError, List<Alert>> {
         val alerts = alertRepo.findByType(AlertType.LATE_START)
-        return if (alerts.isEmpty()) {
-            failure(AlertError.AlertsNotFound)
-        } else {
-            success(alerts)
-        }
+        return success(alerts)
+    }
+
+    @Transactional
+    fun markAsReadAlert(aid: Int): Either<AlertError, Alert> {
+        val alert = alertRepo.findByIdOrNull(aid) ?: return failure(AlertError.AlertNotFound)
+        val newAlert = alert.copy(status = AlertStatus.READ)
+        return success(alertRepo.save(newAlert))
     }
 
 }

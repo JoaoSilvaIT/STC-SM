@@ -20,7 +20,7 @@ export type UserRole = 'ADMIN' | 'MECHANIC' | 'BACK_OFFICE';
 export type UserStatus = 'ACTIVE' | 'INACTIVE';
 export type ShiftStatus = 'ACTIVE' | 'INACTIVE';
 export type AlertType = 'LATE_START';
-export type AlertStatus = 'UNREAD' | 'READ' | 'RESOLVED';
+export type AlertStatus = 'UNREAD' | 'READ';
 
 export interface User {
   id: number;

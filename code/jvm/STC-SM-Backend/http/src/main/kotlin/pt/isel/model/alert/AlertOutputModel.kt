@@ -12,7 +12,8 @@ data class AlertOutputModel (
     val status: String,
     val userName: String,
     val cabinetName: String?,
-    val toolName: String?
+    val toolName: String?,
+    val self : String
 ){
     companion object {
         fun fromDomain(alert: Alert): AlertOutputModel =
@@ -23,7 +24,8 @@ data class AlertOutputModel (
                 userName = alert.user.name,
                 cabinetName = alert.cabinet?.description,
                 message = alert.message,
-                toolName = alert.tool?.name
+                toolName = alert.tool?.name,
+                self = "/api/alerts/${alert.id}"
             )
 
         private fun mapType(type: AlertType): String = when(type) {
@@ -33,7 +35,6 @@ data class AlertOutputModel (
         private fun mapStatus(status: AlertStatus): String = when(status) {
             AlertStatus.UNREAD -> "UNREAD"
             AlertStatus.READ -> "READ"
-            AlertStatus.RESOLVED -> "RESOLVED"
         }
     }
 }

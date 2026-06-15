@@ -13,12 +13,15 @@ interface AlertResponse {
     toolName: string | null,
     status: AlertStatus,
     self: string,
-
 }
 
-function toDomain(r: AlertResponse): Alert {
+function toDomain(r: AlertResponse, explicitId?: number): Alert {
+    const id = explicitId ?? idFromHref(r.self)
+    if (!id) {
+        throw new Error('Invalid Alert ID')
+    }
     return {
-        id: idFromHref(r.self),
+        id,
         type: r.type,
         status: r.status,
         message: r.message,
@@ -32,6 +35,14 @@ function toDomain(r: AlertResponse): Alert {
 
 export async function getUnreadAlerts(): Promise<Alert[]> {
     const raw = await request<AlertResponse[]>('/api/alerts/unread', {auth: true})
-    return raw.map(toDomain)
+    return raw.map(r => toDomain(r))
+}
+
+export async function updateAlert(id: number): Promise<Alert> {
+    const raw = await request<AlertResponse>(`/api/alerts/${id}`, {
+        method: 'PUT',
+        auth: true,
+    })
+    return toDomain(raw, id)
 }
 

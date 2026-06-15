@@ -11,7 +11,7 @@ import { usePrefs } from '@/context/PrefsContext'
 import { useSimulator, useSimulatorTools } from '@/context/SimulatorContext'
 import type { Shift, Alert, AlertType} from '@/types/domain'
 import styles from './MainLayout.module.css'
-import { getUnreadAlerts } from '@/api/alerts'
+import { getUnreadAlerts, updateAlert } from '@/api/alerts'
 
 const POP_UP_ICON: Record<string, React.ReactNode> = {
   LATE_START:    <Clock        size={16} color="#3b82f6" />,
@@ -56,18 +56,35 @@ export default function MainLayout() {
     setPopUp(prev => prev.filter(t => t.id !== id))
   }
 
+  const handlePopUpClick = async (id: number) => {
+    try {
+      await updateAlert(id)
+
+      closePopUp(id)
+
+      setAlerts(prev => prev.filter(a => a.id !== id))
+    } catch (error) {
+      console.error("Erro ao marcar alerta como lido", error)
+    }
+  }
+
   useEffect(() => {
     const fetchAlerts = async () => {
-      const unread = await getUnreadAlerts()
+      try { // 1. ABRE A REDE DE SEGURANÇA
+        const unread = await getUnreadAlerts()
 
-      const newAlerts = unread.filter(a => !knownAlertIds.current.has(a.id))
+        const newAlerts = unread.filter(a => !knownAlertIds.current.has(a.id))
 
-      if (newAlerts.length > 0) {
-        setPopUp(prev => [...prev, ...newAlerts])
-        newAlerts.forEach(a => knownAlertIds.current.add(a.id))
+        if (newAlerts.length > 0) {
+          setPopUp(prev => [...prev, ...newAlerts])
+          newAlerts.forEach(a => knownAlertIds.current.add(a.id))
+        }
+
+        setAlerts(unread)
+      } catch (error) { // 2. APANHA O ERRO
+        // Se houver algum problema, o React fica calado e tenta outra vez em 10 segundos
+        console.warn("Erro ao buscar alertas silenciado:", error)
       }
-
-      setAlerts(unread)
     }
 
     const pollingTimer = setInterval(fetchAlerts, 10000)
@@ -124,7 +141,12 @@ export default function MainLayout() {
       {/* ── Popups ── */}
       <div className={styles.toastContainer}>
         {popUp.map((toast: any) => (
-            <div key={toast.id} className={`${styles.toast} ${styles[toast.type] ?? ''}`}>
+            <div
+                key={toast.id}
+                className={`${styles.toast} ${styles[toast.type] ?? ''}`}
+                onClick={() => handlePopUpClick(toast.id)}
+                style={{ cursor: 'pointer' }}
+            >
               <div className={styles.toastIconWrap}>
                 {POP_UP_ICON[toast.type] ?? <AlertTriangle size={16} />}
               </div>
@@ -132,7 +154,13 @@ export default function MainLayout() {
                 <span className={styles.toastType}>{TYPE_META[toast.type].label}</span>
                 <span className={styles.toastMsg}>{toast.message}</span>
               </div>
-              <button className={styles.toastClose} onClick={() => closePopUp(toast.id)}>
+              <button
+                  className={styles.toastClose}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    closePopUp(toast.id)
+                  }}
+              >
                 <X size={14} />
               </button>
             </div>
