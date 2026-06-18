@@ -12,6 +12,7 @@ import pt.isel.utils.Either
 import pt.isel.utils.failure
 import pt.isel.utils.success
 import java.time.Instant
+import java.time.LocalDate
 
 @Service
 class ShiftService(
@@ -36,15 +37,19 @@ class ShiftService(
         val startTime = startTime.toInstantOrNull() ?: return failure(ShiftError.InvalidTimeFormat)
         val endTime = endTime.toInstantOrNull() ?: return failure(ShiftError.InvalidTimeFormat)
 
+        val localDateTime = LocalDate.now()
+
         return success(
             shiftRepo.save(
-            Shift(
-            user = user,
-            cabinet = cabinet,
-            startTime = startTime,
-            endTime = endTime,
-                status = ShiftStatus.INACTIVE // the only person that turns this into ON_GOING is the mechanic when he starts the shift itself
-        )))
+                Shift(
+                            user = user,
+                            cabinet = cabinet,
+                            startTime = startTime,
+                            endTime = endTime,
+                            status = ShiftStatus.INACTIVE,
+                            lastEvaluatedDate = localDateTime)
+            )
+        )
     }
 
     @Transactional
@@ -64,16 +69,23 @@ class ShiftService(
     fun startShift(sid: Int, uid: Int): Either<ShiftError, Shift> {
         val shift = shiftRepo.findByIdOrNull(sid) ?: return failure(ShiftError.ShiftNotFound)
         val user = userRepo.findByIdOrNull(uid) ?: return failure(ShiftError.InvalidUserId)
-        alertService.evaluateLateStart(shift, user)
         if (shift.status == ShiftStatus.ACTIVE) return failure(ShiftError.ShiftAlreadyStarted)
+        val timeNow = Instant.now()
+        if (timeNow.isBefore(shift.startTime) || timeNow.isAfter(shift.endTime)) return failure(ShiftError.ShiftOutOfTime)
+        val today = LocalDate.now()
         activityService.createActivity(
             uid = user.id, sid = shift.id,
             tid = null,
-            cid = null,
+            cid = shift.cabinet.id,
             type = ActivityType.STARTED_SHIFT,
             date = Instant.now()
         )
-        return success(shiftRepo.save(shift.copy(status = ShiftStatus.ACTIVE)))
+        return if (shift.lastEvaluatedDate != today) {
+            alertService.evaluateLateStart(shift, user)
+            success(shiftRepo.save(shift.copy(lastEvaluatedDate = today, status = ShiftStatus.ACTIVE)))
+        } else {
+            success(shiftRepo.save(shift.copy(status = ShiftStatus.ACTIVE)))
+        }
     }
 
     @Transactional

@@ -211,7 +211,8 @@ export default function Cabinets() {
           </p>
         </div>
         <button className={styles.addBtn} onClick={() => setDrawerMode('create')}>
-          <Plus size={13} /> Add Cabinet
+          <Plus size={14} />
+          Add Cabinet
         </button>
       </div>
 

@@ -64,3 +64,16 @@ export async function endShift(id: number): Promise<Shift> {
   })
   return toDomain(raw, id)
 }
+
+export async function editShiftHours(
+    id: number,
+    startTime: string | null = null,
+    endTime: string | null = null,
+) {
+  const raw = await request<ShiftResponse>(`/api/shifts/hours/${id}`, {
+    method: 'PUT',
+    body: {startTime: startTime, endTime: endTime },
+    auth: true,
+  })
+  return toDomain(raw, id)
+}

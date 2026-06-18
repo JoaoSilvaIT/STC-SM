@@ -17,6 +17,7 @@ import pt.isel.user.UserStatus
 import pt.isel.activity.Activity
 import pt.isel.activity.ActivityType
 import java.time.Instant
+import java.time.LocalDate
 
 // Initializes the Database with the 3 Profiles and the Admin User.
 @Component
@@ -88,7 +89,9 @@ class DataInitializer(
                 user = users[2],
                 startTime = Instant.now(),
                 endTime = Instant.now().plusSeconds(15 * 60),
-                status = ShiftStatus.INACTIVE)
+                status = ShiftStatus.INACTIVE,
+                lastEvaluatedDate = null
+            )
         )
         if (shiftRepository.count() == 0L) {
             shiftRepository.saveAll(shifts)

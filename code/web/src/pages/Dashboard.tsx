@@ -17,13 +17,6 @@ function relTime(iso: string): string {
   return `${Math.floor(hrs / 24)}d ago`
 }
 
-function shiftDuration(iso: string): string {
-  const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000)
-  const h = Math.floor(mins / 60)
-  const m = mins % 60
-  return h > 0 ? `${h}h ${m.toString().padStart(2, '0')}m` : `${m}m`
-}
-
 function describeActivity(act: Activity): string {
   const cab = act.cabinetName ?? (act.cabinetId ? `CAB-${String(act.cabinetId).padStart(3, '0')}` : '—')
   const tool = act.toolName ?? (act.toolId != null ? `Tool #${act.toolId}` : null)
@@ -95,8 +88,6 @@ function CabinetCard({ cabinet, tools, activeShift }: CabinetCardProps) {
           <div className={styles.shiftRow}>
             <Play size={10} />
             <span>{activeShift.userName ?? `User #${activeShift.userId}`}</span>
-            <span className={styles.dot}>·</span>
-            <span>{shiftDuration(activeShift.startTime)}</span>
           </div>
         ) : (
           <span className={styles.noShift}>No active shift</span>

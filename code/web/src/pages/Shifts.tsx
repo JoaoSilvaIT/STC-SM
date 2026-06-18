@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Play, CheckCircle2, Clock, Package, User, Square, AlertTriangle } from 'lucide-react'
+import { CheckCircle2, Clock, Package, User, Square, AlertTriangle, Edit2 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
-import { listShifts, startShift, endShift } from '@/api/shifts'
+import { listShifts, startShift, endShift, editShiftHours } from '@/api/shifts'
 import { listCabinets } from '@/api/cabinets'
 import { ApiError } from '@/api/client'
 import ShiftDrawer from '@/components/ui/ShiftDrawer'
@@ -23,16 +23,17 @@ function formatTime(iso: string): string {
 interface ShiftCardProps {
   shift:          Shift
   currentUserId:  number
-  isBackOffice:        boolean
+  isBackOffice:   boolean
   isConfirming:   boolean
   onRequestEnd:   () => void
   onConfirmEnd:   () => void
   onCancelEnd:    () => void
+  onEdit:         () => void
 }
 
 function ShiftCard({
                      shift, currentUserId, isBackOffice,
-                     isConfirming, onRequestEnd, onConfirmEnd, onCancelEnd,
+                     isConfirming, onRequestEnd, onConfirmEnd, onCancelEnd, onEdit
                    }: ShiftCardProps) {
   const userName    = shift.userName    ?? `User #${shift.userId}`
   const cabinetName = shift.cabinetName ?? `Cabinet #${shift.cabinetId}`
@@ -41,79 +42,84 @@ function ShiftCard({
 
   return (
       <div className={styles.card}>
-      <div
-          className={`${styles.statusDot} ${isActive ? styles.dotActive : styles.dotInactive}`}
-          title={isActive ? 'Active Shift' : 'Inactive Shift'}
-      />
+        <div
+            className={`${styles.statusDot} ${isActive ? styles.dotActive : styles.dotInactive}`}
+            title={isActive ? 'Active Shift' : 'Inactive Shift'}
+        />
 
-      <div className={styles.cardHead}>
-      <div className={styles.cardHeadLeft}>
-        <div>
-          <div className={styles.shiftId}>SHIFT-{shift.id.toString().padStart(3, '0')}</div>
-        </div>
-      </div>
-    </div>
+        <div className={styles.cardHead}>
+          <div className={styles.cardHeadLeft}>
+            <div>
+              <div className={styles.shiftId}>SHIFT-{shift.id.toString().padStart(3, '0')}</div>
+            </div>
+          </div>
 
-    <div className={styles.metaGrid}>
-      <div className={styles.metaItem}>
-        <User size={11} className={styles.metaIcon} />
-        <div>
-          <span className={styles.metaKey}>Mechanic</span>
-          <span className={styles.metaVal}>{userName}</span>
+          {/* Botão de Editar (Lápis) adicionado aqui */}
+          <button className={styles.editBtn} onClick={onEdit} title="Edit Shift Times">
+            <Edit2 size={14} />
+          </button>
         </div>
-      </div>
-      <div className={styles.metaItem}>
-        <Package size={11} className={styles.metaIcon} />
-        <div>
-          <span className={styles.metaKey}>Cabinet</span>
-          <span className={styles.metaVal}>{cabinetName}</span>
-        </div>
-      </div>
-      <div className={styles.metaItem}>
-        <Clock size={11} className={styles.metaIcon} />
-        <div>
-          <span className={styles.metaKey}>Duration</span>
-          <span className={`${styles.metaVal} ${isActive ? styles.metaValActive : ''}`}>
+
+        <div className={styles.metaGrid}>
+          <div className={styles.metaItem}>
+            <User size={11} className={styles.metaIcon} />
+            <div>
+              <span className={styles.metaKey}>Mechanic</span>
+              <span className={styles.metaVal}>{userName}</span>
+            </div>
+          </div>
+          <div className={styles.metaItem}>
+            <Package size={11} className={styles.metaIcon} />
+            <div>
+              <span className={styles.metaKey}>Cabinet</span>
+              <span className={styles.metaVal}>{cabinetName}</span>
+            </div>
+          </div>
+          <div className={styles.metaItem}>
+            <Clock size={11} className={styles.metaIcon} />
+            <div>
+              <span className={styles.metaKey}>Duration</span>
+              <span className={`${styles.metaVal} ${isActive ? styles.metaValActive : ''}`}>
               {formatDuration(shift.startTime, shift.endTime)}
             </span>
-          <span className={styles.metaSub}>{isActive ? 'ongoing' : 'inactive'}</span>
-        </div>
-      </div>
-    </div>
-
-    <div className={styles.timeline}>
-      <div className={styles.timelineRow}>
-        <span className={styles.tlKey}>Start</span>
-        <span className={styles.tlVal}>{formatTime(shift.startTime)}</span>
-      </div>
-      {shift.endTime && (
-          <div className={styles.timelineRow}>
-            <span className={styles.tlKey}>End</span>
-            <span className={styles.tlVal}>{formatTime(shift.endTime)}</span>
+              <span className={styles.metaSub}>{isActive ? 'ongoing' : 'inactive'}</span>
+            </div>
           </div>
-      )}
-    </div>
+        </div>
 
-    {canEnd && (
-        <div className={styles.endZone}>
-          {isConfirming ? (
-              <div className={styles.endConfirm}>
-                <AlertTriangle size={12} className={styles.endConfirmIcon} />
-                <span className={styles.endConfirmText}>
-                End shift for {shift.aircraftReg || cabinetName}? This locks {cabinetName}.
-              </span>
-                <button className={styles.endConfirmYes} onClick={onConfirmEnd}>Confirm</button>
-                <button className={styles.endConfirmNo}  onClick={onCancelEnd}>Cancel</button>
+        <div className={styles.timeline}>
+          <div className={styles.timelineRow}>
+            <span className={styles.tlKey}>Start</span>
+            <span className={styles.tlVal}>{formatTime(shift.startTime)}</span>
+          </div>
+          {shift.endTime && (
+              <div className={styles.timelineRow}>
+                <span className={styles.tlKey}>End</span>
+                <span className={styles.tlVal}>{formatTime(shift.endTime)}</span>
               </div>
-          ) : (
-              <button className={styles.endBtn} onClick={onRequestEnd}>
-                <Square size={11} /> End Shift
-              </button>
           )}
         </div>
-    )}
-  </div>
-)
+
+        {canEnd && (
+            <div className={styles.endZone}>
+              {isConfirming ? (
+                  <div className={styles.endConfirm}>
+                    <AlertTriangle size={12} className={styles.endConfirmIcon} />
+                    <span className={styles.endConfirmText}>
+                End shift for {shift.aircraftReg || cabinetName}? This locks {cabinetName}.
+              </span>
+                    <button className={styles.endConfirmYes} onClick={onConfirmEnd}>Confirm</button>
+                    <button className={styles.endConfirmNo}  onClick={onCancelEnd}>Cancel</button>
+                  </div>
+              ) : (
+                  <button className={styles.endBtn} onClick={onRequestEnd}>
+                    <Square size={11} /> End Shift
+                  </button>
+              )}
+            </div>
+        )}
+      </div>
+  )
 }
 
 export default function Shifts() {
@@ -123,7 +129,8 @@ export default function Shifts() {
   const [loading,      setLoading]      = useState(true)
   const [loadError,    setLoadError]    = useState<string | null>(null)
   const [actionError,  setActionError]  = useState<string | null>(null)
-  const [drawerOpen,   setDrawerOpen]   = useState(false)
+
+  const [editingShift, setEditingShift] = useState<Shift | null>(null)
   const [confirmEndId, setConfirmEndId] = useState<number | null>(null)
 
   const refresh = async () => {
@@ -144,20 +151,8 @@ export default function Shifts() {
   }, [])
 
   const active   = shifts.filter(s => s.status === 'ACTIVE')
-  const inactive = shifts.filter(s => s.status === 'INACTIVE') // Renomeado de completed para inactive
+  const inactive = shifts.filter(s => s.status === 'INACTIVE')
   const isBackOffice = user?.role === 'BACK_OFFICE'
-
-  const handleStartShift = async (data: { cabinetId: number; aircraftReg: string }) => {
-    setActionError(null)
-    if (!user) { setActionError('Not authenticated'); return }
-    try {
-      await startShift({ userId: user.id, cabinetId: data.cabinetId })
-      await refresh()
-      setDrawerOpen(false)
-    } catch (err) {
-      setActionError(err instanceof ApiError ? err.message : 'Failed to start shift')
-    }
-  }
 
   const handleEndShift = async (id: number) => {
     setActionError(null)
@@ -167,6 +162,18 @@ export default function Shifts() {
       setConfirmEndId(null)
     } catch (err) {
       setActionError(err instanceof ApiError ? err.message : 'Failed to end shift')
+    }
+  }
+
+  const handleUpdateShiftTimes = async (data: { startTime: string | null; endTime: string | null }) => {
+    if (!editingShift) return
+    setActionError(null)
+    try {
+      await editShiftHours(editingShift.id, data.startTime, data.endTime)
+      await refresh()
+      setEditingShift(null)
+    } catch (err) {
+      setActionError(err instanceof ApiError ? err.message : 'Failed to update shift times')
     }
   }
 
@@ -216,6 +223,7 @@ export default function Shifts() {
                         onRequestEnd={() => setConfirmEndId(s.id)}
                         onConfirmEnd={() => handleEndShift(s.id)}
                         onCancelEnd={() => setConfirmEndId(null)}
+                        onEdit={() => setEditingShift(s)} // <-- Abre a drawer ao clicar
                     />
                 ))
             }
@@ -223,12 +231,11 @@ export default function Shifts() {
         </div>
 
         <ShiftDrawer
-            open={drawerOpen}
+            open={!!editingShift}
             currentUser={user!}
-            cabinets={cabinets}
-            activeShifts={active}
-            onSave={handleStartShift}
-            onClose={() => setDrawerOpen(false)}
+            shift={editingShift}
+            onSave={handleUpdateShiftTimes}
+            onClose={() => setEditingShift(null)}
         />
       </div>
   )

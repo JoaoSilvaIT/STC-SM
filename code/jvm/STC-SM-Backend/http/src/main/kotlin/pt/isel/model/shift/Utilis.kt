@@ -14,4 +14,5 @@ fun ShiftError.toProblemResponse(): ResponseEntity<Any> =
         ShiftError.NotAuthorized -> Problem.NotAuthorized.response(HttpStatus.UNAUTHORIZED)
         ShiftError.ShiftAlreadyStarted -> Problem.ShiftAlreadyStarted.response(HttpStatus.CONFLICT)
         ShiftError.ShiftAlreadyEnded -> Problem.ShiftAlreadyEnded.response(HttpStatus.CONFLICT)
+        ShiftError.ShiftOutOfTime -> Problem.ShiftOutOfTime.response(HttpStatus.CONFLICT)
     }

@@ -1,110 +1,117 @@
 import { useState, useEffect } from 'react'
-import { X, Package, User } from 'lucide-react'
-import type { Cabinet, Shift, User as UserType } from '@/types/domain'
+import { X, Clock, User } from 'lucide-react'
+import type { Shift, User as UserType } from '@/types/domain'
 import styles from './ShiftDrawer.module.css'
 
 interface ShiftDrawerProps {
   open:         boolean
   currentUser:  UserType
-  cabinets:     Cabinet[]
-  activeShifts: Shift[]
-  onSave:       (data: { cabinetId: number }) => void
+  shift:        Shift | null
+  onSave:       (data: { startTime: string | null; endTime: string | null }) => void
   onClose:      () => void
 }
 
+// O input type="datetime-local" precisa do formato "YYYY-MM-DDTHH:mm"
+const formatForInput = (isoString?: string | null) => {
+  if (!isoString) return ''
+  // Corta a string ISO pelos primeiros 16 caracteres para encaixar no input
+  return isoString.slice(0, 16)
+}
+
 export default function ShiftDrawer({
-  open, currentUser, cabinets, activeShifts, onSave, onClose,
-}: ShiftDrawerProps) {
-  const [cabinetId,   setCabinetId]   = useState<number | ''>('')
-  const [errors,      setErrors]      = useState<Record<string, string>>({})
+                                      open, currentUser, shift, onSave, onClose,
+                                    }: ShiftDrawerProps) {
+  const [startTime, setStartTime] = useState<string>('')
+  const [endTime,   setEndTime]   = useState<string>('')
+  const [errors,    setErrors]    = useState<Record<string, string>>({})
 
   useEffect(() => {
-    if (open) {
-      setCabinetId('')
+    if (open && shift) {
+      setStartTime(formatForInput(shift.startTime))
+      setEndTime(formatForInput(shift.endTime))
       setErrors({})
     }
-  }, [open])
+  }, [open, shift])
 
-  if (!open) return null
-
-  const occupiedIds       = activeShifts.map(s => s.cabinetId)
-  const availableCabinets = cabinets.filter(
-      c => (c.status === 'OPEN' || c.status === 'CLOSED') && !occupiedIds.includes(c.id)
-  )
+  if (!open || !shift) return null
 
   const validate = () => {
     const e: Record<string, string> = {}
-    if (!cabinetId)          e.cabinet     = 'Select a cabinet'
+    if (startTime && endTime && new Date(startTime + 'Z') > new Date(endTime + 'Z')) {
+      e.time = 'End time cannot be before start time'
+    }
     return e
   }
 
   const handleSave = () => {
     const e = validate()
     if (Object.keys(e).length) { setErrors(e); return }
+
+    const formattedStart = startTime ? new Date(startTime + 'Z').toISOString() : null
+    const formattedEnd   = endTime   ? new Date(endTime + 'Z').toISOString() : null
+
     onSave({
-      cabinetId:   cabinetId as number,
+      startTime: formattedStart,
+      endTime: formattedEnd,
     })
   }
 
   return (
-    <>
-      <div className={styles.backdrop} onClick={onClose} />
-      <div className={styles.drawer}>
+      <>
+        <div className={styles.backdrop} onClick={onClose} />
+        <div className={styles.drawer}>
 
-        <div className={styles.drawerHead}>
-          <div>
-            <div className={styles.drawerTitle}>Start Shift</div>
-            <div className={styles.drawerSub}>Assigns a cabinet and opens access</div>
-          </div>
-          <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
-            <X size={15} />
-          </button>
-        </div>
-
-        <div className={styles.drawerBody}>
-          <div className={styles.field}>
-            <label className={styles.label}><User size={11} /> Mechanic</label>
-            <div className={styles.readOnly}>{currentUser.name}</div>
-          </div>
-
-          <div className={styles.field}>
-            <label className={styles.label}><Package size={11} /> Cabinet</label>
-            {availableCabinets.length === 0 ? (
-              <div className={styles.noAvail}>
-                No cabinets available — all online cabinets are occupied
-              </div>
-            ) : (
-              <>
-                <select
-                  className={`${styles.select} ${errors.cabinet ? styles.inputErr : ''}`}
-                  value={cabinetId}
-                  onChange={e => setCabinetId(Number(e.target.value))}
-                >
-                  <option value="">Select cabinet…</option>
-                  {availableCabinets.map(c => (
-                    <option key={c.id} value={c.id}>{c.name} — {c.location}</option>
-                  ))}
-                </select>
-                {errors.cabinet && <span className={styles.errMsg}>{errors.cabinet}</span>}
-              </>
-            )}
-          </div>
-        </div>
-
-        <div className={styles.drawerFooter}>
-          <div className={styles.footerActions}>
-            <button
-              className={styles.saveBtn}
-              onClick={handleSave}
-              disabled={availableCabinets.length === 0}
-            >
-              Start Shift
+          <div className={styles.drawerHead}>
+            <div>
+              <div className={styles.drawerTitle}>Edit Shift Times</div>
+              <div className={styles.drawerSub}>Update start or end time for SHIFT-{shift.id.toString().padStart(3, '0')}</div>
+            </div>
+            <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
+              <X size={15} />
             </button>
-            <button className={styles.cancelBtn} onClick={onClose}>Cancel</button>
           </div>
-        </div>
 
-      </div>
-    </>
+          <div className={styles.drawerBody}>
+            <div className={styles.field}>
+              <label className={styles.label}><User size={11} /> Mechanic</label>
+              <div className={styles.readOnly}>{shift.userName || currentUser.name}</div>
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label}><Clock size={11} /> Start Time</label>
+              <input
+                  type="datetime-local"
+                  className={`${styles.input} ${errors.time ? styles.inputErr : ''}`}
+                  value={startTime}
+                  onChange={e => setStartTime(e.target.value)}
+              />
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label}><Clock size={11} /> End Time</label>
+              <input
+                  type="datetime-local"
+                  className={`${styles.input} ${errors.time ? styles.inputErr : ''}`}
+                  value={endTime}
+                  onChange={e => setEndTime(e.target.value)}
+              />
+            </div>
+
+            {errors.time && <span className={styles.errMsg}>{errors.time}</span>}
+          </div>
+
+          <div className={styles.drawerFooter}>
+            <div className={styles.footerActions}>
+              <button className={styles.saveBtn} onClick={handleSave}>
+                Save Changes
+              </button>
+              <button className={styles.cancelBtn} onClick={onClose}>
+                Cancel
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </>
   )
 }

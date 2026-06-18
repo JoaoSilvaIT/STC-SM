@@ -175,7 +175,7 @@
 /* ── Status Dot ── */
 .statusDot {
   position: absolute;
-  top: 16px;
+  top: 20px;
   right: 18px;
   width: 10px;
   height: 10px;
@@ -408,3 +408,24 @@
   transition: all 0.12s;
 }
 .endConfirmNo:hover { color: var(--text-primary); }
+
+.editBtn {
+  position: absolute;
+  top: 14px;
+  right: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease;
+}
+
+.editBtn:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover, rgba(255, 255, 255, 0.08));
+}

@@ -67,4 +67,6 @@ sealed class Problem(
     data object ShiftAlreadyStarted : Problem(URI("$PROBLEM_URI_PATH/shift-already-started"))
 
     data object AlertNotFound : Problem(URI("$PROBLEM_URI_PATH/alert-not-found"))
+
+    data object ShiftOutOfTime: Problem(URI("$PROBLEM_URI_PATH/shift-out-of-time"))
 }

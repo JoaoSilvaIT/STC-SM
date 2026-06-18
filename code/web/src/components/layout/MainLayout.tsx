@@ -23,7 +23,7 @@ const TYPE_META: Record<AlertType, {label: string}> = {
 
 const NAV_PRIMARY = [
   { to: '/dashboard', label: 'Dashboard',    icon: LayoutDashboard },
-  { to: '/cabinets',  label: 'Cabinets',     icon: Package },
+  { to: '/cabinets',  label: '  Cabinets',     icon: Package },
   { to: '/inventory', label: 'Inventory',    icon: Wrench },
   { to: '/activity',  label: 'Activity Log', icon: Activity },
   { to: '/shifts',    label: 'Shifts',       icon: Clock },
@@ -49,6 +49,9 @@ export default function MainLayout() {
   // Pop-Up Alerts
   const [popUp, setPopUp] = useState([])
 
+  // Set to check if the tab of notifications is either open or not
+  const [isBellOpen, setIsBellOpen] = useState(false)
+
   // To not show the same alerts
   const knownAlertIds =   useRef(new Set())
 
@@ -64,13 +67,13 @@ export default function MainLayout() {
 
       setAlerts(prev => prev.filter(a => a.id !== id))
     } catch (error) {
-      console.error("Erro ao marcar alerta como lido", error)
+      console.error(error)
     }
   }
 
   useEffect(() => {
     const fetchAlerts = async () => {
-      try { // 1. ABRE A REDE DE SEGURANÇA
+      try {
         const unread = await getUnreadAlerts()
 
         const newAlerts = unread.filter(a => !knownAlertIds.current.has(a.id))
@@ -81,9 +84,8 @@ export default function MainLayout() {
         }
 
         setAlerts(unread)
-      } catch (error) { // 2. APANHA O ERRO
-        // Se houver algum problema, o React fica calado e tenta outra vez em 10 segundos
-        console.warn("Erro ao buscar alertas silenciado:", error)
+      } catch (e) {
+        console.error(e)
       }
     }
 
@@ -192,6 +194,53 @@ export default function MainLayout() {
             <span className={styles.hStatKey}>Active Shifts</span>
           </div>
           <div className={styles.hDivider} />
+          {/* ── NOTIFICATIONS BELL ── */}
+          <div className={styles.bellWrap}>
+            <button
+                className={styles.bellBtn}
+                onClick={() => setIsBellOpen(!isBellOpen)}
+                title="Notificações"
+            >
+              <Bell size={18} className={styles.bellIcon} />
+              {alerts.length > 0 && (
+                  <span className={styles.bellBadge}>{alerts.length}</span>
+              )}
+            </button>
+
+            {/* LIST OF NOTIFICATIONS UNREAD */}
+            {isBellOpen && (
+                <div className={styles.bellDropdown}>
+                  <div className={styles.bellHeader}>
+                    <span>Alerts</span>
+                    <span className={styles.bellCount}>{alerts.length} unread</span>
+                  </div>
+
+                  <div className={styles.bellList}>
+                    {alerts.length === 0 ? (
+                        <div className={styles.bellEmpty}>No new alerts</div>
+                    ) : (
+                        alerts.map((alert: any) => (
+                            <div
+                                key={alert.id}
+                                className={styles.bellItem}
+                                onClick={() => {
+                                  handlePopUpClick(alert.id);
+                                }}
+                            >
+                              <div className={styles.bellItemIcon}>
+                                {POP_UP_ICON[alert.type] ?? <AlertTriangle size={14} />}
+                              </div>
+                              <div className={styles.bellItemContent}>
+                                <span className={styles.bellItemTitle}>{TYPE_META[alert.type]?.label ?? 'Alert'}</span>
+                                <span className={styles.bellItemMsg}>{alert.message}</span>
+                              </div>
+                            </div>
+                        ))
+                    )}
+                  </div>
+                </div>
+            )}
+          </div>
           <div className={styles.userChip}>
             <div className={styles.userAvatar}>{initials}</div>
             <div>

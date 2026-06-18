@@ -8,4 +8,5 @@ sealed class ShiftError {
     data object NotAuthorized : ShiftError()
     data object ShiftAlreadyStarted : ShiftError()
     data object ShiftAlreadyEnded : ShiftError()
+    data object ShiftOutOfTime : ShiftError()
 }

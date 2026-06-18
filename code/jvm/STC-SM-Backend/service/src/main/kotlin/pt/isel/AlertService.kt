@@ -36,7 +36,8 @@ class AlertService (private val alertRepo: AlertRepository) {
 
     fun getUnreadAlerts(): Either<AlertError, List<Alert>> {
         val alerts = alertRepo.findByType(AlertType.LATE_START)
-        return success(alerts)
+        val unreadAlerts = alerts.filter { it.status == AlertStatus.UNREAD }
+        return success(unreadAlerts)
     }
 
     @Transactional
