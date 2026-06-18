@@ -1,5 +1,6 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useState, useEffect, useRef} from 'react'
+import { Client } from '@stomp/stompjs'
 import {
   LayoutDashboard, Package, Wrench, Activity, Clock,
   AlertTriangle, Shield, Users, Settings, LogOut, FlaskConical,
@@ -47,7 +48,7 @@ export default function MainLayout() {
   const [alerts, setAlerts] = useState<Alert[]>([])
 
   // Pop-Up Alerts
-  const [popUp, setPopUp] = useState([])
+  const [popUp, setPopUp] = useState<Alert[]>([])
 
   // Set to check if the tab of notifications is either open or not
   const [isBellOpen, setIsBellOpen] = useState(false)
@@ -72,26 +73,51 @@ export default function MainLayout() {
   }
 
   useEffect(() => {
-    const fetchAlerts = async () => {
+    // Get the alerts that already append but the user hasn't seen yet
+    const fetchInitialAlerts = async () => {
       try {
         const unread = await getUnreadAlerts()
-
-        const newAlerts = unread.filter(a => !knownAlertIds.current.has(a.id))
-
-        if (newAlerts.length > 0) {
-          setPopUp(prev => [...prev, ...newAlerts])
-          newAlerts.forEach(a => knownAlertIds.current.add(a.id))
-        }
-
         setAlerts(unread)
+        unread.forEach(a => knownAlertIds.current.add(a.id))
       } catch (e) {
         console.error(e)
       }
     }
 
-    const pollingTimer = setInterval(fetchAlerts, 10000)
+    fetchInitialAlerts()
 
-    return () => clearInterval(pollingTimer)
+    const stompClient = new Client({
+      brokerURL: 'ws://localhost:8080/ws-simulator', // For now is localhost:8080
+      onConnect: () => {
+        stompClient.subscribe('/topic/alertas', (message) => {
+          const newAlert = JSON.parse(message.body);
+
+          // Se for um alerta novo que ainda não vimos
+          if (!knownAlertIds.current.has(newAlert.id)) {
+            knownAlertIds.current.add(newAlert.id);
+
+            setAlerts(prev => [...prev, newAlert]);
+
+            setPopUp(prev => [...prev, newAlert]);
+          }
+        });
+
+        stompClient.subscribe('/topic/shifts', (message) => {
+          listShifts().then(s => setShifts(s)).catch(console.error);
+
+          window.dispatchEvent(new Event('shifts-updated'));
+        });
+      },
+      onStompError: (frame) => {
+        console.error('Error on WebSocket: ' + frame.headers['message']);
+      }
+    });
+
+    stompClient.activate();
+
+    return () => {
+      stompClient.deactivate();
+    }
   }, [])
 
   useEffect(() => {

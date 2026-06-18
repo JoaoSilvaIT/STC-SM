@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service
 import pt.isel.errors.ShiftError
 import org.springframework.transaction.annotation.Transactional
 import pt.isel.activity.ActivityType
-import pt.isel.alert.AlertType
 import pt.isel.shift.Shift
 import pt.isel.shift.ShiftStatus
 import pt.isel.utils.Either
@@ -13,6 +12,7 @@ import pt.isel.utils.failure
 import pt.isel.utils.success
 import java.time.Instant
 import java.time.LocalDate
+import pt.isel.results.ShiftResult
 
 @Service
 class ShiftService(
@@ -66,7 +66,7 @@ class ShiftService(
     }
 
     @Transactional
-    fun startShift(sid: Int, uid: Int): Either<ShiftError, Shift> {
+    fun startShift(sid: Int, uid: Int): Either<ShiftError, ShiftResult> {
         val shift = shiftRepo.findByIdOrNull(sid) ?: return failure(ShiftError.ShiftNotFound)
         val user = userRepo.findByIdOrNull(uid) ?: return failure(ShiftError.InvalidUserId)
         if (shift.status == ShiftStatus.ACTIVE) return failure(ShiftError.ShiftAlreadyStarted)
@@ -81,10 +81,11 @@ class ShiftService(
             date = Instant.now()
         )
         return if (shift.lastEvaluatedDate != today) {
-            alertService.evaluateLateStart(shift, user)
-            success(shiftRepo.save(shift.copy(lastEvaluatedDate = today, status = ShiftStatus.ACTIVE)))
+            val alert = alertService.evaluateLateStart(shift, user)
+            val updatedShift = shiftRepo.save(shift.copy(lastEvaluatedDate = today, status = ShiftStatus.ACTIVE))
+            success(ShiftResult(updatedShift, alert))
         } else {
-            success(shiftRepo.save(shift.copy(status = ShiftStatus.ACTIVE)))
+            success(ShiftResult(shiftRepo.save(shift.copy(status = ShiftStatus.ACTIVE)),null))
         }
     }
 

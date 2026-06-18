@@ -2,6 +2,7 @@ package pt.isel.model.shift
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -9,12 +10,14 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.ShiftService
+import pt.isel.model.alert.AlertOutputModel
 import pt.isel.user.User
 import pt.isel.utils.Either
 
 @RestController
 class ShiftController(
     private val shiftService: ShiftService,
+    private val messagingTemplate: SimpMessagingTemplate,
 ) {
     @GetMapping("/api/shifts")
     fun listShifts(@Suppress("UNUSED_PARAMETER") user: User): ResponseEntity<List<ShiftOutputModel>> =
@@ -48,9 +51,18 @@ class ShiftController(
     ): ResponseEntity<*> {
         return when(val result = shiftService.startShift(id, user.id)) {
             is Either.Success -> {
+                val newShift = ShiftOutputModel.fromDomain(result.value.shift)
+
+                messagingTemplate.convertAndSend("/topic/shifts", newShift)
+
+                if (result.value.alert != null) {
+                    val alertDto = AlertOutputModel.fromDomain(result.value.alert!!)
+                    messagingTemplate.convertAndSend("/topic/alertas", alertDto)
+                }
+
                 ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(ShiftOutputModel.fromDomain(result.value))
+                    .body(ShiftOutputModel.fromDomain(result.value.shift))
             }
             is Either.Failure -> result.value.toProblemResponse()
         }

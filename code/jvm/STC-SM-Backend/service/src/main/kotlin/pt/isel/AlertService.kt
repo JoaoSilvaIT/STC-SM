@@ -16,8 +16,10 @@ import java.time.Duration
 import java.time.Instant
 
 @Service
-class AlertService (private val alertRepo: AlertRepository) {
-    fun evaluateLateStart(shift: Shift, user: User) {
+class AlertService (
+    private val alertRepo: AlertRepository,
+) {
+    fun evaluateLateStart(shift: Shift, user: User): Alert? {
         val currentTime = Instant.now()
         val delayMinutes = Duration.between(shift.startTime, currentTime).toMinutes()
 
@@ -30,8 +32,10 @@ class AlertService (private val alertRepo: AlertRepository) {
                 user = user,
                 shift = shift
             )
-            alertRepo.save(alert)
+            return alertRepo.save(alert)
         }
+
+        return null
     }
 
     fun getUnreadAlerts(): Either<AlertError, List<Alert>> {

@@ -14,6 +14,7 @@ dependencies {
 
     implementation(libs.spring.webmvc)
     implementation(libs.spring.validation)
+    implementation(libs.spring.websocket)
 
     // Password Encoder
     api(libs.spring.security)

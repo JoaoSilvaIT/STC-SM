@@ -141,6 +141,27 @@ export default function Shifts() {
 
   useEffect(() => {
     let cancelled = false
+
+    refresh()
+        .catch(err => {
+          if (cancelled) return
+          setLoadError(err instanceof ApiError ? err.message : 'Failed to load shifts')
+        })
+        .finally(() => { if (!cancelled) setLoading(false) })
+
+    const handleShiftUpdate = () => {
+      refresh();
+    };
+    window.addEventListener('shifts-updated', handleShiftUpdate);
+
+    return () => {
+      cancelled = true
+      window.removeEventListener('shifts-updated', handleShiftUpdate);
+    }
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
     refresh()
         .catch(err => {
           if (cancelled) return
