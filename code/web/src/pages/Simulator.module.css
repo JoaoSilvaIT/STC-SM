@@ -312,7 +312,7 @@
   );
 }
 .doorOpen {
-  transform: rotateY(-68deg);
+  transform: rotateY(-76deg);
 }
 
 /* Vertical hinge strip on the left edge */

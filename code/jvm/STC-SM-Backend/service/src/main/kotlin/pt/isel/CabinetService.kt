@@ -51,5 +51,4 @@ class CabinetService(
         val newCabinet = Cabinet(description = desc, status = status, location = loc)
         return success(cabinetRepo.save(newCabinet))
     }
-
 }

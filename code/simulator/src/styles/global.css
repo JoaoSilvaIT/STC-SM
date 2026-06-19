@@ -1,0 +1,196 @@
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Fira+Code:wght@400;500&family=Barlow:wght@400;500;600&display=swap');
+
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root {
+    /* Backgrounds */
+    --bg-void:     #03050B;
+    --bg-primary:  #06090F;
+    --bg-surface:  #0B0E18;
+    --bg-elevated: #10141F;
+    --bg-inset:    #080C15;
+    --bg-hover:    #121828;
+    --bg-active:   #161D2E;
+
+    /* Borders */
+    --border-dim:     rgba(160, 185, 235, 0.04);
+    --border-subtle:  rgba(160, 185, 235, 0.07);
+    --border-default: rgba(160, 185, 235, 0.11);
+    --border-strong:  rgba(160, 185, 235, 0.22);
+
+    /* Amber — aviation approach-light amber */
+    --amber:      #F4A318;
+    --amber-soft: rgba(244, 163, 24, 0.13);
+    --amber-glow: rgba(244, 163, 24, 0.28);
+    --amber-dim:  #7A5210;
+
+    /* Status */
+    --clear:      #0CE878;
+    --clear-soft: rgba(12, 232, 120, 0.10);
+    --clear-glow: rgba(12, 232, 120, 0.22);
+    --risk:       #F03018;
+    --risk-soft:  rgba(240, 48, 24, 0.10);
+    --risk-glow:  rgba(240, 48, 24, 0.22);
+    --info:       #18ADEF;
+    --info-soft:  rgba(24, 173, 239, 0.10);
+    --offline:    #3A4460;
+
+    /* Text */
+    --text-primary:   #C6D4E8;
+    --text-secondary: #697A96;
+    --text-muted:     #3C4660;
+    --text-amber:     #F4A318;
+    --text-clear:     #0CE878;
+    --text-risk:      #F03018;
+    --text-info:      #18ADEF;
+
+    /* Typography */
+    --font-display: 'Chakra Petch', monospace;
+    --font-mono:    'Fira Code', monospace;
+    --font-body:    'Barlow', sans-serif;
+
+    /* Layout */
+    --sidebar-w: 228px;
+    --header-h:  56px;
+
+    /* Shape */
+    --radius-sm: 3px;
+    --radius-md: 6px;
+    --radius-lg: 10px;
+    --radius-xl: 14px;
+
+    /* Shadow */
+    --shadow-sm: 0 1px 4px rgba(0,0,0,0.45);
+    --shadow-md: 0 4px 18px rgba(0,0,0,0.55);
+    --shadow-lg: 0 8px 36px rgba(0,0,0,0.65);
+}
+
+/* ============================================================
+   LIGHT MODE
+   ============================================================ */
+html[data-theme='light'] {
+    /* Backgrounds */
+    --bg-void:     #E4E9F2;
+    --bg-primary:  #EBF0F7;
+    --bg-surface:  #F6F8FC;
+    --bg-elevated: #FFFFFF;
+    --bg-inset:    #DDE3EF;
+    --bg-hover:    #D4DBE9;
+    --bg-active:   #CAD2E3;
+
+    /* Borders */
+    --border-dim:     rgba(50, 65, 110, 0.07);
+    --border-subtle:  rgba(50, 65, 110, 0.11);
+    --border-default: rgba(50, 65, 110, 0.18);
+    --border-strong:  rgba(50, 65, 110, 0.32);
+
+    /* Amber — slightly deeper for light bg contrast */
+    --amber:      #B8720A;
+    --amber-soft: rgba(184, 114, 10, 0.12);
+    --amber-glow: rgba(184, 114, 10, 0.22);
+    --amber-dim:  #7A4C08;
+
+    /* Status */
+    --clear:      #069944;
+    --clear-soft: rgba(6, 153, 68, 0.10);
+    --clear-glow: rgba(6, 153, 68, 0.20);
+    --risk:       #CC2010;
+    --risk-soft:  rgba(204, 32, 16, 0.08);
+    --risk-glow:  rgba(204, 32, 16, 0.18);
+    --info:       #0A82B8;
+    --info-soft:  rgba(10, 130, 184, 0.10);
+
+    /* Text */
+    --text-primary:   #0E1628;
+    --text-secondary: #364260;
+    --text-muted:     #7888A8;
+    --text-amber:     #B8720A;
+    --text-clear:     #069944;
+    --text-risk:      #CC2010;
+    --text-info:      #0A82B8;
+
+    /* Shadows — lighter for light theme */
+    --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 18px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 36px rgba(0, 0, 0, 0.14);
+}
+
+/* Hide scanline overlay in light mode */
+html[data-theme='light'] body::after { display: none; }
+
+/* ============================================================
+   RESET
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: var(--font-body);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100svh;
+    overflow-x: hidden;
+}
+
+/* Scanline overlay — subtle MFD / avionics display quality */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+            0deg,
+            transparent 0px,
+            transparent 3px,
+            rgba(0, 0, 0, 0.032) 3px,
+            rgba(0, 0, 0, 0.032) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+}
+
+#root {
+    width: 100%;
+    min-height: 100svh;
+}
+
+a      { color: inherit; text-decoration: none; }
+button { cursor: pointer; font-family: var(--font-body); border: none; background: none; }
+
+::-webkit-scrollbar        { width: 4px; height: 4px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: var(--border-default); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes pulse-risk {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.42; }
+}
+
+@keyframes pulse-clear {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.65; }
+}
+
+@keyframes glow-risk {
+    0%, 100% { box-shadow: 0 0 6px var(--risk),  0 0 18px rgba(240,48,24,0.25); }
+    50%       { box-shadow: 0 0 3px var(--risk),  0 0 8px  rgba(240,48,24,0.10); }
+}
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes slide-in {
+    from { opacity: 0; transform: translateX(-10px); }
+    to   { opacity: 1; transform: translateX(0);     }
+}
