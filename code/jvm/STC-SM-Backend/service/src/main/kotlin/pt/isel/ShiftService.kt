@@ -1,10 +1,12 @@
 package pt.isel
 
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import pt.isel.errors.ShiftError
 import org.springframework.transaction.annotation.Transactional
 import pt.isel.activity.ActivityType
+import pt.isel.events.ShiftStartedEvent
 import pt.isel.shift.Shift
 import pt.isel.shift.ShiftStatus
 import pt.isel.utils.Either
@@ -21,6 +23,7 @@ class ShiftService(
     private val cabinetRepo: CabinetRepository,
     private val alertService: AlertService,
     private val activityService: ActivityService ,
+    private val eventPublisher: ApplicationEventPublisher
 ) {
     fun getShift(sid: Int): Either<ShiftError, Shift> {
         val shift = shiftRepo.findById(sid).orElse(null)
@@ -80,13 +83,17 @@ class ShiftService(
             type = ActivityType.STARTED_SHIFT,
             date = Instant.now()
         )
-        return if (shift.lastEvaluatedDate != today) {
+        val result = if (shift.lastEvaluatedDate != today) {
             val alert = alertService.evaluateLateStart(shift, user)
             val updatedShift = shiftRepo.save(shift.copy(lastEvaluatedDate = today, status = ShiftStatus.ACTIVE))
-            success(ShiftResult(updatedShift, alert))
+            ShiftResult(updatedShift, alert)
         } else {
-            success(ShiftResult(shiftRepo.save(shift.copy(status = ShiftStatus.ACTIVE)),null))
+            ShiftResult(shiftRepo.save(shift.copy(status = ShiftStatus.ACTIVE)), null)
         }
+
+        eventPublisher.publishEvent(ShiftStartedEvent(result.shift, result.alert))
+
+        return success(result)
     }
 
     @Transactional

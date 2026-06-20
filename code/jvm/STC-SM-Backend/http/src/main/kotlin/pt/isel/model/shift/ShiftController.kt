@@ -51,15 +51,6 @@ class ShiftController(
     ): ResponseEntity<*> {
         return when(val result = shiftService.startShift(id, user.id)) {
             is Either.Success -> {
-                val newShift = ShiftOutputModel.fromDomain(result.value.shift)
-
-                messagingTemplate.convertAndSend("/topic/shifts", newShift)
-
-                if (result.value.alert != null) {
-                    val alertDto = AlertOutputModel.fromDomain(result.value.alert!!)
-                    messagingTemplate.convertAndSend("/topic/alertas", alertDto)
-                }
-
                 ResponseEntity
                     .status(HttpStatus.OK)
                     .body(ShiftOutputModel.fromDomain(result.value.shift))

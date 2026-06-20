@@ -6,6 +6,7 @@ import pt.isel.alert.AlertType
 import java.time.Instant
 
 data class AlertOutputModel (
+    val id: Int,
     val type: String,
     val timestamp: Instant,
     val message: String,
@@ -18,6 +19,7 @@ data class AlertOutputModel (
     companion object {
         fun fromDomain(alert: Alert): AlertOutputModel =
             AlertOutputModel(
+                id = alert.id,
                 type = mapType(alert.type),
                 timestamp = alert.date,
                 status = mapStatus(alert.status),

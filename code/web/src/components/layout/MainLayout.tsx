@@ -190,7 +190,6 @@ export default function MainLayout() {
               <button
                   className={styles.toastClose}
                   onClick={(e) => {
-                    e.stopPropagation()
                     closePopUp(toast.id)
                   }}
               >
