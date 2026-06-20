@@ -5,6 +5,7 @@ import { listTools, updateTool } from '../api/tools'
 import { listCabinets, updateCabinet } from '../api/cabinets'
 import styles from './Simulator.module.css'
 import {todo} from "../api/client";
+import { Client } from '@stomp/stompjs'
 
 export interface CabinetSim {
     cabinet: Cabinet
@@ -21,33 +22,52 @@ export default function Simulator() {
     const { user, logout } = useAuth()
     const [cabinets, setCabinets] = useState<Cabinet[]>([])
     const [tools, setTools] = useState<Tool[]>([])
+    const [stompClient, setStompClient] = useState<Client | null >(null)
 
-    const loadData = () => {
-        Promise.all([listCabinets(), listTools()])
-            .then(([c, t]) => {
-                setCabinets(c);
-                setTools(t);
-            })
-            .catch(err => console.log(err))
-    }
 
     useEffect(() => {
-        loadData()
-    }, [])
+        // Load the initial data from the db
+        const loadData = () => {
+            Promise.all([listCabinets(), listTools()])
+                .then(([c, t]) => {
+                    setCabinets(c);
+                    setTools(t);
+                })
+                .catch(err => console.log(err));
+        };
+        loadData();
 
-    useEffect(() => {
-        Promise.all([listCabinets(), listTools()])
-            .then(([c, t]) => {
-            setCabinets(c);
-            setTools(t);
-        })
-        .catch(err => console.log(err))
-    }, [])
+        // Connects to the webSocket server of Spring Boot, listening for updates on cabinets and tools
+        const client = new Client({
+            brokerURL: 'ws://localhost:8080/ws-simulator',
+            onConnect: () => {
+                // In case the backOffice puts the cabinet broken
+                client.subscribe('/topic/cabinets', () => {
+                    loadData();
+                });
+            }
+        });
+
+        client.activate();
+        setStompClient(client);
+
+        return () => {
+            client.deactivate();
+        };
+    }, []);
 
     const handleCabinet = async (data: {status: CabinetStatus, cabinetId: number }) => {
         try {
-            await updateCabinet(data.cabinetId, data.status)
-            loadData()
+            if (stompClient && stompClient.connected) {
+                const dataToSend = {
+                    ...data,
+                    userId: user?.id
+                }
+                stompClient.publish({
+                    destination: '/app/cabinet/status',
+                    body: JSON.stringify(dataToSend)
+                });
+            }
         } catch (err) {
             console.log(err)
         }
@@ -55,8 +75,17 @@ export default function Simulator() {
 
     const handleTool = async (data: {status: ToolStatus, toolId: number }) => {
         try {
-            await updateTool(data.toolId, data.status)
-            loadData()
+            if (stompClient && stompClient.connected) {
+                const dataToSend = {
+                    ...data,
+                    userId: user?.id
+                }
+                // Sends the data to Spring Boot via WebSocket!
+                stompClient.publish({
+                    destination: '/app/tool/status',
+                    body: JSON.stringify(dataToSend)
+                });
+            }
         } catch (err) {
             console.log(err)
         }

@@ -143,6 +143,32 @@ export default function Cabinets() {
   const [drawerMode,      setDrawerMode]      = useState<'closed' | 'create' | 'edit'>('closed')
   const [selectedCabinet, setSelectedCabinet] = useState<Cabinet | null>(null)
 
+  const refresh = async () => {
+    const [c] = await Promise.all([listCabinets()])
+    setCabinets(c)
+  }
+
+  useEffect(() => {
+    let cancelled = false
+
+    refresh()
+        .catch(err => {
+          if (cancelled) return
+          setLoadError(err instanceof ApiError ? err.message : 'Failed to load shifts')
+        })
+        .finally(() => { if (!cancelled) setLoading(false) })
+
+    const handleShiftUpdate = () => {
+      refresh();
+    };
+    window.addEventListener('cabinets-updated', handleShiftUpdate);
+
+    return () => {
+      cancelled = true
+      window.removeEventListener('cabinets-updated', handleShiftUpdate);
+    }
+  }, [])
+
   useEffect(() => {
     let cancelled = false
     Promise.all([listCabinets(), listTools(), listShifts()])

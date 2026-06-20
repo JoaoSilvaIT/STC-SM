@@ -2,6 +2,8 @@ package pt.isel.model.cabinet
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.messaging.handler.annotation.MessageMapping
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -14,7 +16,8 @@ import pt.isel.utils.Either
 
 @RestController
 class CabinetController(
-    private val cabinetService: CabinetService
+    private val cabinetService: CabinetService,
+    private val messagingTemplate: SimpMessagingTemplate
 ) {
     @GetMapping("/api/cabinets")
     fun listCabinets(@Suppress("UNUSED_PARAMETER") user: User): ResponseEntity<List<CabinetOutputModel>> =
@@ -40,7 +43,7 @@ class CabinetController(
         @RequestBody input: UpdateCabinetInputModel,
         user: User
     ): ResponseEntity<*> {
-        return when(val result = cabinetService.updateCabinet(input.status, id, user)){
+        return when(val result = cabinetService.updateCabinet(input.status, id, user.id)){
             is Either.Success ->
                 ResponseEntity
                 .status(HttpStatus.OK)
@@ -61,5 +64,11 @@ class CabinetController(
                 .body(CabinetOutputModel.fromDomain(result.value))
             is Either.Failure -> result.value.toProblemResponse()
         }
+    }
+
+    @MessageMapping("/cabinet/status")
+    fun updateCabinetStatus(input : CabinetInputModel) {
+       val result = cabinetService.updateCabinet(input.status, input.cabinetId, input.userId)
+        messagingTemplate.convertAndSend("/topic/cabinets", result)
     }
 }

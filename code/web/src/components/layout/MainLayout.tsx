@@ -7,6 +7,7 @@ import {
     Bell, CheckCircle, X
 } from 'lucide-react'
 import { listShifts } from '@/api/shifts'
+import { listCabinets } from '@/api/cabinets'
 import { useAuth } from '@/context/AuthContext'
 import { usePrefs } from '@/context/PrefsContext'
 import { useSimulator, useSimulatorTools } from '@/context/SimulatorContext'
@@ -106,6 +107,10 @@ export default function MainLayout() {
           listShifts().then(s => setShifts(s)).catch(console.error);
 
           window.dispatchEvent(new Event('shifts-updated'));
+        });
+
+        stompClient.subscribe('/topic/cabinets', (message) => {
+          window.dispatchEvent(new Event('cabinets-updated'))
         });
       },
       onStompError: (frame) => {

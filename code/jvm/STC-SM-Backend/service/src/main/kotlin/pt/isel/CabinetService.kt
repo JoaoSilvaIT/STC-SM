@@ -16,6 +16,7 @@ import java.time.Instant
 @Service
 class CabinetService(
     private val cabinetRepo: CabinetRepository,
+    private val userRepo: UserRepository,
     private val activityService: ActivityService,
 ) {
 
@@ -27,19 +28,19 @@ class CabinetService(
     fun getAllCabinets(): List<Cabinet> = cabinetRepo.findAll()
 
     @Transactional
-    fun updateCabinet(status: CabinetStatus, cid: Int, actor: User? = null): Either<CabinetError, Cabinet> {
+    fun updateCabinet(status: CabinetStatus, cid: Int, userId: Int): Either<CabinetError, Cabinet> {
         val cabinet = cabinetRepo.findByIdOrNull(cid) ?: return failure(CabinetError.CabinetNotFound)
-
+        val user = userRepo.findByIdOrNull(userId) ?: return failure(CabinetError.CabinetNotFound)
         val saved = cabinetRepo.saveAndFlush(cabinet.copy(status = status))
 
-        if (actor != null) {
-            val activityType = when (status) {
-                CabinetStatus.OPEN -> ActivityType.OPEN_CABINET
-                CabinetStatus.CLOSED -> ActivityType.CLOSE_CABINET
-                CabinetStatus.BROKEN, CabinetStatus.INACTIVE -> ActivityType.CABINET_ANOMALY
-            }
-            activityService.createActivity(actor.id, null, saved.id, null,activityType, Instant.now())
+
+        val activityType = when (status) {
+            CabinetStatus.OPEN -> ActivityType.OPEN_CABINET
+            CabinetStatus.CLOSED -> ActivityType.CLOSE_CABINET
+            CabinetStatus.BROKEN, CabinetStatus.INACTIVE -> ActivityType.CABINET_ANOMALY
         }
+        activityService.createActivity(user.id, null, saved.id, null,activityType, Instant.now())
+
 
         return success(saved)
     }
