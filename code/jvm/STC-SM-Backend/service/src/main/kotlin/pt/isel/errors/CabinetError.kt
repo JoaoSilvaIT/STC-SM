@@ -4,5 +4,6 @@ sealed class CabinetError {
     data object CabinetNotFound : CabinetError()
     data object InvalidCabinetStatus : CabinetError()
     data object InvalidLocation : CabinetError()
-    object InvalidDescription : CabinetError()
+    data object InvalidDescription : CabinetError()
+    data object UserNotFound : CabinetError()
 }

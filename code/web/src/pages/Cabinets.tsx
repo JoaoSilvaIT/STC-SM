@@ -143,45 +143,54 @@ export default function Cabinets() {
   const [drawerMode,      setDrawerMode]      = useState<'closed' | 'create' | 'edit'>('closed')
   const [selectedCabinet, setSelectedCabinet] = useState<Cabinet | null>(null)
 
-  const refresh = async () => {
-    const [c] = await Promise.all([listCabinets()])
-    setCabinets(c)
-  }
-
   useEffect(() => {
     let cancelled = false
 
-    refresh()
+    Promise.all([listCabinets(), listTools(), listShifts()])
+        .then(([c, t, s]) => {
+          if (!cancelled) {
+            setCabinets(c)
+            setTools(t)
+            setShifts(s)
+          }
+        })
         .catch(err => {
           if (cancelled) return
-          setLoadError(err instanceof ApiError ? err.message : 'Failed to load shifts')
+          setLoadError(err instanceof ApiError ? err.message : 'Failed to load cabinets')
         })
-        .finally(() => { if (!cancelled) setLoading(false) })
+        .finally(() => {
+          if (!cancelled) setLoading(false)
+        })
 
-    const handleShiftUpdate = () => {
-      refresh();
-    };
-    window.addEventListener('cabinets-updated', handleShiftUpdate);
+    const handleCabinetsUpdate = () => {
+      listCabinets()
+          .then(c => { if (!cancelled) setCabinets(c) })
+          .catch(console.error)
+    }
+
+    const handleToolsUpdate = () => {
+      listTools()
+          .then(t => { if (!cancelled) setTools(t) })
+          .catch(console.error)
+    }
+
+    const handleShiftsUpdate = () => {
+      listShifts()
+          .then(s => {
+            if (!cancelled) setShifts(s)
+          })
+          .catch(console.error)
+    }
+
+    window.addEventListener('cabinets-updated', handleCabinetsUpdate)
+    window.addEventListener('tools-updated', handleToolsUpdate)
+    window.addEventListener('shifts-updated', handleShiftsUpdate)
 
     return () => {
       cancelled = true
-      window.removeEventListener('cabinets-updated', handleShiftUpdate);
-    }
-  }, [])
-
-  useEffect(() => {
-    let cancelled = false
-    Promise.all([listCabinets(), listTools(), listShifts()])
-      .then(([c, t, s]) => {
-        if (cancelled) return
-        setCabinets(c); setTools(t); setShifts(s)
-      })
-      .catch(err => {
-        if (cancelled) return
-        setLoadError(err instanceof ApiError ? err.message : 'Failed to load cabinets')
-      })
-      .finally(() => { if (!cancelled) setLoading(false) })
-    return () => { cancelled = true }
+      window.removeEventListener('cabinets-updated', handleCabinetsUpdate)
+      window.removeEventListener('tools-updated', handleToolsUpdate)
+    };
   }, [])
 
   const cabinetsOnline = cabinets.filter(c => ['OPEN', 'CLOSED'].includes(c.status)).length

@@ -23,7 +23,7 @@ class AlertService (
         val currentTime = Instant.now()
         val delayMinutes = Duration.between(shift.startTime, currentTime).toMinutes()
 
-        if (delayMinutes >= 1) {
+        if (delayMinutes >= 20) {
             val alert = Alert(
                 type = AlertType.LATE_START,
                 date = currentTime,
@@ -38,8 +38,28 @@ class AlertService (
         return null
     }
 
+    fun evaluateEarlyEnding(shift: Shift, user: User): Alert? {
+        val currentTime = Instant.now()
+
+        val earlyMinutes = Duration.between(currentTime, shift.endTime).toMinutes()
+
+        if (earlyMinutes >= 13) {
+            val alert = Alert(
+                type = AlertType.EARLY_ENDING,
+                date = currentTime,
+                status = AlertStatus.UNREAD,
+                message = "Mechanic ${user.name} ended shift ${earlyMinutes}m early.",
+                user = user,
+                shift = shift
+            )
+            return alertRepo.save(alert)
+        }
+
+        return null
+    }
+
     fun getUnreadAlerts(): Either<AlertError, List<Alert>> {
-        val alerts = alertRepo.findByType(AlertType.LATE_START)
+        val alerts = alertRepo.findAll()
         val unreadAlerts = alerts.filter { it.status == AlertStatus.UNREAD }
         return success(unreadAlerts)
     }

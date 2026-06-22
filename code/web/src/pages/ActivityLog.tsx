@@ -28,12 +28,14 @@ const TYPE_META: Record<ActivityType, { label: string; icon: React.ElementType; 
   OPEN_CABINET:         { label: 'Opened Cabinet',      icon: Unlock,        color: 'clear'   },
   CLOSE_CABINET:        { label: 'Closed Cabinet',      icon: Lock,          color: 'muted'   },
   REMOVE_TOOL:          { label: 'Removed Tool',        icon: Wrench,        color: 'info'    },
+  RETURN_TOOL:          { label: 'Returned Tool',       icon: Wrench,        color: 'clear'   },
   TOOL_BROKEN:          { label: 'Broken Tool',         icon: AlertTriangle, color: 'risk'    },
   TOOL_MISSING:         { label: 'Missing Tool',        icon: Search,        color: 'risk'    },
   TOOL_IN_MAINTENANCE:  { label: 'Tool in Maintenance', icon: Settings,      color: 'amber'   },
   CABINET_ANOMALY:      { label: 'Cabinet Anomaly',     icon: Siren,         color: 'risk'    },
   STARTED_SHIFT:        { label: 'Started Shift',       icon: Play,          color: 'clear'   },
   ENDED_SHIFT:          { label: 'Ended Shift',         icon: Square,        color: 'muted'   },
+  CABINET_BROKEN:       { label: 'Broken Tool',         icon: AlertTriangle, color: 'risk'    },
 }
 
 function ActivityRow({ act, index }: { act: Activity; index: number }) {
@@ -90,14 +92,34 @@ export default function ActivityLog() {
 
   useEffect(() => {
     let cancelled = false
+
     Promise.all([listActivities(), listCabinets()])
-      .then(([a, c]) => { if (!cancelled) { setActivities(a); setCabinets(c) } })
-      .catch(err => {
-        if (cancelled) return
-        setLoadError(err instanceof ApiError ? err.message : 'Failed to load activity log')
-      })
-      .finally(() => { if (!cancelled) setLoading(false) })
-    return () => { cancelled = true }
+        .then(([a, c]) => {
+          if (!cancelled) {
+            setActivities(a)
+            setCabinets(c)
+          }
+        })
+        .catch(err => {
+          if (cancelled) return
+          setLoadError(err instanceof ApiError ? err.message : 'Failed to load activity log')
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false)
+        })
+
+    const handleActivitiesUpdate = () => {
+      listActivities()
+          .then(a => { if (!cancelled) setActivities(a) })
+          .catch(console.error)
+    }
+
+    window.addEventListener('activities-updated', handleActivitiesUpdate)
+
+    return () => {
+      cancelled = true
+      window.removeEventListener('activities-updated', handleActivitiesUpdate)
+    }
   }, [])
 
   const filtered = useMemo(() =>

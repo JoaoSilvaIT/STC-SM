@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service
 import pt.isel.errors.ShiftError
 import org.springframework.transaction.annotation.Transactional
 import pt.isel.activity.ActivityType
-import pt.isel.events.ShiftStartedEvent
+import pt.isel.events.ShiftUpdated
 import pt.isel.shift.Shift
 import pt.isel.shift.ShiftStatus
 import pt.isel.utils.Either
@@ -91,13 +91,13 @@ class ShiftService(
             ShiftResult(shiftRepo.save(shift.copy(status = ShiftStatus.ACTIVE)), null)
         }
 
-        eventPublisher.publishEvent(ShiftStartedEvent(result.shift, result.alert))
+        eventPublisher.publishEvent(ShiftUpdated(result.shift, result.alert))
 
         return success(result)
     }
 
     @Transactional
-    fun endShift(sid: Int, uid: Int): Either<ShiftError, Shift> {
+    fun endShift(sid: Int, uid: Int): Either<ShiftError, ShiftResult> {
         val shift = shiftRepo.findByIdOrNull(sid) ?: return failure(ShiftError.ShiftNotFound)
         val user = userRepo.findByIdOrNull(uid) ?: return failure(ShiftError.InvalidUserId)
         if (shift.status == ShiftStatus.INACTIVE) return failure(ShiftError.ShiftAlreadyEnded)
@@ -108,7 +108,14 @@ class ShiftService(
             type = ActivityType.ENDED_SHIFT,
             date = Instant.now()
         )
-        return success(shiftRepo.save(shift.copy(status = ShiftStatus.INACTIVE)))
+
+        val alert = alertService.evaluateEarlyEnding(shift, user)
+        val updatedShift = shiftRepo.save(shift.copy(status = ShiftStatus.INACTIVE))
+        val result = ShiftResult(updatedShift, alert)
+
+        eventPublisher.publishEvent(ShiftUpdated(result.shift, result.alert))
+
+        return success(result)
     }
 
 

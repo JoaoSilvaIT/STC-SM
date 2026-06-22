@@ -1,4 +1,4 @@
-package pt.isel.model.cabinet
+package pt.isel.model.cabinet.http
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -11,6 +11,11 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.CabinetService
+import pt.isel.model.cabinet.CabinetInputModel
+import pt.isel.model.cabinet.CabinetOutputModel
+import pt.isel.model.cabinet.CreateCabinetInputModel
+import pt.isel.model.cabinet.UpdateCabinetInputModel
+import pt.isel.model.cabinet.toProblemResponse
 import pt.isel.user.User
 import pt.isel.utils.Either
 
@@ -64,11 +69,5 @@ class CabinetController(
                 .body(CabinetOutputModel.fromDomain(result.value))
             is Either.Failure -> result.value.toProblemResponse()
         }
-    }
-
-    @MessageMapping("/cabinet/status")
-    fun updateCabinetStatus(input : CabinetInputModel) {
-       val result = cabinetService.updateCabinet(input.status, input.cabinetId, input.userId)
-        messagingTemplate.convertAndSend("/topic/cabinets", result)
     }
 }

@@ -3,7 +3,7 @@ package pt.isel.notification
 import org.springframework.context.event.EventListener
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Component
-import pt.isel.events.ShiftStartedEvent
+import pt.isel.events.ShiftUpdated
 import pt.isel.model.alert.AlertOutputModel
 import pt.isel.model.shift.ShiftOutputModel
 
@@ -12,7 +12,7 @@ class ShiftNotificationListener(
     private val messagingTemplate: SimpMessagingTemplate
 ) {
     @EventListener
-    fun handleShiftStarted(event: ShiftStartedEvent) {
+    fun handleShiftStarted(event: ShiftUpdated) {
         val shiftDto = ShiftOutputModel.fromDomain(event.shift)
 
         if (event.alert != null) {

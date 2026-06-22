@@ -10,17 +10,18 @@ import { listShifts } from '@/api/shifts'
 import { listCabinets } from '@/api/cabinets'
 import { useAuth } from '@/context/AuthContext'
 import { usePrefs } from '@/context/PrefsContext'
-import { useSimulator, useSimulatorTools } from '@/context/SimulatorContext'
 import type { Shift, Alert, AlertType} from '@/types/domain'
 import styles from './MainLayout.module.css'
 import { getUnreadAlerts, updateAlert } from '@/api/alerts'
 
 const POP_UP_ICON: Record<string, React.ReactNode> = {
   LATE_START:    <Clock        size={16} color="#3b82f6" />,
+  EARLY_ENDING:  <Clock        size={16} color="#3b82f6" />,
 }
 
 const TYPE_META: Record<AlertType, {label: string}> = {
-  LATE_START: { label: 'Clocked in late'}
+  LATE_START: { label: 'Clocked in late'},
+  EARLY_ENDING: { label: 'Clocked off early'}
 }
 
 const NAV_PRIMARY = [
@@ -29,7 +30,6 @@ const NAV_PRIMARY = [
   { to: '/inventory', label: 'Inventory',    icon: Wrench },
   { to: '/activity',  label: 'Activity Log', icon: Activity },
   { to: '/shifts',    label: 'Shifts',       icon: Clock },
-  { to: '/simulator', label: 'Simulator',    icon: FlaskConical },
 ]
 
 const NAV_SECONDARY_ALL = [
@@ -112,6 +112,14 @@ export default function MainLayout() {
         stompClient.subscribe('/topic/cabinets', (message) => {
           window.dispatchEvent(new Event('cabinets-updated'))
         });
+
+        stompClient.subscribe('/topic/activity', (message) => {
+          window.dispatchEvent(new Event('activities-updated'))
+        })
+
+        stompClient.subscribe('/topic/tools', (message) => {
+          window.dispatchEvent(new Event('tools-updated'))
+        })
       },
       onStompError: (frame) => {
         console.error('Error on WebSocket: ' + frame.headers['message']);
@@ -141,9 +149,6 @@ export default function MainLayout() {
     return () => clearInterval(t)
   }, [])
 
-  const sim          = useSimulator()
-  const simTools     = useSimulatorTools(sim)
-  const missingTools = simTools.filter(t => t.status === 'IN_USE')
   const [shifts, setShifts] = useState<Shift[]>([])
   const activeShifts        = shifts.filter(s => s.status === 'ACTIVE')
   const isFodRisk           = false
@@ -325,24 +330,6 @@ export default function MainLayout() {
             </NavLink>
           ))}
         </nav>
-
-        <div className={styles.sysBlock}>
-          <div className={styles.sysTitle}>
-            <Shield size={11} />
-            <span>System Status</span>
-          </div>
-          {[
-            { k: 'API',   v: 'OPERATIONAL' },
-            { k: 'RFID',  v: 'OPERATIONAL' },
-            { k: 'DB',    v: 'CONNECTED'   },
-            { k: 'AUDIT', v: 'ACTIVE'      },
-          ].map(({ k, v }) => (
-            <div key={k} className={styles.sysRow}>
-              <span className={styles.sysKey}>{k}</span>
-              <span className={styles.sysVal}>{v}</span>
-            </div>
-          ))}
-        </div>
       </aside>
 
       {/* ── MAIN ── */}

@@ -68,7 +68,7 @@ class ShiftController(
             is Either.Success -> {
                 ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ShiftOutputModel.fromDomain(result.value))
+                .body(ShiftOutputModel.fromDomain(result.value.shift))
             }
             is Either.Failure -> result.value.toProblemResponse()
         }

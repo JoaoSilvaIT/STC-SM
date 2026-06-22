@@ -1,4 +1,4 @@
-package pt.isel.model.tools
+package pt.isel.model.tools.http
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.ToolService
+import pt.isel.model.tools.CreateToolInput
+import pt.isel.model.tools.ToolOutputModel
+import pt.isel.model.tools.UpdateToolInput
+import pt.isel.model.tools.toProblemResponse
 import pt.isel.user.User
 import pt.isel.utils.Either
 
@@ -45,7 +49,7 @@ class ToolController(private val toolService: ToolService) {
         @RequestBody input: UpdateToolInput,
         user: User
     ): ResponseEntity<*> =
-        when (val result = toolService.updateTool(id, input.status, user)) {
+        when (val result = toolService.updateTool(id, input.status, user.id)) {
             is Either.Success -> ResponseEntity.ok(ToolOutputModel.fromDomain(result.value))
             is Either.Failure -> result.value.toProblemResponse()
         }

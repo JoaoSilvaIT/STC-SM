@@ -32,6 +32,10 @@ data class AlertOutputModel (
 
         private fun mapType(type: AlertType): String = when(type) {
             AlertType.LATE_START -> "LATE_START"
+            AlertType.EARLY_ENDING -> "EARLY_ENDING"
+            AlertType.MISSING_TOOL -> "MISSING_TOOL"
+            AlertType.OPEN_CABINET -> "OPEN_CABINET"
+            AlertType.BROKEN_CABINET -> "BROKEN_CABINET"
         }
 
         private fun mapStatus(status: AlertStatus): String = when(status) {

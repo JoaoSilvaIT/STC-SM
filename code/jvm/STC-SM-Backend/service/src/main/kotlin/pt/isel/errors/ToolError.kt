@@ -6,4 +6,5 @@ sealed class ToolError {
     data object InvalidName : ToolError()
     data object InvalidLocation : ToolError()
     data object InvalidCabinet : ToolError()
+    data object UserNotFound : ToolError()
 }

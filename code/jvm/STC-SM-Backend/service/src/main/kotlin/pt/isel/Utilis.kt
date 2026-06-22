@@ -1,11 +1,8 @@
 package pt.isel
 
-import pt.isel.alert.Alert
-import pt.isel.alert.AlertType
-import pt.isel.shift.Shift
-import pt.isel.user.User
+import pt.isel.activity.ActivityType
+import pt.isel.cabinet.CabinetStatus
 import pt.isel.user.UserStatus
-import java.time.Duration
 import java.time.Instant
 import java.time.format.DateTimeParseException
 
@@ -25,5 +22,14 @@ fun String.toUserStatus(): UserStatus? {
         "ACTIVE" -> UserStatus.ACTIVE
         "INACTIVE" -> UserStatus.INACTIVE
         else -> null
+    }
+}
+
+fun CabinetStatus.toActivityType(): ActivityType {
+    return when(this) {
+        CabinetStatus.BROKEN -> ActivityType.CABINET_BROKEN
+        CabinetStatus.OPEN -> ActivityType.OPEN_CABINET
+        CabinetStatus.INACTIVE -> ActivityType.CABINET_ANOMALY
+        CabinetStatus.CLOSED -> ActivityType.CLOSE_CABINET
     }
 }

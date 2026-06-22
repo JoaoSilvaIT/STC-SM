@@ -1,11 +1,13 @@
 package pt.isel
 
+import org.springframework.context.ApplicationEventPublisher
 import pt.isel.errors.ActivityError
 import org.springframework.stereotype.Service
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.transaction.annotation.Transactional
 import pt.isel.activity.Activity
 import pt.isel.activity.ActivityType
+import pt.isel.events.ActivityNotification
 import pt.isel.utils.Either
 import pt.isel.utils.failure
 import pt.isel.utils.success
@@ -18,6 +20,7 @@ class ActivityService(
     private val cabinetRepo: CabinetRepository,
     private val toolRepo: ToolRepository,
     private val shiftRepo: ShiftRepository,
+    private val eventPublisher: ApplicationEventPublisher
 ) {
     fun getAllActivities(): List<Activity> = activityRepo.findAll()
 
@@ -65,6 +68,8 @@ class ActivityService(
             shift = shift,
             cabinet = cabinet
         )
+
+        eventPublisher.publishEvent(ActivityNotification(activity))
 
         return success(activityRepo.save(activity))
     }

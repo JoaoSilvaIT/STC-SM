@@ -9,6 +9,7 @@ enum class ActivityType {
     TOOL_MISSING,
     TOOL_IN_MAINTENANCE,
     CABINET_ANOMALY,
+    CABINET_BROKEN,
     STARTED_SHIFT,
     ENDED_SHIFT
 }

@@ -22,14 +22,34 @@ export default function Inventory() {
 
   useEffect(() => {
     let cancelled = false
+
     Promise.all([listTools(), listCabinets()])
-      .then(([t, c]) => { if (!cancelled) { setTools(t); setLiveCabinets(c) } })
-      .catch(err => {
-        if (cancelled) return
-        setLoadError(err instanceof ApiError ? err.message : 'Failed to load inventory')
-      })
-      .finally(() => { if (!cancelled) setLoading(false) })
-    return () => { cancelled = true }
+        .then(([t, c]) => {
+          if (!cancelled) {
+            setTools(t)
+            setLiveCabinets(c)
+          }
+        })
+        .catch(err => {
+          if (cancelled) return
+          setLoadError(err instanceof ApiError ? err.message : 'Failed to load inventory')
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false)
+        })
+
+    const handleToolsUpdate = () => {
+      listTools()
+          .then(t => { if (!cancelled) setTools(t) })
+          .catch(console.error)
+    }
+
+    window.addEventListener('tools-updated', handleToolsUpdate)
+
+    return () => {
+      cancelled = true
+      window.removeEventListener('tools-updated', handleToolsUpdate)
+    }
   }, [])
 
   const filtered = useMemo(() => {

@@ -45,6 +45,9 @@ export default function Simulator() {
                 client.subscribe('/topic/cabinets', () => {
                     loadData();
                 });
+                client.subscribe('/topic/tools', () => {
+                    loadData();
+                })
             }
         });
 
@@ -63,6 +66,7 @@ export default function Simulator() {
                     ...data,
                     userId: user?.id
                 }
+                // Sends the data to Spring Boot via WebSocket!
                 stompClient.publish({
                     destination: '/app/cabinet/status',
                     body: JSON.stringify(dataToSend)
