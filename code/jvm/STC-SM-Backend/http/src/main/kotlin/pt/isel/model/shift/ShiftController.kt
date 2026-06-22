@@ -145,7 +145,7 @@ class ShiftController(
         return when(val result = shiftService.hasActiveShift(cabinetId)) {
             is Either.Success -> ResponseEntity.ok(result.value)
             is Either.Failure -> {
-                if (result.value == ShiftError.ShiftAlreadyHapening) {
+                if (result.value is ShiftError.ShiftAlreadyHapening) {
                     ResponseEntity.ok(true)
                 } else {
                     ResponseEntity.ok(false)

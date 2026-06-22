@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -21,19 +21,39 @@ function timeToMinutes(timeStr: string): number {
 
 function shiftDuration(start: string): { h: string; m: string } {
   const startMins = timeToMinutes(start);
-
   const now = new Date();
   const endMins = (now.getHours() * 60) + now.getMinutes();
-
   let diffMins = endMins - startMins;
-
   if (diffMins < 0) {
     diffMins += 24 * 60;
   }
-
   const h = Math.floor(diffMins / 60);
   const m = diffMins % 60;
   return { h: String(h).padStart(2, '0'), m: String(m).padStart(2, '0') };
+}
+
+function isTimeWithinShift(startStr?: string | null, endStr?: string | null): boolean {
+  if (!startStr) return true;
+
+  const now = new Date();
+  const currentMins = now.getHours() * 60 + now.getMinutes();
+
+  const [sH, sM] = startStr.split(':').map(Number);
+  const startMins = sH * 60 + (sM || 0);
+
+  let endMins = 0;
+  if (endStr) {
+    const [eH, eM] = endStr.split(':').map(Number);
+    endMins = eH * 60 + (eM || 0);
+  } else {
+    endMins = (startMins + 8 * 60) % (24 * 60);
+  }
+
+  if (startMins <= endMins) {
+    return currentMins >= startMins && currentMins <= endMins;
+  } else {
+    return currentMins >= startMins || currentMins <= endMins;
+  }
 }
 
 const ANOMALY_OPTIONS: { label: string; value: AnomalyType; icon: keyof typeof import('@expo/vector-icons').Ionicons.glyphMap; hint: string }[] = [
@@ -64,10 +84,7 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
   const { activeShift, assignedShift, activeCabinet, logAnomaly, startShift, loading: shiftLoading } = useShift();
   const [, setTick] = useState(0);
 
-  // Anomaly form state
   const [selectedAnomaly, setSelectedAnomaly] = useState<AnomalyType | null>(null);
-  const [anomalyNotes, setAnomalyNotes] = useState('');
-  const [notesFocus, setNotesFocus] = useState(false);
   const [anomalySubmitted, setAnomalySubmitted] = useState(false);
 
   useEffect(() => {
@@ -94,7 +111,11 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
 
   async function handleStart() {
     if (!assignedShift) return;
-    await startShift(assignedShift);
+    try {
+      await startShift(assignedShift);
+    } catch (e: any) {
+      Alert.alert("Erro de Turno", e.message || 'A operação falhou. Verifique as horas permitidas.');
+    }
   }
 
   function handleReportAnomaly() {
@@ -109,6 +130,10 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
     if (!ts) return '--:--';
     return ts.slice(0, 5);
   };
+
+  const isOutOfHours = shift && !isOngoing
+      ? !isTimeWithinShift(shift.startTime, shift.endTime)
+      : false;
 
   return (
       <SafeAreaView style={layout.screen} edges={['top', 'left', 'right']}>
@@ -251,17 +276,19 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
               </TouchableOpacity>
           ) : (
               <TouchableOpacity
-                  style={[btn.primary, shiftLoading && s.btnDisabled]}
+                  style={[btn.primary, (shiftLoading || isOutOfHours) && s.btnDisabled]}
                   onPress={handleStart}
-                  disabled={shiftLoading}
+                  disabled={shiftLoading || isOutOfHours}
                   activeOpacity={0.85}
               >
                 {shiftLoading ? (
                     <ActivityIndicator color="#0A0A0A" size="small" />
                 ) : (
                     <>
-                      <Text style={btn.primaryLabel}>Start Shift</Text>
-                      <Ionicons name="play" size={16} color="#0A0A0A" />
+                      <Text style={btn.primaryLabel}>
+                        {isOutOfHours ? 'Outside of shift hours' : 'START SHIFT'}
+                      </Text>
+                      {!isOutOfHours && <Ionicons name="play" size={16} color="#0A0A0A" />}
                     </>
                 )}
               </TouchableOpacity>
