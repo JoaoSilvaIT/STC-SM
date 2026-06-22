@@ -1,6 +1,7 @@
 package pt.isel
 
 import org.springframework.boot.CommandLineRunner
+import org.springframework.cglib.core.Local
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 import pt.isel.auth.PasswordValidationInfo
@@ -17,7 +18,7 @@ import pt.isel.user.UserStatus
 import pt.isel.activity.Activity
 import pt.isel.activity.ActivityType
 import java.time.Instant
-import java.time.LocalDate
+import java.time.LocalTime
 
 // Initializes the Database with the 3 Profiles and the Admin User.
 @Component
@@ -56,11 +57,25 @@ class DataInitializer(
                 passwordValidation = PasswordValidationInfo(passwordEncoder.encode("back")!!)
             ),
             User(
-                name = "Mechanic",
-                email = "mechanic@isel.pt",
+                name = "João Silva",
+                email = "joaosilva@isel.pt",
                 profile = profiles[0],
                 status = UserStatus.ACTIVE,
-                passwordValidation = PasswordValidationInfo(passwordEncoder.encode("mechanic")!!)
+                passwordValidation = PasswordValidationInfo(passwordEncoder.encode("silva")!!)
+            ),
+            User(
+                name = "Bernardo Jaco",
+                email = "bernardojaco@isel.pt",
+                profile = profiles[0],
+                status = UserStatus.ACTIVE,
+                passwordValidation = PasswordValidationInfo(passwordEncoder.encode("jaco")!!)
+            ),
+            User(
+                name = "Pedro Monteiro",
+                email = "pedromonteiro@isel.pt",
+                profile = profiles[0],
+                status = UserStatus.ACTIVE,
+                passwordValidation = PasswordValidationInfo(passwordEncoder.encode("monteiro")!!)
             )
         )
         if (userRepository.count() == 0L) {
@@ -87,8 +102,16 @@ class DataInitializer(
             Shift(
                 cabinet = cabinet,
                 user = users[2],
-                startTime = Instant.now(),
-                endTime = Instant.now().plusSeconds(15 * 60),
+                startTime = LocalTime.now(),
+                endTime = LocalTime.now().plusSeconds(3 * 60),
+                status = ShiftStatus.INACTIVE,
+                lastEvaluatedDate = null
+            ),
+            Shift(
+                cabinet = cabinet,
+                user = users[3],
+                startTime = LocalTime.now().plusSeconds(3 * 60),
+                endTime = LocalTime.now().plusSeconds(6 * 60),
                 status = ShiftStatus.INACTIVE,
                 lastEvaluatedDate = null
             )

@@ -3,7 +3,6 @@ package pt.isel
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
-import io.mockk.verify
 import org.springframework.data.repository.findByIdOrNull
 import pt.isel.auth.PasswordValidationInfo
 import pt.isel.cabinet.Cabinet

@@ -8,7 +8,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../App';
 import { useShift } from '../context/ShiftContext';
 import { useAuth } from '../context/AuthContext';
-import { getShiftsByUser } from '../api/shifts';
+import { getShiftsByUser, checkCabinetOccupied } from '../api/shifts';
 import { getCabinet } from '../api/cabinets';
 import type { Shift, Cabinet } from '../types/domain';
 import { colors, fonts, spacing, radius, typography, btn, layout } from '../theme';
@@ -25,6 +25,7 @@ export default function StartShiftScreen({ navigation }: Props) {
   const [cabinet, setCabinet] = useState<Cabinet | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isOccupiedByOther, setIsOccupiedByOther] = useState(false);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -53,6 +54,11 @@ export default function StartShiftScreen({ navigation }: Props) {
         try {
           const cab = await getCabinet(selected.cabinetId);
           setCabinet(cab);
+
+          if (selected.status !== 'ACTIVE') {
+            const occupied = await checkCabinetOccupied(selected.cabinetId);
+            setIsOccupiedByOther(occupied);
+          }
         } catch (e) {
           setError('Failed to load cabinet details');
         }
@@ -79,12 +85,9 @@ export default function StartShiftScreen({ navigation }: Props) {
     }
   }
 
-  const formatTime = (ts: string) => {
-    try {
-      return new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-    } catch {
-      return '00:00';
-    }
+  const formatTime = (timeStr: string) => {
+    if (!timeStr) return '00:00';
+    return timeStr.slice(0, 5);
   };
   
   const isOngoing = assignedShift?.status === 'ACTIVE';
@@ -131,15 +134,20 @@ export default function StartShiftScreen({ navigation }: Props) {
 
       <View style={s.footer}>
         <TouchableOpacity
-          style={[btn.primary, (shiftCtxLoading || !assignedShift) && s.btnDisabled]}
-          onPress={handleToggleShift}
-          disabled={shiftCtxLoading || !assignedShift}
-          activeOpacity={0.85}
+            style={[btn.primary, (shiftCtxLoading || !assignedShift || isOccupiedByOther) && s.btnDisabled]}
+            onPress={handleToggleShift}
+            disabled={shiftCtxLoading || !assignedShift || isOccupiedByOther}
+            activeOpacity={0.85}
         >
           <Text style={btn.primaryLabel}>
-            {shiftCtxLoading ? 'Processing...' : isOngoing ? 'End Shift' : 'Start Shift'}
+            {isOccupiedByOther
+                ? 'Cabinet in use by another mechanic'
+                : shiftCtxLoading
+                    ? 'Processing...'
+                    : isOngoing
+                        ? 'End Shift'
+                        : 'Start Shift'}
           </Text>
-          <Ionicons name={isOngoing ? 'stop' : 'play'} size={16} color="#0A0A0A" />
         </TouchableOpacity>
       </View>
     </SafeAreaView>

@@ -9,4 +9,5 @@ sealed class ShiftError {
     data object ShiftAlreadyStarted : ShiftError()
     data object ShiftAlreadyEnded : ShiftError()
     data object ShiftOutOfTime : ShiftError()
+    data object ShiftAlreadyHapening : ShiftError()
 }

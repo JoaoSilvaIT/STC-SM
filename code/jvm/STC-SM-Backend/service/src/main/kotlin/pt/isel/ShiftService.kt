@@ -15,6 +15,7 @@ import pt.isel.utils.success
 import java.time.Instant
 import java.time.LocalDate
 import pt.isel.results.ShiftResult
+import java.time.LocalTime
 
 @Service
 class ShiftService(
@@ -37,8 +38,8 @@ class ShiftService(
         val user = userRepo.findByIdOrNull(uid) ?: return failure(ShiftError.InvalidUserId)
         val cabinet = cabinetRepo.findById(cid).orElse(null) ?: return failure(ShiftError.InvalidCabinetId)
 
-        val startTime = startTime.toInstantOrNull() ?: return failure(ShiftError.InvalidTimeFormat)
-        val endTime = endTime.toInstantOrNull() ?: return failure(ShiftError.InvalidTimeFormat)
+        val startTime = startTime.toLocalTimeOrNull() ?: return failure(ShiftError.InvalidTimeFormat)
+        val endTime = endTime.toLocalTimeOrNull() ?: return failure(ShiftError.InvalidTimeFormat)
 
         val localDateTime = LocalDate.now()
 
@@ -59,10 +60,8 @@ class ShiftService(
     fun editShiftHours(sid: Int, startTime: String? = null, endTime: String? = null): Either<ShiftError, Shift> {
         val shift = shiftRepo.findByIdOrNull(sid) ?: return failure(ShiftError.ShiftNotFound)
 
-        val startTime = if (startTime == null) shift.startTime else startTime.toInstantOrNull()
-        val endTime = if (endTime == null) shift.endTime else endTime.toInstantOrNull()
-
-        if (startTime == null || endTime == null) return failure(ShiftError.InvalidTimeFormat)
+        val startTime = if (startTime == null) shift.startTime else startTime.toLocalTimeOrNull() ?: return failure(ShiftError.InvalidTimeFormat)
+        val endTime = if (endTime == null) shift.endTime else endTime.toLocalTimeOrNull() ?: return failure(ShiftError.InvalidTimeFormat)
 
         val updatedShift = shift.copy(startTime = startTime, endTime = endTime)
         return success(shiftRepo.save(updatedShift))
@@ -73,7 +72,8 @@ class ShiftService(
         val shift = shiftRepo.findByIdOrNull(sid) ?: return failure(ShiftError.ShiftNotFound)
         val user = userRepo.findByIdOrNull(uid) ?: return failure(ShiftError.InvalidUserId)
         if (shift.status == ShiftStatus.ACTIVE) return failure(ShiftError.ShiftAlreadyStarted)
-        val timeNow = Instant.now()
+        if (hasActiveShift(shift.cabinet.id) is Either.Failure) return failure(ShiftError.ShiftAlreadyHapening)
+        val timeNow = LocalTime.now()
         if (timeNow.isBefore(shift.startTime) || timeNow.isAfter(shift.endTime)) return failure(ShiftError.ShiftOutOfTime)
         val today = LocalDate.now()
         activityService.createActivity(
@@ -129,5 +129,13 @@ class ShiftService(
         val user = userRepo.findByIdOrNull(uid) ?: return failure(ShiftError.InvalidUserId)
         val shifts = shiftRepo.findByUser(user)
         return if(shifts.isEmpty()) failure(ShiftError.ShiftNotFound) else success(shifts)
+    }
+
+    fun hasActiveShift(cid: Int): Either<ShiftError, Boolean> {
+        val cabinet = cabinetRepo.findByIdOrNull(cid) ?: return failure(ShiftError.InvalidCabinetId)
+        val shifts = shiftRepo.findByCabinet(cabinet)
+        return if(shifts.any { it.status == ShiftStatus.ACTIVE }) {
+            failure(ShiftError.ShiftAlreadyHapening)
+        } else success(false)
     }
 }

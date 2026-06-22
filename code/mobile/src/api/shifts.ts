@@ -57,3 +57,10 @@ export async function endShift(id: number): Promise<Shift> {
   });
   return toDomain(raw);
 }
+
+export async function checkCabinetOccupied(cabinetId: number): Promise<boolean> {
+  const raw = await request<boolean>(`/api/shifts/active/cabinet/${cabinetId}`, {
+    auth: true
+  });
+  return raw;
+}

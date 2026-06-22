@@ -13,10 +13,26 @@ import ScreenHeader from '../components/ScreenHeader';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ShiftDashboard'>;
 
-function shiftDuration(iso: string): { h: string; m: string } {
-  const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
+function timeToMinutes(timeStr: string): number {
+  if (!timeStr) return 0;
+  const [hours, minutes] = timeStr.split(':').map(Number);
+  return (hours * 60) + (minutes || 0);
+}
+
+function shiftDuration(start: string): { h: string; m: string } {
+  const startMins = timeToMinutes(start);
+
+  const now = new Date();
+  const endMins = (now.getHours() * 60) + now.getMinutes();
+
+  let diffMins = endMins - startMins;
+
+  if (diffMins < 0) {
+    diffMins += 24 * 60;
+  }
+
+  const h = Math.floor(diffMins / 60);
+  const m = diffMins % 60;
   return { h: String(h).padStart(2, '0'), m: String(m).padStart(2, '0') };
 }
 
@@ -55,23 +71,22 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
   const [anomalySubmitted, setAnomalySubmitted] = useState(false);
 
   useEffect(() => {
-    const id = setInterval(() => setTick(t => t + 1), 1000);
+    const id = setInterval(() => setTick(t => t + 1), 60000);
     return () => clearInterval(id);
   }, []);
 
-  // Use activeShift if available, otherwise fallback to assignedShift
   const shift = activeShift || assignedShift;
   const cabinet = activeCabinet;
   const isOngoing = activeShift?.status === 'ACTIVE';
 
   if (!shift) {
     return (
-      <SafeAreaView style={layout.screen}>
-        <ScreenHeader title="Shift" onBack={() => navigation.goBack()} />
-        <View style={s.center}>
-          <Text style={typography.body}>No shift assigned to you.</Text>
-        </View>
-      </SafeAreaView>
+        <SafeAreaView style={layout.screen}>
+          <ScreenHeader title="Shift" onBack={() => navigation.goBack()} />
+          <View style={s.center}>
+            <Text style={typography.body}>No shift assigned to you.</Text>
+          </View>
+        </SafeAreaView>
     );
   }
 
@@ -91,196 +106,168 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
   }
 
   const formatTime = (ts: string) => {
-    try {
-      return new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-    } catch {
-      return '--:--';
-    }
+    if (!ts) return '--:--';
+    return ts.slice(0, 5);
   };
 
   return (
-    <SafeAreaView style={layout.screen} edges={['top', 'left', 'right']}>
-      <GridBackdrop opacity={0.3} />
+      <SafeAreaView style={layout.screen} edges={['top', 'left', 'right']}>
+        <GridBackdrop opacity={0.3} />
 
-      <View style={s.statusBar}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
-          <LED color={isOngoing ? colors.go : colors.textDim} size={6} pulse={isOngoing} />
-          <Text style={[s.statusText, !isOngoing && { color: colors.textMuted }]}>
-            {isOngoing ? 'ON GOING' : 'ASSIGNED'}
-          </Text>
+        <View style={s.statusBar}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+            <LED color={isOngoing ? colors.go : colors.textDim} size={6} pulse={isOngoing} />
+            <Text style={[s.statusText, !isOngoing && { color: colors.textMuted }]}>
+              {isOngoing ? 'ON GOING' : 'ASSIGNED'}
+            </Text>
+          </View>
+          <Text style={s.statusCode}>SH-{String(shift.id).padStart(4, '0')}</Text>
         </View>
-        <Text style={s.statusCode}>SH-{String(shift.id).padStart(4, '0')}</Text>
-      </View>
 
-      <ScrollView contentContainerStyle={s.scroll}>
-        <View style={s.heroCard}>
-          <View style={s.heroAmberBar} />
-          <View style={s.heroTop}>
-            <View>
-              <Text style={s.heroEyebrow}>STATION</Text>
-              <Text style={s.heroCabinet}>{cabinet?.name ?? '—'}</Text>
-              <Text style={s.heroLocation}>{cabinet?.location}</Text>
+        <ScrollView contentContainerStyle={s.scroll}>
+          <View style={s.heroCard}>
+            <View style={s.heroAmberBar} />
+            <View style={s.heroTop}>
+              <View>
+                <Text style={s.heroEyebrow}>STATION</Text>
+                <Text style={s.heroCabinet}>{cabinet?.name ?? '—'}</Text>
+                <Text style={s.heroLocation}>{cabinet?.location}</Text>
+              </View>
+            </View>
+
+            <View style={s.timerRow}>
+              <View>
+                <Text style={s.timerLabel}>SHIFT HOURS</Text>
+                <Text style={s.timeText}>
+                  {formatTime(shift.startTime)} - {shift.endTime ? formatTime(shift.endTime) : 'TBD'}
+                </Text>
+              </View>
+              {isOngoing && (
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <Text style={s.timerLabel}>ELAPSED</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+                      <Text style={s.timerBig}>{duration.h}</Text>
+                      <Text style={s.timerUnit}>H</Text>
+                      <Text style={s.timerSep}>:</Text>
+                      <Text style={s.timerBig}>{duration.m}</Text>
+                      <Text style={s.timerUnit}>M</Text>
+                    </View>
+                  </View>
+              )}
             </View>
           </View>
 
-          <View style={s.timerRow}>
-            <View>
-              <Text style={s.timerLabel}>SHIFT HOURS</Text>
-              <Text style={s.timeText}>
-                {formatTime(shift.startTime)} - {shift.endTime ? formatTime(shift.endTime) : 'TBD'}
-              </Text>
-            </View>
-            {isOngoing && (
-              <View style={{ alignItems: 'flex-end' }}>
-                <Text style={s.timerLabel}>ELAPSED</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-                  <Text style={s.timerBig}>{duration.h}</Text>
-                  <Text style={s.timerUnit}>H</Text>
-                  <Text style={s.timerSep}>:</Text>
-                  <Text style={s.timerBig}>{duration.m}</Text>
-                  <Text style={s.timerUnit}>M</Text>
+          {isOngoing && (
+              <>
+                <View style={{ gap: spacing.sm }}>
+                  {ACTION_ROWS.map(({ label, hint, icon, screen, accent }) => (
+                      <TouchableOpacity
+                          key={screen}
+                          style={s.actionRow}
+                          onPress={() => navigation.navigate(screen as any)}
+                          activeOpacity={0.8}
+                      >
+                        <View style={[s.actionIcon, { borderColor: accentInk[accent] + '40' }]}>
+                          <Ionicons name={icon} size={20} color={accentInk[accent]} />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={[typography.subtitle, { color: colors.textHi }]}>{label}</Text>
+                          <Text style={typography.small}>{hint}</Text>
+                        </View>
+                        <Ionicons name="chevron-forward" size={16} color={colors.textDim} />
+                      </TouchableOpacity>
+                  ))}
+                </View>
+
+                <View style={{ height: spacing.md }} />
+
+                <Panel label="Report Anomaly" accent="stop">
+                  {anomalySubmitted ? (
+                      <View style={s.successBanner}>
+                        <Ionicons name="checkmark-circle" size={20} color={colors.go} />
+                        <Text style={s.successText}>Report submitted successfully.</Text>
+                      </View>
+                  ) : (
+                      <View>
+                        <Text style={[typography.label, { marginBottom: spacing.sm }]}>CATEGORY</Text>
+                        <View style={{ gap: spacing.sm, marginBottom: spacing.md }}>
+                          {ANOMALY_OPTIONS.map(opt => {
+                            const active = selectedAnomaly === opt.value;
+                            return (
+                                <TouchableOpacity
+                                    key={opt.value}
+                                    style={[s.option, active && s.optionActive]}
+                                    onPress={() => setSelectedAnomaly(opt.value)}
+                                    activeOpacity={0.8}
+                                >
+                                  <View style={[s.optionIcon, active && { backgroundColor: colors.amber + '22', borderColor: colors.amber }]}>
+                                    <Ionicons name={opt.icon} size={18} color={active ? colors.amber : colors.text} />
+                                  </View>
+                                  <View style={{ flex: 1 }}>
+                                    <Text style={[typography.subtitle, { color: active ? colors.amber : colors.textHi }]}>
+                                      {opt.label}
+                                    </Text>
+                                    <Text style={typography.small}>{opt.hint}</Text>
+                                  </View>
+                                  <View style={[s.radio, active && s.radioActive]}>
+                                    {active && <View style={s.radioDot} />}
+                                  </View>
+                                </TouchableOpacity>
+                            );
+                          })}
+                        </View>
+
+                        <TouchableOpacity
+                            style={[btn.primary, !selectedAnomaly && s.btnDisabled, { backgroundColor: colors.stop }]}
+                            onPress={handleReportAnomaly}
+                            disabled={!selectedAnomaly}
+                            activeOpacity={0.85}
+                        >
+                          <Ionicons name="send" size={14} color="#FFFFFF" />
+                          <Text style={[btn.primaryLabel, { color: '#FFFFFF' }]}>Submit Report</Text>
+                        </TouchableOpacity>
+                      </View>
+                  )}
+                </Panel>
+              </>
+          )}
+          {!isOngoing && (
+              <View style={{ flex: 1, justifyContent: 'center', paddingVertical: spacing.xxl }}>
+                <View style={s.stbyCard}>
+                  <Ionicons name="information-circle-outline" size={24} color={colors.amber} />
+                  <Text style={[typography.body, { textAlign: 'center', color: colors.text }]}>
+                    Your shift is assigned to this station. Press below to begin your work session.
+                  </Text>
                 </View>
               </View>
-            )}
-          </View>
+          )}
+        </ScrollView>
+
+        <View style={s.footer}>
+          {isOngoing ? (
+              <TouchableOpacity style={btn.danger} onPress={() => navigation.navigate('EndShift')} activeOpacity={0.85}>
+                <Ionicons name="stop" size={14} color="#FFFFFF" />
+                <Text style={btn.dangerLabel}>End Shift</Text>
+              </TouchableOpacity>
+          ) : (
+              <TouchableOpacity
+                  style={[btn.primary, shiftLoading && s.btnDisabled]}
+                  onPress={handleStart}
+                  disabled={shiftLoading}
+                  activeOpacity={0.85}
+              >
+                {shiftLoading ? (
+                    <ActivityIndicator color="#0A0A0A" size="small" />
+                ) : (
+                    <>
+                      <Text style={btn.primaryLabel}>Start Shift</Text>
+                      <Ionicons name="play" size={16} color="#0A0A0A" />
+                    </>
+                )}
+              </TouchableOpacity>
+          )}
         </View>
-
-        {isOngoing && (
-          <>
-            <View style={{ gap: spacing.sm }}>
-              {ACTION_ROWS.map(({ label, hint, icon, screen, accent }) => (
-                <TouchableOpacity
-                  key={screen}
-                  style={s.actionRow}
-                  onPress={() => navigation.navigate(screen as any)}
-                  activeOpacity={0.8}
-                >
-                  <View style={[s.actionIcon, { borderColor: accentInk[accent] + '40' }]}>
-                    <Ionicons name={icon} size={20} color={accentInk[accent]} />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[typography.subtitle, { color: colors.textHi }]}>{label}</Text>
-                    <Text style={typography.small}>{hint}</Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={16} color={colors.textDim} />
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            <View style={{ height: spacing.md }} />
-
-            <Panel label="Report Anomaly" accent="stop">
-              {anomalySubmitted ? (
-                <View style={s.successBanner}>
-                  <Ionicons name="checkmark-circle" size={20} color={colors.go} />
-                  <Text style={s.successText}>Report submitted successfully.</Text>
-                </View>
-              ) : (
-                <View>
-                  <Text style={[typography.label, { marginBottom: spacing.sm }]}>CATEGORY</Text>
-                  <View style={{ gap: spacing.sm, marginBottom: spacing.md }}>
-                    {ANOMALY_OPTIONS.map(opt => {
-                      const active = selectedAnomaly === opt.value;
-                      return (
-                        <TouchableOpacity
-                          key={opt.value}
-                          style={[s.option, active && s.optionActive]}
-                          onPress={() => setSelectedAnomaly(opt.value)}
-                          activeOpacity={0.8}
-                        >
-                          <View style={[s.optionIcon, active && { backgroundColor: colors.amber + '22', borderColor: colors.amber }]}>
-                            <Ionicons name={opt.icon} size={18} color={active ? colors.amber : colors.text} />
-                          </View>
-                          <View style={{ flex: 1 }}>
-                            <Text style={[typography.subtitle, { color: active ? colors.amber : colors.textHi }]}>
-                              {opt.label}
-                            </Text>
-                            <Text style={typography.small}>{opt.hint}</Text>
-                          </View>
-                          <View style={[s.radio, active && s.radioActive]}>
-                            {active && <View style={s.radioDot} />}
-                          </View>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-
-                  <TouchableOpacity
-                    style={[btn.primary, !selectedAnomaly && s.btnDisabled, { backgroundColor: colors.stop }]}
-                    onPress={handleReportAnomaly}
-                    disabled={!selectedAnomaly}
-                    activeOpacity={0.85}
-                  >
-                    <Ionicons name="send" size={14} color="#FFFFFF" />
-                    <Text style={[btn.primaryLabel, { color: '#FFFFFF' }]}>Submit Report</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </Panel>
-          </>
-        )}
-        {!isOngoing && (
-          <View style={{ flex: 1, justifyContent: 'center', paddingVertical: spacing.xxl }}>
-            <View style={s.stbyCard}>
-              <Ionicons name="information-circle-outline" size={24} color={colors.amber} />
-              <Text style={[typography.body, { textAlign: 'center', color: colors.text }]}>
-                Your shift is assigned to this station. Press below to begin your work session.
-              </Text>
-            </View>
-          </View>
-        )}
-      </ScrollView>
-
-      <View style={s.footer}>
-        {isOngoing ? (
-          <TouchableOpacity style={btn.danger} onPress={() => navigation.navigate('EndShift')} activeOpacity={0.85}>
-            <Ionicons name="stop" size={14} color="#FFFFFF" />
-            <Text style={btn.dangerLabel}>End Shift</Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity 
-            style={[btn.primary, shiftLoading && s.btnDisabled]} 
-            onPress={handleStart} 
-            disabled={shiftLoading}
-            activeOpacity={0.85}
-          >
-            {shiftLoading ? (
-              <ActivityIndicator color="#0A0A0A" size="small" />
-            ) : (
-              <>
-                <Text style={btn.primaryLabel}>Start Shift</Text>
-                <Ionicons name="play" size={16} color="#0A0A0A" />
-              </>
-            )}
-          </TouchableOpacity>
-        )}
-      </View>
-    </SafeAreaView>
-  );
-}
-
-function InvBlock({ value, label, color, muted = false }: { value: number; label: string; color: string; muted?: boolean }) {
-  return (
-    <View style={{ flex: 1, alignItems: 'center', opacity: muted ? 0.4 : 1 }}>
-      <Text style={{
-        fontFamily: fonts.mono,
-        fontSize: 30,
-        color,
-        fontVariant: ['tabular-nums'],
-        letterSpacing: -0.5,
-      }}>
-        {String(value).padStart(2, '0')}
-      </Text>
-      <Text style={{
-        fontFamily: fonts.displayBold,
-        fontSize: 9,
-        color: colors.textMuted,
-        letterSpacing: 1.8,
-        marginTop: 2,
-      }}>
-        {label}
-      </Text>
-    </View>
+      </SafeAreaView>
   );
 }
 
@@ -393,38 +380,6 @@ const s = StyleSheet.create({
     color: colors.amber,
     marginHorizontal: 2,
   },
-  invRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  invDivider: {
-    width: 1,
-    height: 40,
-    backgroundColor: colors.hairline,
-  },
-  panelMeta: {
-    fontFamily: fonts.mono,
-    fontSize: 10,
-    color: colors.textMuted,
-    letterSpacing: 1.5,
-  },
-  warningStrip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    marginTop: spacing.md,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.sm,
-    backgroundColor: colors.amberSoft + '40',
-  },
-  warningText: {
-    flex: 1,
-    fontSize: 11,
-    color: colors.amber,
-    letterSpacing: 0.3,
-  },
-
   actionRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -445,7 +400,6 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-
   footer: {
     padding: spacing.md,
     paddingBottom: spacing.lg,
@@ -453,7 +407,6 @@ const s = StyleSheet.create({
     borderTopColor: colors.hairline,
     backgroundColor: colors.bg,
   },
-
   stbyCard: {
     alignItems: 'center',
     gap: spacing.md,
@@ -463,8 +416,6 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-
-  // Anomaly styles
   option: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -504,32 +455,6 @@ const s = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     backgroundColor: colors.amber,
-  },
-  textareaWrap: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    paddingBottom: spacing.sm,
-    minHeight: 100,
-  },
-  textareaFocus: {
-    borderColor: colors.amber,
-    backgroundColor: colors.surfaceAlt,
-  },
-  textarea: {
-    color: colors.textHi,
-    fontSize: 14,
-    lineHeight: 19,
-    minHeight: 60,
-  },
-  charCount: {
-    fontFamily: fonts.mono,
-    fontSize: 10,
-    color: colors.textDim,
-    letterSpacing: 1,
-    textAlign: 'right',
   },
   btnDisabled: { opacity: 0.3 },
   successBanner: {

@@ -1,23 +1,42 @@
 import { useEffect, useState } from 'react'
-import { CheckCircle2, Clock, Package, User, Square, AlertTriangle, Edit2 } from 'lucide-react'
+import { Clock, Package, User, Square, AlertTriangle, Edit2 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
-import { listShifts, startShift, endShift, editShiftHours } from '@/api/shifts'
+import { listShifts, endShift, editShiftHours } from '@/api/shifts'
 import { listCabinets } from '@/api/cabinets'
 import { ApiError } from '@/api/client'
 import ShiftDrawer from '@/components/ui/ShiftDrawer'
 import type { Cabinet, Shift } from '@/types/domain'
 import styles from './Shifts.module.css'
 
+function timeToMinutes(timeStr: string): number {
+  const [hours, minutes] = timeStr.split(':').map(Number)
+  return (hours * 60) + (minutes || 0)
+}
+
 function formatDuration(start: string, end: string | null): string {
-  const ms   = (end ? new Date(end).getTime() : Date.now()) - new Date(start).getTime()
-  const mins = Math.floor(ms / 60000)
-  const h    = Math.floor(mins / 60)
-  const m    = mins % 60
+  const startMins = timeToMinutes(start)
+  let endMins: number
+
+  if (end) {
+    endMins = timeToMinutes(end)
+  } else {
+    const now = new Date()
+    endMins = (now.getHours() * 60) + now.getMinutes()
+  }
+
+  let diffMins = endMins - startMins
+
+  if (diffMins < 0) {
+    diffMins += 24 * 60
+  }
+
+  const h = Math.floor(diffMins / 60)
+  const m = diffMins % 60
   return h > 0 ? `${h}h ${m.toString().padStart(2, '0')}m` : `${m}m`
 }
 
-function formatTime(iso: string): string {
-  return new Date(iso).toISOString().replace('T', ' ').slice(0, 16) + ' UTC'
+function formatTime(localTimeStr: string): string {
+  return localTimeStr.slice(0, 5)
 }
 
 interface ShiftCardProps {
@@ -54,7 +73,6 @@ function ShiftCard({
             </div>
           </div>
 
-          {/* Botão de Editar (Lápis) adicionado aqui */}
           <button className={styles.editBtn} onClick={onEdit} title="Edit Shift Times">
             <Edit2 size={14} />
           </button>
@@ -142,6 +160,7 @@ export default function Shifts() {
   useEffect(() => {
     let cancelled = false
 
+
     refresh()
         .catch(err => {
           if (cancelled) return
@@ -149,26 +168,17 @@ export default function Shifts() {
         })
         .finally(() => { if (!cancelled) setLoading(false) })
 
+
     const handleShiftUpdate = () => {
-      refresh();
+      refresh().catch(console.error);
     };
+
     window.addEventListener('shifts-updated', handleShiftUpdate);
 
     return () => {
       cancelled = true
       window.removeEventListener('shifts-updated', handleShiftUpdate);
     }
-  }, [])
-
-  useEffect(() => {
-    let cancelled = false
-    refresh()
-        .catch(err => {
-          if (cancelled) return
-          setLoadError(err instanceof ApiError ? err.message : 'Failed to load shifts')
-        })
-        .finally(() => { if (!cancelled) setLoading(false) })
-    return () => { cancelled = true }
   }, [])
 
   const active   = shifts.filter(s => s.status === 'ACTIVE')
@@ -244,7 +254,7 @@ export default function Shifts() {
                         onRequestEnd={() => setConfirmEndId(s.id)}
                         onConfirmEnd={() => handleEndShift(s.id)}
                         onCancelEnd={() => setConfirmEndId(null)}
-                        onEdit={() => setEditingShift(s)} // <-- Abre a drawer ao clicar
+                        onEdit={() => setEditingShift(s)}
                     />
                 ))
             }

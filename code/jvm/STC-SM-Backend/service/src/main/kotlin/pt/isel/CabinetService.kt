@@ -24,6 +24,7 @@ class CabinetService(
 
 fun getCabinet(id: Int): Either<CabinetError, Cabinet> {
     val cabinet = cabinetRepo.findByIdOrNull(id) ?: return failure(CabinetError.CabinetNotFound)
+
     return success(cabinet)
 }
 

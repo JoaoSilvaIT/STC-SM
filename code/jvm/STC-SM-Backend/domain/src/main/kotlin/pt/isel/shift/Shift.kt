@@ -15,6 +15,7 @@ import jakarta.persistence.Table
 import pt.isel.user.User
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalTime
 
 @Entity
 @Table(name = "shifts")
@@ -31,11 +32,11 @@ class Shift(
     @JoinColumn(name = "id_user", referencedColumnName = "id")
     val user: User,
 
-    @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
-    val startTime: Instant,
+    @Column(nullable = false)
+    val startTime: LocalTime,
 
-    @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
-    val endTime: Instant,
+    @Column(nullable = false)
+    val endTime: LocalTime,
 
     @Enumerated(EnumType.STRING)
     val status: ShiftStatus,
@@ -46,8 +47,8 @@ class Shift(
     fun copy(
         cabinet: Cabinet = this.cabinet,
         user: User = this.user,
-        startTime: Instant = this.startTime,
-        endTime: Instant = this.endTime,
+        startTime: LocalTime = this.startTime,
+        endTime: LocalTime = this.endTime,
         status: ShiftStatus = this.status,
         lastEvaluatedDate: LocalDate? = this.lastEvaluatedDate
     ) = Shift(

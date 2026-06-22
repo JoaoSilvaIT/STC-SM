@@ -1,5 +1,6 @@
 package pt.isel
 
+import org.springframework.cglib.core.Local
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -14,19 +15,22 @@ import pt.isel.utils.failure
 import pt.isel.utils.success
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalTime
 
 @Service
 class AlertService (
     private val alertRepo: AlertRepository,
 ) {
     fun evaluateLateStart(shift: Shift, user: User): Alert? {
-        val currentTime = Instant.now()
+        val currentTime = LocalTime.now()
         val delayMinutes = Duration.between(shift.startTime, currentTime).toMinutes()
+
+        val date = Instant.now()
 
         if (delayMinutes >= 20) {
             val alert = Alert(
                 type = AlertType.LATE_START,
-                date = currentTime,
+                date = date,
                 status = AlertStatus.UNREAD,
                 message = "Mechanic ${user.name} started shift ${delayMinutes}m late.",
                 user = user,
@@ -39,14 +43,16 @@ class AlertService (
     }
 
     fun evaluateEarlyEnding(shift: Shift, user: User): Alert? {
-        val currentTime = Instant.now()
+        val currentTime = LocalTime.now()
 
         val earlyMinutes = Duration.between(currentTime, shift.endTime).toMinutes()
+
+        val date = Instant.now()
 
         if (earlyMinutes >= 13) {
             val alert = Alert(
                 type = AlertType.EARLY_ENDING,
-                date = currentTime,
+                date = date,
                 status = AlertStatus.UNREAD,
                 message = "Mechanic ${user.name} ended shift ${earlyMinutes}m early.",
                 user = user,

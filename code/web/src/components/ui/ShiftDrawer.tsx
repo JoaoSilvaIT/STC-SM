@@ -11,11 +11,10 @@ interface ShiftDrawerProps {
   onClose:      () => void
 }
 
-// O input type="datetime-local" precisa do formato "YYYY-MM-DDTHH:mm"
-const formatForInput = (isoString?: string | null) => {
-  if (!isoString) return ''
-  // Corta a string ISO pelos primeiros 16 caracteres para encaixar no input
-  return isoString.slice(0, 16)
+// O input type="time" precisa do formato estrito "HH:mm" (24h)
+const formatForInput = (timeString?: string | null) => {
+  if (!timeString) return ''
+  return timeString.slice(0, 5)
 }
 
 export default function ShiftDrawer({
@@ -37,9 +36,11 @@ export default function ShiftDrawer({
 
   const validate = () => {
     const e: Record<string, string> = {}
-    if (startTime && endTime && new Date(startTime + 'Z') > new Date(endTime + 'Z')) {
-      e.time = 'End time cannot be before start time'
+
+    if (!startTime || !endTime) {
+      e.time = 'Both start and end times are required'
     }
+
     return e
   }
 
@@ -47,12 +48,9 @@ export default function ShiftDrawer({
     const e = validate()
     if (Object.keys(e).length) { setErrors(e); return }
 
-    const formattedStart = startTime ? new Date(startTime + 'Z').toISOString() : null
-    const formattedEnd   = endTime   ? new Date(endTime + 'Z').toISOString() : null
-
     onSave({
-      startTime: formattedStart,
-      endTime: formattedEnd,
+      startTime: startTime ? `${startTime}:00` : null,
+      endTime: endTime ? `${endTime}:00` : null,
     })
   }
 
@@ -80,7 +78,7 @@ export default function ShiftDrawer({
             <div className={styles.field}>
               <label className={styles.label}><Clock size={11} /> Start Time</label>
               <input
-                  type="datetime-local"
+                  type="time"
                   className={`${styles.input} ${errors.time ? styles.inputErr : ''}`}
                   value={startTime}
                   onChange={e => setStartTime(e.target.value)}
@@ -90,7 +88,7 @@ export default function ShiftDrawer({
             <div className={styles.field}>
               <label className={styles.label}><Clock size={11} /> End Time</label>
               <input
-                  type="datetime-local"
+                  type="time"
                   className={`${styles.input} ${errors.time ? styles.inputErr : ''}`}
                   value={endTime}
                   onChange={e => setEndTime(e.target.value)}

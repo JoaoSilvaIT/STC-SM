@@ -4,14 +4,16 @@ import pt.isel.activity.ActivityType
 import pt.isel.cabinet.CabinetStatus
 import pt.isel.user.UserStatus
 import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeParseException
 
 /**
- * Conversion from String to Instant
+ * Conversion from String to LocalDate
  */
-fun String.toInstantOrNull(): Instant? {
+fun String.toLocalTimeOrNull(): LocalTime? {
     return try {
-        Instant.parse(this)
+        LocalTime.parse(this)
     } catch (e: DateTimeParseException) {
         null
     }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.ShiftService
+import pt.isel.errors.ShiftError
 import pt.isel.model.alert.AlertOutputModel
 import pt.isel.user.User
 import pt.isel.utils.Either
@@ -136,6 +137,20 @@ class ShiftController(
                     .body(responseBody)
             }
             is Either.Failure -> result.value.toProblemResponse()
+        }
+    }
+
+    @GetMapping("/api/shifts/active/cabinet/{cabinetId}")
+    fun isCabinetOccupied(@PathVariable cabinetId: Int, user: User): ResponseEntity<Boolean> {
+        return when(val result = shiftService.hasActiveShift(cabinetId)) {
+            is Either.Success -> ResponseEntity.ok(result.value)
+            is Either.Failure -> {
+                if (result.value == ShiftError.ShiftAlreadyHapening) {
+                    ResponseEntity.ok(true)
+                } else {
+                    ResponseEntity.ok(false)
+                }
+            }
         }
     }
 }
