@@ -4,7 +4,7 @@ import { Client } from '@stomp/stompjs'
 import {
   LayoutDashboard, Package, Wrench, Activity, Clock,
   AlertTriangle, Shield, Users, Settings, LogOut, FlaskConical,
-    Bell, CheckCircle, X
+    Bell, CheckCircle, X, DoorOpen
 } from 'lucide-react'
 import { listShifts } from '@/api/shifts'
 import { listCabinets } from '@/api/cabinets'
@@ -17,11 +17,13 @@ import { getUnreadAlerts, updateAlert } from '@/api/alerts'
 const POP_UP_ICON: Record<string, React.ReactNode> = {
   LATE_START:    <Clock        size={16} color="#3b82f6" />,
   EARLY_ENDING:  <Clock        size={16} color="#3b82f6" />,
+  OPEN_CABINET:  <DoorOpen        size={16} color="#3b82f6" />,
 }
 
 const TYPE_META: Record<AlertType, {label: string}> = {
   LATE_START: { label: 'Clocked in late'},
-  EARLY_ENDING: { label: 'Clocked off early'}
+  EARLY_ENDING: { label: 'Clocked off early'},
+  OPEN_CABINET: { label: 'Cabinet opened for too long'},
 }
 
 const NAV_PRIMARY = [

@@ -1,13 +1,16 @@
 package pt.isel
 
 import org.springframework.cglib.core.Local
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import pt.isel.alert.Alert
 import pt.isel.alert.AlertStatus
 import pt.isel.alert.AlertType
+import pt.isel.cabinet.Cabinet
 import pt.isel.errors.AlertError
+import pt.isel.events.AlertNotification
 import pt.isel.shift.Shift
 import pt.isel.user.User
 import pt.isel.utils.Either
@@ -20,6 +23,8 @@ import java.time.LocalTime
 @Service
 class AlertService (
     private val alertRepo: AlertRepository,
+    private val cabinetRepo : CabinetRepository,
+    private val eventPublisher: ApplicationEventPublisher
 ) {
     fun evaluateLateStart(shift: Shift, user: User): Alert? {
         val currentTime = LocalTime.now()
@@ -77,4 +82,18 @@ class AlertService (
         return success(alertRepo.save(newAlert))
     }
 
+    fun createCabinetLeftOpenAlert(cabinet: Cabinet, user: User): Either<AlertError, Alert> {
+        val date = Instant.now()
+        val alert = Alert(
+            date = date,
+            type = AlertType.OPEN_CABINET,
+            status = AlertStatus.UNREAD,
+            message = "Cabinet ${cabinet.description} left open by mechanic ${user.name}.",
+            cabinet = cabinet,
+            user = user
+        )
+        alertRepo.save(alert)
+        eventPublisher.publishEvent(AlertNotification(alert))
+        return success(alert)
+    }
 }

@@ -21,7 +21,7 @@ export type ActivityType = 'OPEN_CABINET'
 export type UserRole = 'ADMIN' | 'MECHANIC' | 'BACK_OFFICE';
 export type UserStatus = 'ACTIVE' | 'INACTIVE';
 export type ShiftStatus = 'ACTIVE' | 'INACTIVE';
-export type AlertType = 'LATE_START';
+export type AlertType = 'LATE_START' | 'EARLY_ENDING' | 'OPEN_CABINET';
 export type AlertStatus = 'UNREAD' | 'READ';
 
 export interface User {

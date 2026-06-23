@@ -13,12 +13,14 @@ import pt.isel.utils.Either
 import pt.isel.utils.failure
 import pt.isel.utils.success
 import java.time.Instant
+import kotlin.concurrent.timer
 
 @Service
 class CabinetService(
     private val cabinetRepo: CabinetRepository,
     private val userRepo: UserRepository,
     private val activityService: ActivityService,
+    private val timerService: TimerService,
     private val eventPublisher: ApplicationEventPublisher
 ) {
 
@@ -40,6 +42,12 @@ fun updateCabinet(status: CabinetStatus, cid: Int, userId: Int): Either<CabinetE
     activityService.createActivity(user.id, null, saved.id, null,activityType, Instant.now())
 
     eventPublisher.publishEvent(CabinetUpdated(saved))
+
+    if (status == CabinetStatus.OPEN) {
+        timerService.startTimerForCabinet(user, cabinet)
+    } else if (status == CabinetStatus.CLOSED) {
+        timerService.cancelTimerForCabinet(cabinet.id)
+    }
 
     return success(saved)
 }
