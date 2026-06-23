@@ -73,9 +73,11 @@ function ShiftCard({
             </div>
           </div>
 
-          <button className={styles.editBtn} onClick={onEdit} title="Edit Shift Times">
-            <Edit2 size={14} />
-          </button>
+          {isBackOffice &&
+              <button className={styles.editBtn} onClick={onEdit} title="Edit Shift Times">
+                <Edit2 size={14} />
+              </button>
+          }
         </div>
 
         <div className={styles.metaGrid}>
