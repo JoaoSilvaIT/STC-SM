@@ -155,6 +155,18 @@
   border-radius: 20px;
 }
 
+.badgeLive {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: #FFFFFF;
+  background: #2ecc71;
+  border: 1px solid #27ae60;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+
 /* ── CABINET GRID ── */
 .cabGrid {
   display: grid;
@@ -321,9 +333,10 @@
   flex-shrink: 0;
 }
 
-.dotRisk   { background: var(--risk);  box-shadow: 0 0 4px var(--risk);  }
-.dotClear  { background: var(--clear); box-shadow: 0 0 4px var(--clear); }
-.dotAmber  { background: var(--amber); }
+.dotRisk      { background: var(--risk);  box-shadow: 0 0 4px var(--risk);  }
+.dotClear     { background: var(--clear); box-shadow: 0 0 4px var(--clear); }
+.dotAmber     { background: var(--amber); }
+.dotNeonGreen { background: #2ecc71;      box-shadow: 0 0 4px #2ecc71;}
 
 .feedBody {
   flex: 1;

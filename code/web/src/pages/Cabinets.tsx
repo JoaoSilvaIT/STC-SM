@@ -190,6 +190,7 @@ export default function Cabinets() {
       cancelled = true
       window.removeEventListener('cabinets-updated', handleCabinetsUpdate)
       window.removeEventListener('tools-updated', handleToolsUpdate)
+      window.removeEventListener('shifts-updated', handleShiftsUpdate)
     };
   }, [])
 
