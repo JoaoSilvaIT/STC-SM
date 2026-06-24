@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.jpa) apply false
     alias(libs.plugins.spring.boot) apply false
     alias(libs.plugins.spring.dependency.management) apply false
-//    alias(libs.plugins.ktlint) apply false
+    alias(libs.plugins.ktlint) apply false
 }
 
 // Configurations for the overall project
@@ -29,8 +29,10 @@ subprojects {
             languageVersion.set(JavaLanguageVersion.of(21))
         }
     }
-    // Ktlint
-//    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+    configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+        version.set("1.7.1")
+    }
 }
 
 

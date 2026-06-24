@@ -6,7 +6,7 @@ import pt.isel.Problem
 import pt.isel.errors.AlertError
 
 fun AlertError.toProblemResponse(): ResponseEntity<Any> =
-    when(this) {
+    when (this) {
         AlertError.AlertsNotFound -> Problem.AlertNotFound.response(HttpStatus.NOT_FOUND)
         AlertError.AlertNotFound -> Problem.AlertNotFound.response(HttpStatus.NOT_FOUND)
         AlertError.CabinetNotFound -> Problem.AlertNotFound.response(HttpStatus.NOT_FOUND)

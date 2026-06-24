@@ -22,52 +22,52 @@ import pt.isel.utils.Either
 @RestController
 class CabinetController(
     private val cabinetService: CabinetService,
-    private val messagingTemplate: SimpMessagingTemplate
+    private val messagingTemplate: SimpMessagingTemplate,
 ) {
     @GetMapping("/api/cabinets")
-    fun listCabinets(@Suppress("UNUSED_PARAMETER") user: User): ResponseEntity<List<CabinetOutputModel>> =
+    fun listCabinets(
+        @Suppress("UNUSED_PARAMETER") user: User,
+    ): ResponseEntity<List<CabinetOutputModel>> =
         ResponseEntity.ok(cabinetService.getAllCabinets().map(CabinetOutputModel.Companion::fromDomain))
 
     @GetMapping("/api/cabinets/{id}")
     fun getCabinet(
         @PathVariable id: Int,
-        @Suppress("UNUSED_PARAMETER") user: User
-    ): ResponseEntity<*> {
-        return when(val result = cabinetService.getCabinet(id)){
+        @Suppress("UNUSED_PARAMETER") user: User,
+    ): ResponseEntity<*> =
+        when (val result = cabinetService.getCabinet(id)) {
             is Either.Success ->
                 ResponseEntity
                     .status(HttpStatus.OK)
                     .body(CabinetOutputModel.fromDomain(result.value))
             is Either.Failure -> result.value.toProblemResponse()
         }
-    }
 
     @PutMapping("/api/cabinets/{id}")
     fun updateCabinet(
         @PathVariable id: Int,
         @RequestBody input: UpdateCabinetInputModel,
-        user: User
-    ): ResponseEntity<*> {
-        return when(val result = cabinetService.updateCabinet(input.status, id, user.id)){
+        user: User,
+    ): ResponseEntity<*> =
+        when (val result = cabinetService.updateCabinet(input.status, id, user.id)) {
             is Either.Success ->
                 ResponseEntity
-                .status(HttpStatus.OK)
-                .body(CabinetOutputModel.fromDomain(result.value))
+                    .status(HttpStatus.OK)
+                    .body(CabinetOutputModel.fromDomain(result.value))
             is Either.Failure -> result.value.toProblemResponse()
         }
-    }
 
     @PostMapping("/api/cabinets")
     fun createCabinet(
         @RequestBody input: CreateCabinetInputModel,
-        @Suppress("UNUSED_PARAMETER") user: User
-    ): ResponseEntity<*> {
-        return when(val result = cabinetService.createCabinet(input.description, input.status, input.location)){
-            is Either.Success -> ResponseEntity
-                .status(HttpStatus.CREATED)
-                .header("Location", "/api/cabinets/${result.value.id}")
-                .body(CabinetOutputModel.fromDomain(result.value))
+        @Suppress("UNUSED_PARAMETER") user: User,
+    ): ResponseEntity<*> =
+        when (val result = cabinetService.createCabinet(input.description, input.status, input.location)) {
+            is Either.Success ->
+                ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .header("Location", "/api/cabinets/${result.value.id}")
+                    .body(CabinetOutputModel.fromDomain(result.value))
             is Either.Failure -> result.value.toProblemResponse()
         }
-    }
 }

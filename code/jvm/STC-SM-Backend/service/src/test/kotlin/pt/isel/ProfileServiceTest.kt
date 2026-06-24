@@ -12,7 +12,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class ProfileServiceTest {
-
     private val profileRepo: ProfileRepository = mockk()
     private val service = ProfileService(profileRepo)
 

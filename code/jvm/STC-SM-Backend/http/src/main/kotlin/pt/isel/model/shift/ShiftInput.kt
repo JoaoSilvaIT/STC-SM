@@ -4,5 +4,5 @@ data class ShiftInput(
     val uid: Int,
     val cid: Int,
     val startTime: String,
-    val endTime: String
+    val endTime: String,
 )

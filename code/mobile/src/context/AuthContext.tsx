@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { User } from '../types/domain';
 import { login as apiLogin, me, clearToken } from '../api/auth';
+import { loadToken } from '../api/client';
 
 type LoginResult = 'ok' | 'invalid_credentials' | 'not_mechanic' | 'error';
 
@@ -15,7 +16,29 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Restore a persisted session on app startup.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const token = await loadToken();
+        if (!token) return;
+        const user = await me();
+        if (cancelled) return;
+        if (user.role === 'MECHANIC') setCurrentUser(user);
+        else clearToken();
+      } catch {
+        clearToken();
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function login(email: string, password: string): Promise<LoginResult> {
     setLoading(true);

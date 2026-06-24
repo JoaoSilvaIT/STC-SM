@@ -9,15 +9,16 @@ import pt.isel.model.shift.ShiftOutputModel
 
 @Component
 class ShiftNotificationListener(
-    private val messagingTemplate: SimpMessagingTemplate
+    private val messagingTemplate: SimpMessagingTemplate,
 ) {
     @EventListener
     fun handleShiftStarted(event: ShiftUpdated) {
         val shiftDto = ShiftOutputModel.fromDomain(event.shift)
 
-        if (event.alert != null) {
-            val alertDto = AlertOutputModel.fromDomain(event.alert!!)
-            messagingTemplate.convertAndSend("/topic/alertas", alertDto)
+        val alert = event.alert
+        if (alert != null) {
+            val alertDto = AlertOutputModel.fromDomain(alert)
+            messagingTemplate.convertAndSend("/topic/alerts", alertDto)
         }
 
         messagingTemplate.convertAndSend("/topic/shifts", shiftDto)

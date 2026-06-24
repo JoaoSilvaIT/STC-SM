@@ -1,20 +1,10 @@
 import { idFromHref, parseLocationId, request, requestWithHeaders } from './client'
 import type { Tool, ToolStatus } from '@/types/domain'
 
-type BeToolStatus = 'ACTIVE' | 'BROKEN' | 'REPAIRING'
-
-const STATUS_TO_BE: Record<ToolStatus, BeToolStatus> = {
-  AVAILABLE: 'ACTIVE',
-  IN_USE: 'ACTIVE',
-  MISSING: 'BROKEN',
-  MAINTENANCE: 'REPAIRING',
-}
-
 interface ToolResponse {
   name: string
   partNumber: string
   status: ToolStatus
-  isActive: boolean
   self: string
   cabinet: string
 }
@@ -26,7 +16,8 @@ function toDomain(raw: ToolResponse, fallbackId = 0): Tool {
     partNumber: raw.partNumber,
     cabinetId: idFromHref(raw.cabinet),
     status: raw.status,
-    isActive: raw.isActive,
+    // Backend has no soft-delete flag; treat BROKEN as the deactivated state.
+    isActive: raw.status !== 'BROKEN',
   }
 }
 
@@ -51,7 +42,7 @@ export async function createTool(input: {
     body: {
       name: input.name,
       cabinetId: input.cabinetId,
-      status: STATUS_TO_BE[input.status],
+      status: input.status,
       location: input.location,
     },
     auth: true,
@@ -62,7 +53,7 @@ export async function createTool(input: {
 export async function updateTool(id: number, status: ToolStatus): Promise<Tool> {
   const raw = await request<ToolResponse>(`/api/tools/${id}`, {
     method: 'PUT',
-    body: { status: STATUS_TO_BE[status] },
+    body: { status },
     auth: true,
   })
   return toDomain(raw, id)

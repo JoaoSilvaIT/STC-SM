@@ -22,7 +22,6 @@ function toDomain(raw: ShiftResponse, fallbackId = 0): Shift {
     status: raw.status,
     startTime: raw.startTime,
     endTime: raw.endTime,
-    aircraftReg: '',
   }
 }
 

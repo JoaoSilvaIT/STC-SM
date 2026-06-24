@@ -26,7 +26,7 @@ function CabinetPanel({ cabinet, tools, activeShift, onEdit }: CabinetPanelProps
   const avail = tools.filter(t => t.status === 'AVAILABLE').length
   const inUse = tools.filter(t => t.status === 'IN_USE').length
   const miss  = tools.filter(t => t.status === 'MISSING').length
-  const maint = tools.filter(t => t.status === 'MAINTENANCE').length
+  const maint = tools.filter(t => t.status === 'IN_MAINTENANCE').length
   const total = tools.length
 
   const isOnline = cabinet.status === 'OPEN' || cabinet.status === 'CLOSED'

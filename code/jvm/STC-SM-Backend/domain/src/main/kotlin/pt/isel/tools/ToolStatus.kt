@@ -12,5 +12,5 @@ enum class ToolStatus {
     IN_USE,
     IN_MAINTENANCE,
     BROKEN,
-    MISSING
+    MISSING,
 }

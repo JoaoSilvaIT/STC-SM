@@ -3,6 +3,7 @@ package pt.isel
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.repository.findByIdOrNull
 import pt.isel.activity.Activity
 import pt.isel.activity.ActivityType
@@ -24,33 +25,38 @@ import kotlin.test.assertIs
 import kotlin.test.assertNull
 
 class ActivityServiceTest {
-
     private val activityRepo: ActivityRepository = mockk(relaxed = true)
     private val userRepo: UserRepository = mockk()
     private val cabinetRepo: CabinetRepository = mockk()
     private val toolRepo: ToolRepository = mockk()
-    private val service = ActivityService(activityRepo, userRepo, cabinetRepo, toolRepo)
+    private val shiftRepo: ShiftRepository = mockk()
+    private val eventPublisher: ApplicationEventPublisher = mockk(relaxed = true)
+    private val service = ActivityService(activityRepo, userRepo, cabinetRepo, toolRepo, shiftRepo, eventPublisher)
 
     private val profile = Profile(id = 1, role = Role.MECHANIC, description = "")
-    private val user = User(
-        id = 1, name = "Joana", email = "j@x", profile = profile,
-        status = UserStatus.ACTIVE, passwordValidation = PasswordValidationInfo("h"),
-    )
+    private val user =
+        User(
+            id = 1,
+            name = "Joana",
+            email = "j@x",
+            profile = profile,
+            status = UserStatus.ACTIVE,
+            passwordValidation = PasswordValidationInfo("h"),
+        )
     private val cabinet = Cabinet(id = 1, description = "C", status = CabinetStatus.OPEN, location = "loc")
-    private val tool = Tool(id = 1, name = "Drill", cabinet = cabinet, status = ToolStatus.ACTIVE, location = "loc")
+    private val tool = Tool(id = 1, name = "Drill", cabinet = cabinet, status = ToolStatus.AVAILABLE, location = "loc")
     private val date: Instant = Instant.parse("2026-01-01T10:00:00Z")
 
     @Test
     fun `getAllActivities delegates to repo`() {
-        val activities = listOf(
-            Activity(id = 1, type = ActivityType.OPEN_CABINET, date = date, user = user),
-            Activity(id = 2, type = ActivityType.REMOVE_TOOL, date = date, user = user, tool = tool),
-        )
+        val activities =
+            listOf(
+                Activity(id = 1, type = ActivityType.OPEN_CABINET, date = date, user = user),
+                Activity(id = 2, type = ActivityType.REMOVE_TOOL, date = date, user = user, tool = tool),
+            )
         every { activityRepo.findAll() } returns activities
 
-        val result = service.getAllActivities()
-
-        assertEquals(activities, result)
+        assertEquals(activities, service.getAllActivities())
     }
 
     @Test
@@ -79,37 +85,28 @@ class ActivityServiceTest {
         val activities = listOf(Activity(type = ActivityType.REMOVE_TOOL, date = date, user = user, tool = tool))
         every { activityRepo.findByToolId(1) } returns activities
 
-        val result = service.getActivityByTool(1)
-
-        assertIs<Either.Success<List<Activity>>>(result)
-        assertEquals(activities, result.value)
+        assertEquals(activities, service.getActivityByTool(1))
     }
 
     @Test
     fun `getActivityByUser delegates to repo`() {
         every { activityRepo.findByUserId(1) } returns emptyList()
 
-        val result = service.getActivityByUser(1)
-
-        assertIs<Either.Success<List<Activity>>>(result)
-        assertEquals(emptyList(), result.value)
+        assertEquals(emptyList<Activity>(), service.getActivityByUser(1))
     }
 
     @Test
     fun `getActivityByCabinet delegates to repo`() {
         every { activityRepo.findByCabinetId(1) } returns emptyList()
 
-        val result = service.getActivityByCabinet(1)
-
-        assertIs<Either.Success<List<Activity>>>(result)
-        assertEquals(emptyList(), result.value)
+        assertEquals(emptyList<Activity>(), service.getActivityByCabinet(1))
     }
 
     @Test
     fun `createActivity fails when user id invalid`() {
         every { userRepo.findByIdOrNull(99) } returns null
 
-        val result = service.createActivity(99, null, null, ActivityType.OPEN_CABINET, date)
+        val result = service.createActivity(99, null, null, null, ActivityType.OPEN_CABINET, date)
 
         assertIs<Either.Failure<ActivityError>>(result)
         assertEquals(ActivityError.InvalidUserId, result.value)
@@ -120,7 +117,7 @@ class ActivityServiceTest {
         every { userRepo.findByIdOrNull(1) } returns user
         every { toolRepo.findByIdOrNull(99) } returns null
 
-        val result = service.createActivity(1, 99, null, ActivityType.REMOVE_TOOL, date)
+        val result = service.createActivity(1, 99, null, null, ActivityType.REMOVE_TOOL, date)
 
         assertIs<Either.Failure<ActivityError>>(result)
         assertEquals(ActivityError.InvalidToolId, result.value)
@@ -131,24 +128,26 @@ class ActivityServiceTest {
         every { userRepo.findByIdOrNull(1) } returns user
         every { cabinetRepo.findByIdOrNull(99) } returns null
 
-        val result = service.createActivity(1, null, 99, ActivityType.OPEN_CABINET, date)
+        val result = service.createActivity(1, null, 99, null, ActivityType.OPEN_CABINET, date)
 
         assertIs<Either.Failure<ActivityError>>(result)
         assertEquals(ActivityError.InvalidCabinetId, result.value)
     }
 
     @Test
-    fun `createActivity persists with only the user when tool and cabinet are null`() {
+    fun `createActivity persists with only the user when tool, cabinet and shift are null`() {
         every { userRepo.findByIdOrNull(1) } returns user
         val saved = slot<Activity>()
         every { activityRepo.save(capture(saved)) } answers { firstArg() }
 
-        val result = service.createActivity(1, null, null, ActivityType.OPEN_CABINET, date)
+        val result = service.createActivity(1, null, null, null, ActivityType.OPEN_CABINET, date)
 
         assertIs<Either.Success<Activity>>(result)
         assertEquals(user, saved.captured.user)
+        assertEquals(date, saved.captured.date)
         assertNull(saved.captured.tool)
         assertNull(saved.captured.cabinet)
+        assertNull(saved.captured.shift)
     }
 
     @Test
@@ -159,7 +158,7 @@ class ActivityServiceTest {
         val saved = slot<Activity>()
         every { activityRepo.save(capture(saved)) } answers { firstArg() }
 
-        val result = service.createActivity(1, 1, 1, ActivityType.REMOVE_TOOL, date)
+        val result = service.createActivity(1, 1, 1, null, ActivityType.REMOVE_TOOL, date)
 
         assertIs<Either.Success<Activity>>(result)
         assertEquals(tool, saved.captured.tool)

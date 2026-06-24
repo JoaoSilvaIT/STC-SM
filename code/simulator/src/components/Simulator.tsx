@@ -4,7 +4,6 @@ import type { Cabinet, Tool, CabinetStatus, ToolStatus} from '../types/domain'
 import { listTools, updateTool } from '../api/tools'
 import { listCabinets, updateCabinet } from '../api/cabinets'
 import styles from './Simulator.module.css'
-import {todo} from "../api/client";
 import { Client } from '@stomp/stompjs'
 
 export interface CabinetSim {
@@ -33,7 +32,7 @@ export default function Simulator() {
                     setCabinets(c);
                     setTools(t);
                 })
-                .catch(err => console.log(err));
+                .catch(err => console.error(err));
         };
         loadData();
 
@@ -73,7 +72,7 @@ export default function Simulator() {
                 });
             }
         } catch (err) {
-            console.log(err)
+            console.error(err)
         }
     }
 
@@ -91,7 +90,7 @@ export default function Simulator() {
                 });
             }
         } catch (err) {
-            console.log(err)
+            console.error(err)
         }
     }
 

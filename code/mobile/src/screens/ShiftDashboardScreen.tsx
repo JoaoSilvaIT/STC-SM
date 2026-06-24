@@ -124,8 +124,9 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
     if (!assignedShift) return;
     try {
       await startShift(assignedShift);
-    } catch (e: any) {
-      Alert.alert("Erro de Turno", e.message || 'A operação falhou. Verifique as horas permitidas.');
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'A operação falhou. Verifique as horas permitidas.';
+      Alert.alert("Erro de Turno", message);
     }
   }
 
@@ -201,7 +202,7 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
                       <TouchableOpacity
                           key={screen}
                           style={s.actionRow}
-                          onPress={() => navigation.navigate(screen as any)}
+                          onPress={() => navigation.navigate(screen as never)}
                           activeOpacity={0.8}
                       >
                         <View style={[s.actionIcon, { borderColor: accentInk[accent] + '40' }]}>

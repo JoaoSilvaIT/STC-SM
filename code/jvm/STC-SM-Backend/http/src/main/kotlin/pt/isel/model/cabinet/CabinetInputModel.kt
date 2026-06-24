@@ -5,5 +5,5 @@ import pt.isel.cabinet.CabinetStatus
 data class CabinetInputModel(
     val status: CabinetStatus,
     val cabinetId: Int,
-    val userId: Int
+    val userId: Int,
 )

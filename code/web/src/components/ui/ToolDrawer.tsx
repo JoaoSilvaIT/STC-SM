@@ -13,7 +13,7 @@ interface ToolDrawerProps {
   onDeactivate: (id: number) => void
 }
 
-const STATUSES: ToolStatus[] = ['AVAILABLE', 'IN_USE', 'MISSING', 'MAINTENANCE']
+const STATUSES: ToolStatus[] = ['AVAILABLE', 'IN_USE', 'MISSING', 'IN_MAINTENANCE']
 
 export default function ToolDrawer({
   mode, tool, cabinets, onSave, onClose, onDeactivate,

@@ -29,11 +29,6 @@ export function PrefsProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.setAttribute('data-theme', prefs.theme)
   }, [prefs])
 
-  // Apply theme on first render without waiting for state change
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', prefs.theme)
-  }, [])  // eslint-disable-line react-hooks/exhaustive-deps
-
   const setClockFormat = (clockFormat: '12h' | '24h') => setPrefs(p => ({ ...p, clockFormat }))
   const setCompactMode = (compactMode: boolean)        => setPrefs(p => ({ ...p, compactMode }))
   const setTheme       = (theme: 'dark' | 'light')     => setPrefs(p => ({ ...p, theme }))

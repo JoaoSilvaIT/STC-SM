@@ -1,6 +1,17 @@
 package pt.isel.auth
 
-import jakarta.persistence.*
+import jakarta.persistence.AttributeOverride
+import jakarta.persistence.AttributeOverrides
+import jakarta.persistence.Column
+import jakarta.persistence.Embedded
+import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.Table
 import pt.isel.user.User
 import java.time.Instant
 
@@ -10,22 +21,19 @@ class UserSession(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Int = 0,
-
     // Since both tokens use TokenValidationInfo the attributeOverride needs to invoked in order to have different names on the columns in the sql table
     @Embedded
-    @AttributeOverrides(AttributeOverride(name = "validationInfo", column = Column(name="access_token", nullable = false, unique = true)))
+    @AttributeOverrides(AttributeOverride(name = "validationInfo", column = Column(name = "access_token", nullable = false, unique = true)))
     val accessToken: TokenValidationInfo,
-
     @Embedded
-    @AttributeOverrides(AttributeOverride(name = "validationInfo", column = Column(name="refresh_token", nullable = false, unique = true)))
+    @AttributeOverrides(
+        AttributeOverride(name = "validationInfo", column = Column(name = "refresh_token", nullable = false, unique = true)),
+    )
     val refreshToken: TokenValidationInfo,
-
-    @Column(name="access_expires_at", nullable = false)
+    @Column(name = "access_expires_at", nullable = false)
     val accessTokenExpiresAt: Instant,
-
-    @Column(name="refresh_expires_at", nullable = false)
+    @Column(name = "refresh_expires_at", nullable = false)
     val refreshTokenExpiresAt: Instant,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user", nullable = false)
     val user: User,
@@ -35,14 +43,13 @@ class UserSession(
         refreshToken: TokenValidationInfo = this.refreshToken,
         accessTokenExpiresAt: Instant = this.accessTokenExpiresAt,
         refreshTokenExpiresAt: Instant = this.refreshTokenExpiresAt,
-        user: User = this.user
+        user: User = this.user,
     ) = UserSession(
         this.id,
         accessToken,
         refreshToken,
         accessTokenExpiresAt,
         refreshTokenExpiresAt,
-        user
+        user,
     )
-
 }

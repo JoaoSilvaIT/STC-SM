@@ -1,5 +1,4 @@
 package pt.isel
-import pt.isel.errors.UserError
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -7,7 +6,9 @@ import pt.isel.auth.TokenDomainConfig
 import pt.isel.auth.TokenEncoder
 import pt.isel.auth.TokensOutput
 import pt.isel.auth.UserSession
+import pt.isel.errors.UserError
 import pt.isel.user.User
+import pt.isel.user.UserStatus
 import pt.isel.utils.Either
 import pt.isel.utils.failure
 import pt.isel.utils.success
@@ -23,14 +24,24 @@ class AuthService(
     private val sessionRepository: UserSessionRepository,
     private val clock: Clock,
     private val config: TokenDomainConfig,
-    private val tokenEncoder: TokenEncoder
+    private val tokenEncoder: TokenEncoder,
 ) {
     @Transactional
-    fun login(email: String, password: String): Either<UserError, TokensOutput> {
-        val user = userRepo.findByEmail(email.trim())
-            ?: return failure(UserError.UserNotFoundOrInvalidCredentials)
+    fun login(
+        email: String,
+        password: String,
+    ): Either<UserError, TokensOutput> {
+        val user =
+            userRepo.findByEmail(email.trim())
+                ?: return failure(UserError.UserNotFoundOrInvalidCredentials)
 
         if (!passwordEncoder.matches(password, user.passwordValidation.hash)) {
+            return failure(UserError.UserNotFoundOrInvalidCredentials)
+        }
+
+        // Deactivated accounts cannot authenticate. Reuse the generic credentials error
+        // so we do not reveal that the account exists but is disabled.
+        if (user.status != UserStatus.ACTIVE) {
             return failure(UserError.UserNotFoundOrInvalidCredentials)
         }
 
@@ -44,13 +55,14 @@ class AuthService(
 
         val now = clock.instant()
 
-        val session = UserSession(
-            accessToken = validationInfoAccess,
-            refreshToken = validationInfoRefresh,
-            accessTokenExpiresAt = now.plus(config.accessTokenExpiration),
-            refreshTokenExpiresAt = now.plus(config.refreshTokenExpiration),
-            user = user
-        )
+        val session =
+            UserSession(
+                accessToken = validationInfoAccess,
+                refreshToken = validationInfoRefresh,
+                accessTokenExpiresAt = now.plus(config.accessTokenExpiration),
+                refreshTokenExpiresAt = now.plus(config.refreshTokenExpiration),
+                user = user,
+            )
 
         sessionRepository.save(session)
 
@@ -58,9 +70,7 @@ class AuthService(
     }
 
     @Transactional
-    fun getUserByToken(
-        token: String,
-    ): User? {
+    fun getUserByToken(token: String): User? {
         if (!canBeToken(token)) {
             return null
         }
@@ -99,7 +109,9 @@ class AuthService(
 
         val token = tokenEncoder.createValidationInformation(tokenValue)
 
-        val session = sessionRepository.findByRefreshTokenValidationInfo(token.validationInfo) ?: return failure(UserError.UserNotFoundOrInvalidCredentials)
+        val session =
+            sessionRepository.findByRefreshTokenValidationInfo(token.validationInfo)
+                ?: return failure(UserError.UserNotFoundOrInvalidCredentials)
 
         val now = clock.instant()
 
@@ -113,19 +125,22 @@ class AuthService(
         val accessTokenValue = generateTokenValue()
         val accessToken = tokenEncoder.createValidationInformation(accessTokenValue)
 
-        val updatedSession = session.copy(
-            accessToken = accessToken,
-            accessTokenExpiresAt = now.plus(config.accessTokenExpiration),
-        )
+        val updatedSession =
+            session.copy(
+                accessToken = accessToken,
+                accessTokenExpiresAt = now.plus(config.accessTokenExpiration),
+            )
 
         sessionRepository.save(updatedSession)
 
         return success(accessTokenValue)
     }
 
+    private val secureRandom: SecureRandom = SecureRandom.getInstanceStrong()
+
     private fun generateTokenValue(): String =
         ByteArray(config.tokenSizeInBytes).let { byteArray ->
-            SecureRandom.getInstanceStrong().nextBytes(byteArray)
+            secureRandom.nextBytes(byteArray)
             getUrlEncoder().encodeToString(byteArray)
         }
 

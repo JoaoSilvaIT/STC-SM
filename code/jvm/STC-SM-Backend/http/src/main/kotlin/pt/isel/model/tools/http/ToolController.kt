@@ -17,14 +17,19 @@ import pt.isel.user.User
 import pt.isel.utils.Either
 
 @RestController
-class ToolController(private val toolService: ToolService) {
-
+class ToolController(
+    private val toolService: ToolService,
+) {
     @GetMapping("/api/tools")
-    fun list(@Suppress("UNUSED_PARAMETER") user: User): ResponseEntity<List<ToolOutputModel>> =
-        ResponseEntity.ok(toolService.getAllTools().map(ToolOutputModel.Companion::fromDomain))
+    fun list(
+        @Suppress("UNUSED_PARAMETER") user: User,
+    ): ResponseEntity<List<ToolOutputModel>> = ResponseEntity.ok(toolService.getAllTools().map(ToolOutputModel.Companion::fromDomain))
 
     @GetMapping("/api/tools/{id}")
-    fun get(@PathVariable id: Int, @Suppress("UNUSED_PARAMETER") user: User): ResponseEntity<*> =
+    fun get(
+        @PathVariable id: Int,
+        @Suppress("UNUSED_PARAMETER") user: User,
+    ): ResponseEntity<*> =
         when (val result = toolService.getTool(id)) {
             is Either.Success -> ResponseEntity.ok(ToolOutputModel.fromDomain(result.value))
             is Either.Failure -> result.value.toProblemResponse()
@@ -33,13 +38,14 @@ class ToolController(private val toolService: ToolService) {
     @PostMapping("/api/tools")
     fun create(
         @RequestBody input: CreateToolInput,
-        user: User
+        user: User,
     ): ResponseEntity<*> =
         when (val result = toolService.createTool(input.name, input.cabinetId, input.status, input.location, user)) {
-            is Either.Success -> ResponseEntity
-                .status(HttpStatus.CREATED)
-                .header("Location", "/api/tools/${result.value.id}")
-                .body(ToolOutputModel.fromDomain(result.value))
+            is Either.Success ->
+                ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .header("Location", "/api/tools/${result.value.id}")
+                    .body(ToolOutputModel.fromDomain(result.value))
             is Either.Failure -> result.value.toProblemResponse()
         }
 
@@ -47,7 +53,7 @@ class ToolController(private val toolService: ToolService) {
     fun update(
         @PathVariable id: Int,
         @RequestBody input: UpdateToolInput,
-        user: User
+        user: User,
     ): ResponseEntity<*> =
         when (val result = toolService.updateTool(id, input.status, user.id)) {
             is Either.Success -> ResponseEntity.ok(ToolOutputModel.fromDomain(result.value))

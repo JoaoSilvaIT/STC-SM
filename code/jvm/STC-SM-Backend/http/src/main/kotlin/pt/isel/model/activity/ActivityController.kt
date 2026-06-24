@@ -14,14 +14,20 @@ import pt.isel.utils.Either
 import java.time.Instant
 
 @RestController
-class ActivityController(private val activityService: ActivityService) {
-
+class ActivityController(
+    private val activityService: ActivityService,
+) {
     @GetMapping("/api/activities")
-    fun list(@Suppress("UNUSED_PARAMETER") user: User): ResponseEntity<List<ActivityOutputModel>> =
+    fun list(
+        @Suppress("UNUSED_PARAMETER") user: User,
+    ): ResponseEntity<List<ActivityOutputModel>> =
         ResponseEntity.ok(activityService.getAllActivities().map(ActivityOutputModel.Companion::fromDomain))
 
     @GetMapping("/api/activities/{id}")
-    fun get(@PathVariable id: Int, @Suppress("UNUSED_PARAMETER") user: User): ResponseEntity<*> =
+    fun get(
+        @PathVariable id: Int,
+        @Suppress("UNUSED_PARAMETER") user: User,
+    ): ResponseEntity<*> =
         when (val result = activityService.getActivity(id)) {
             is Either.Success -> ResponseEntity.ok(ActivityOutputModel.fromDomain(result.value))
             is Either.Failure -> result.value.toProblemResponse()
@@ -29,22 +35,25 @@ class ActivityController(private val activityService: ActivityService) {
 
     @PostMapping("/api/activities")
     fun create(
-        @Suppress("UNUSED_PARAMETER") user: User, 
-        @RequestBody input: ActivityInputModel
+        @Suppress("UNUSED_PARAMETER") user: User,
+        @RequestBody input: ActivityInputModel,
     ): ResponseEntity<*> =
-        when (val result = activityService.createActivity(
-            uid = input.uid,
-            tid = input.tid,
-            cid = input.cid,
-            sid = input.sid,
-            type = input.type,
-            date = Instant.now()
-        )) {
-            is Either.Success -> ResponseEntity
-                .status(HttpStatus.CREATED)
-                .header("Location", "/api/activities/${result.value.id}")
-                .body(ActivityOutputModel.fromDomain(result.value))
+        when (
+            val result =
+                activityService.createActivity(
+                    uid = input.uid,
+                    tid = input.tid,
+                    cid = input.cid,
+                    sid = input.sid,
+                    type = input.type,
+                    date = Instant.now(),
+                )
+        ) {
+            is Either.Success ->
+                ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .header("Location", "/api/activities/${result.value.id}")
+                    .body(ActivityOutputModel.fromDomain(result.value))
             is Either.Failure -> result.value.toProblemResponse()
         }
 }
-

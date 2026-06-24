@@ -9,7 +9,7 @@ export async function createActivity(
   sid: number | null,
   notes: string | null
 ): Promise<Activity> {
-  const raw = await request<any>('/api/activities', {
+  const raw = await request<Activity>('/api/activities', {
     method: 'POST',
     body: { type, uid, tid, cid, sid, notes },
     auth: true,

@@ -5,6 +5,4 @@ import org.springframework.stereotype.Repository
 import pt.isel.profile.Profile
 
 @Repository
-interface ProfileRepository: JpaRepository<Profile, Int> {
-
-}
+interface ProfileRepository : JpaRepository<Profile, Int>

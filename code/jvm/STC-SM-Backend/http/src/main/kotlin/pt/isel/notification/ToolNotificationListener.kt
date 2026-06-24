@@ -8,12 +8,12 @@ import pt.isel.model.tools.ToolOutputModel
 
 @Component
 class ToolNotificationListener(
-    private val messagingTemplate: SimpMessagingTemplate
+    private val messagingTemplate: SimpMessagingTemplate,
 ) {
     @EventListener
     fun handleToolUpdated(event: ToolUpdated) {
         val toolDto = ToolOutputModel.fromDomain(event.tool)
 
-        messagingTemplate.convertAndSend("/topic/tools",toolDto)
+        messagingTemplate.convertAndSend("/topic/tools", toolDto)
     }
 }

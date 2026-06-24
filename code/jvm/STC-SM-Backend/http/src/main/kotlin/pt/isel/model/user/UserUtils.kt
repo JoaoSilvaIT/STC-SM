@@ -1,9 +1,9 @@
 package pt.isel.model.user
 
 import org.springframework.http.HttpStatus
-import pt.isel.errors.UserError
 import org.springframework.http.ResponseEntity
 import pt.isel.Problem
+import pt.isel.errors.UserError
 
 fun UserError.toProblemResponse(): ResponseEntity<Any> =
     when (this) {

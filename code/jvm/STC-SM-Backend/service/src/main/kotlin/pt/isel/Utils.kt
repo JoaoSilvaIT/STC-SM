@@ -9,29 +9,26 @@ import java.time.LocalTime
 import java.time.format.DateTimeParseException
 
 /**
- * Conversion from String to LocalDate
+ * Parses a String into a [LocalTime], returning null when the value is not a valid time.
  */
-fun String.toLocalTimeOrNull(): LocalTime? {
-    return try {
+fun String.toLocalTimeOrNull(): LocalTime? =
+    try {
         LocalTime.parse(this)
     } catch (e: DateTimeParseException) {
         null
     }
-}
 
-fun String.toUserStatus(): UserStatus? {
-    return when(this) {
+fun String.toUserStatus(): UserStatus? =
+    when (this) {
         "ACTIVE" -> UserStatus.ACTIVE
         "INACTIVE" -> UserStatus.INACTIVE
         else -> null
     }
-}
 
-fun CabinetStatus.toActivityType(): ActivityType {
-    return when(this) {
+fun CabinetStatus.toActivityType(): ActivityType =
+    when (this) {
         CabinetStatus.BROKEN -> ActivityType.CABINET_BROKEN
         CabinetStatus.OPEN -> ActivityType.OPEN_CABINET
         CabinetStatus.INACTIVE -> ActivityType.CABINET_ANOMALY
         CabinetStatus.CLOSED -> ActivityType.CLOSE_CABINET
     }
-}

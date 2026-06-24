@@ -7,7 +7,7 @@ import ToolDrawer from '@/components/ui/ToolDrawer'
 import type { Cabinet, Tool, ToolStatus } from '@/types/domain'
 import styles from './Inventory.module.css'
 
-const STATUS_FILTERS: Array<ToolStatus | 'ALL'> = ['ALL', 'AVAILABLE', 'IN_USE', 'MISSING', 'MAINTENANCE']
+const STATUS_FILTERS: Array<ToolStatus | 'ALL'> = ['ALL', 'AVAILABLE', 'IN_USE', 'MISSING', 'IN_MAINTENANCE']
 
 export default function Inventory() {
   const [tools,          setTools]          = useState<Tool[]>([])
@@ -67,7 +67,8 @@ export default function Inventory() {
     AVAILABLE:   tools.filter(t => t.status === 'AVAILABLE').length,
     IN_USE:      tools.filter(t => t.status === 'IN_USE').length,
     MISSING:     tools.filter(t => t.status === 'MISSING').length,
-    MAINTENANCE: tools.filter(t => t.status === 'MAINTENANCE').length,
+    IN_MAINTENANCE: tools.filter(t => t.status === 'IN_MAINTENANCE').length,
+    BROKEN:      tools.filter(t => t.status === 'BROKEN').length,
   }
 
   const refresh = async () => {
@@ -96,9 +97,9 @@ export default function Inventory() {
   const handleDeactivate = async (id: number) => {
     setLoadError(null)
     try {
-      // Backend has no soft-delete for tools yet; mark as MAINTENANCE as the
+      // Backend has no soft-delete for tools yet; mark as IN_MAINTENANCE as the
       // closest available state.
-      await updateTool(id, 'MAINTENANCE')
+      await updateTool(id, 'IN_MAINTENANCE')
       await refresh()
       closeDrawer()
     } catch (err) {
@@ -245,7 +246,7 @@ function StatusPill({ status }: { status: Tool['status'] }) {
     AVAILABLE:   styles.pillAvail,
     IN_USE:      styles.pillInUse,
     MISSING:     styles.pillMissing,
-    MAINTENANCE: styles.pillMaint,
+    IN_MAINTENANCE: styles.pillMaint,
   }[status]
   return <span className={`${styles.pill} ${cls}`}>{status.replace('_', ' ')}</span>
 }

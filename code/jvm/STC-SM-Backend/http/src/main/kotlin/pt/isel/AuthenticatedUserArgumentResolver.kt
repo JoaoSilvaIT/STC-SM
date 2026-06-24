@@ -11,9 +11,7 @@ import pt.isel.user.User
 
 @Component
 class AuthenticatedUserArgumentResolver : HandlerMethodArgumentResolver {
-
-    override fun supportsParameter(parameter: MethodParameter) =
-        parameter.parameterType == User::class.java
+    override fun supportsParameter(parameter: MethodParameter) = parameter.parameterType == User::class.java
 
     override fun resolveArgument(
         parameter: MethodParameter,
@@ -21,8 +19,9 @@ class AuthenticatedUserArgumentResolver : HandlerMethodArgumentResolver {
         webRequest: NativeWebRequest,
         binderFactory: WebDataBinderFactory?,
     ): Any? {
-        val request = webRequest.getNativeRequest(HttpServletRequest::class.java)
-            ?: throw IllegalStateException("Não foi possível obter o HttpServletRequest")
+        val request =
+            webRequest.getNativeRequest(HttpServletRequest::class.java)
+                ?: throw IllegalStateException("Não foi possível obter o HttpServletRequest")
 
         return getUserFrom(request) ?: throw IllegalStateException("Utilizador não encontrado no request")
     }
@@ -35,7 +34,6 @@ class AuthenticatedUserArgumentResolver : HandlerMethodArgumentResolver {
             request: HttpServletRequest,
         ) = request.setAttribute(KEY, user)
 
-        fun getUserFrom(request: HttpServletRequest): User? =
-            request.getAttribute(KEY) as? User
+        fun getUserFrom(request: HttpServletRequest): User? = request.getAttribute(KEY) as? User
     }
 }

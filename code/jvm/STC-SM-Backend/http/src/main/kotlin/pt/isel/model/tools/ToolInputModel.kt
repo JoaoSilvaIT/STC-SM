@@ -5,5 +5,5 @@ import pt.isel.tools.ToolStatus
 data class ToolInputModel(
     val status: ToolStatus,
     val toolId: Int,
-    val userId: Int
+    val userId: Int,
 )

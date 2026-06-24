@@ -11,9 +11,10 @@ fun ShiftError.toProblemResponse(): ResponseEntity<Any> =
         ShiftError.InvalidUserId -> Problem.UserNotFoundOrInvalidCredentials.response(HttpStatus.BAD_REQUEST)
         ShiftError.InvalidCabinetId -> Problem.CabinetNotFound.response(HttpStatus.BAD_REQUEST)
         ShiftError.InvalidTimeFormat -> Problem.InvalidTimeFormat.response(HttpStatus.BAD_REQUEST)
+        ShiftError.InvalidTimeRange -> Problem.InvalidTimeRange.response(HttpStatus.BAD_REQUEST)
         ShiftError.NotAuthorized -> Problem.NotAuthorized.response(HttpStatus.UNAUTHORIZED)
         ShiftError.ShiftAlreadyStarted -> Problem.ShiftAlreadyStarted.response(HttpStatus.CONFLICT)
         ShiftError.ShiftAlreadyEnded -> Problem.ShiftAlreadyEnded.response(HttpStatus.CONFLICT)
         ShiftError.ShiftOutOfTime -> Problem.ShiftOutOfTime.response(HttpStatus.CONFLICT)
-        ShiftError.ShiftAlreadyHapening -> Problem.ShiftAlreadyHapenning.response(HttpStatus.CONFLICT)
+        ShiftError.ShiftAlreadyHappening -> Problem.ShiftAlreadyHappening.response(HttpStatus.CONFLICT)
     }

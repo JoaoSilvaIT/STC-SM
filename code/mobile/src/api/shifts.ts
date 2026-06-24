@@ -59,7 +59,7 @@ export async function endShift(id: number): Promise<Shift> {
 }
 
 export async function checkCabinetOccupied(cabinetId: number): Promise<boolean> {
-  const raw = await request<any>(`/api/shifts/active/cabinet/${cabinetId}?t=${Date.now()}`, {
+  const raw = await request<boolean | string>(`/api/shifts/active/cabinet/${cabinetId}?t=${Date.now()}`, {
     auth: true
   });
 

@@ -2,7 +2,6 @@ package pt.isel.model.tools
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import pt.isel.tools.Tool
-import pt.isel.tools.ToolStatus
 
 data class ToolOutputModel(
     val name: String,
@@ -18,18 +17,10 @@ data class ToolOutputModel(
             ToolOutputModel(
                 name = tool.name,
                 partNumber = "",
-                status = mapStatus(tool.status),
+                status = tool.status.name,
                 isActive = true,
                 self = "/api/tools/${tool.id}",
                 cabinet = "/api/cabinets/${tool.cabinet.id}",
             )
-
-        private fun mapStatus(status: ToolStatus): String = when (status) {
-            ToolStatus.AVAILABLE -> "AVAILABLE"
-            ToolStatus.BROKEN -> "BROKEN"
-            ToolStatus.IN_USE -> "IN_USE"
-            ToolStatus.MISSING -> "MISSING"
-            ToolStatus.IN_MAINTENANCE -> "IN_MAINTENANCE"
-        }
     }
 }

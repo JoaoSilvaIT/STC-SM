@@ -6,12 +6,10 @@ import org.springframework.stereotype.Component
 import org.springframework.web.method.HandlerMethod
 import org.springframework.web.servlet.HandlerInterceptor
 
-
 @Component
 class AuthenticationInterceptor(
     private val authService: AuthService,
 ) : HandlerInterceptor {
-
     override fun preHandle(
         request: HttpServletRequest,
         response: HttpServletResponse,
@@ -24,9 +22,12 @@ class AuthenticationInterceptor(
         if (path in PUBLIC_PATHS) return true
 
         val authHeader = request.getHeader(NAME_AUTHORIZATION_HEADER)
-        val token = if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            authHeader.substring(7)
-        } else null
+        val token =
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                authHeader.substring(7)
+            } else {
+                null
+            }
 
         val user = token?.let { authService.getUserByToken(it) }
 
@@ -44,9 +45,10 @@ class AuthenticationInterceptor(
         const val NAME_AUTHORIZATION_HEADER = "Authorization"
         private const val NAME_WWW_AUTHENTICATE_HEADER = "WWW-Authenticate"
 
-        private val PUBLIC_PATHS = setOf(
-            "/api/users/login",
-            "/api/users/refresh",
-        )
+        private val PUBLIC_PATHS =
+            setOf(
+                "/api/users/login",
+                "/api/users/refresh",
+            )
     }
 }

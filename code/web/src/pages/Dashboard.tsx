@@ -21,16 +21,18 @@ function describeActivity(act: Activity): string {
   const cab = act.cabinetName ?? (act.cabinetId ? `CAB-${String(act.cabinetId).padStart(3, '0')}` : '—')
   const tool = act.toolName ?? (act.toolId != null ? `Tool #${act.toolId}` : null)
   switch (act.type) {
-    case 'DOOR_OPENED':           return `${cab} door opened`
-    case 'DOOR_CLOSED':           return `${cab} door secured`
-    case 'TOOL_REMOVED':          return `${tool ?? 'Tool'} removed from ${cab}`
-    case 'TOOL_RETURNED':         return `${tool ?? 'Tool'} returned to ${cab}`
-    case 'TOOL_MISSING_DETECTED': return `${tool ?? 'Tool'} reported missing in ${cab}`
-    case 'SHIFT_STARTED':         return `Shift started on ${cab}`
-    case 'SHIFT_ENDED':           return `Shift ended on ${cab}`
-    case 'CABINET_ONLINE':        return `${cab} online`
-    case 'CABINET_OFFLINE':       return `${cab} offline`
-    default:                      return `Event on ${cab}`
+    case 'OPEN_CABINET':        return `${cab} door opened`
+    case 'CLOSE_CABINET':       return `${cab} door secured`
+    case 'REMOVE_TOOL':         return `${tool ?? 'Tool'} removed from ${cab}`
+    case 'RETURN_TOOL':         return `${tool ?? 'Tool'} returned to ${cab}`
+    case 'TOOL_BROKEN':         return `${tool ?? 'Tool'} reported broken in ${cab}`
+    case 'TOOL_MISSING':        return `${tool ?? 'Tool'} reported missing in ${cab}`
+    case 'TOOL_IN_MAINTENANCE': return `${tool ?? 'Tool'} sent for maintenance`
+    case 'CABINET_ANOMALY':     return `Anomaly detected on ${cab}`
+    case 'CABINET_BROKEN':      return `${cab} reported broken`
+    case 'STARTED_SHIFT':       return `Shift started on ${cab}`
+    case 'ENDED_SHIFT':         return `Shift ended on ${cab}`
+    default:                    return `Event on ${cab}`
   }
 }
 
@@ -261,8 +263,8 @@ export default function Dashboard() {
                 {loading ? 'Loading…' : 'No activity recorded yet.'}
               </div>
             ) : recent.map(act => {
-              const isReturn = act.type === 'TOOL_RETURNED'
-              const isDoor   = act.type === 'DOOR_OPENED' || act.type === 'DOOR_CLOSED'
+              const isReturn = act.type === 'RETURN_TOOL'
+              const isDoor   = act.type === 'OPEN_CABINET' || act.type === 'CLOSE_CABINET'
               return (
                 <div
                   key={act.id}

@@ -8,7 +8,7 @@ import pt.isel.model.cabinet.CabinetOutputModel
 
 @Component
 class CabinetNotificationListener(
-    private val messagingTemplate: SimpMessagingTemplate
+    private val messagingTemplate: SimpMessagingTemplate,
 ) {
     @EventListener
     fun handleCabinetUpdated(event: CabinetUpdated) {

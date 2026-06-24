@@ -2,8 +2,6 @@ import { idFromHref, request } from './client'
 
 import type { Alert, AlertType, AlertStatus } from '@/types/domain'
 
-const API_BASE = '/api/alerts'
-
 interface AlertResponse {
     type: AlertType,
     timestamp: string,
@@ -27,8 +25,8 @@ function toDomain(r: AlertResponse, explicitId?: number): Alert {
         message: r.message,
         userName: r.userName,
         timestamp: r.timestamp,
-        cabinetName: r.cabinetName ?? undefined,
-        toolName: r.toolName ?? undefined,
+        cabinetName: r.cabinetName,
+        toolName: r.toolName,
         shiftId: null
     }
 }

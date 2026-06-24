@@ -41,3 +41,5 @@ spring-boot-test = { module = "org.springframework.boot:spring-boot-starter-test
 # This is used in runtime
 kotlin-junit-test = { module = "org.junit.platform:junit-platform-launcher" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+# In-memory database for JPA slice tests
+h2 = { module = "com.h2database:h2" }

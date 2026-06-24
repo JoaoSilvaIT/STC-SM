@@ -18,7 +18,7 @@ export async function login(email: string, password: string): Promise<void> {
     method: 'POST',
     body: { username: email, password },
   });
-  setToken(res.token);
+  await setToken(res.token);
 }
 
 export async function me(): Promise<User> {
@@ -33,5 +33,5 @@ export async function me(): Promise<User> {
 }
 
 export function clearToken(): void {
-  setToken(null);
+  void setToken(null);
 }

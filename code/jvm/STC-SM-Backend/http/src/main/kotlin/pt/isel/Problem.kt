@@ -38,6 +38,8 @@ sealed class Problem(
 
     data object CabinetNotFound : Problem(URI("$PROBLEM_URI_PATH/cabinet-not-found"))
 
+    data object InvalidCabinetStatus : Problem(URI("$PROBLEM_URI_PATH/invalid-cabinet-status"))
+
     data object ShiftNotFound : Problem(URI("$PROBLEM_URI_PATH/shift-not-found"))
 
     data object CabinetAlreadyHasActiveShift : Problem(URI("$PROBLEM_URI_PATH/cabinet-already-has-active-shift"))
@@ -49,6 +51,8 @@ sealed class Problem(
     data object ActivityNotFound : Problem(URI("$PROBLEM_URI_PATH/activity-not-found"))
 
     data object InvalidTimeFormat : Problem(URI("$PROBLEM_URI_PATH/invalid-time-format"))
+
+    data object InvalidTimeRange : Problem(URI("$PROBLEM_URI_PATH/invalid-time-range"))
 
     data object ProfileNotFound : Problem(URI("$PROBLEM_URI_PATH/profile-not-found"))
 
@@ -68,7 +72,7 @@ sealed class Problem(
 
     data object AlertNotFound : Problem(URI("$PROBLEM_URI_PATH/alert-not-found"))
 
-    data object ShiftOutOfTime: Problem(URI("$PROBLEM_URI_PATH/shift-out-of-time"))
+    data object ShiftOutOfTime : Problem(URI("$PROBLEM_URI_PATH/shift-out-of-time"))
 
-    data object ShiftAlreadyHapenning: Problem(URI("$PROBLEM_URI_PATH/shift-already-hapenning"))
+    data object ShiftAlreadyHappening : Problem(URI("$PROBLEM_URI_PATH/shift-already-happening"))
 }

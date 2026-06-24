@@ -7,9 +7,9 @@ import pt.isel.events.ActivityNotification
 import pt.isel.model.activity.ActivityOutputModel
 
 @Component
-class ActivityNotificationListener (
-    private val messagingTemplate: SimpMessagingTemplate
-){
+class ActivityNotificationListener(
+    private val messagingTemplate: SimpMessagingTemplate,
+) {
     @EventListener
     fun handleActivityNotification(event: ActivityNotification) {
         val activityDto = ActivityOutputModel.fromDomain(event.activity)

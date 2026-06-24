@@ -21,6 +21,10 @@ dependencies {
     // Libraries used in tests
     testImplementation(libs.spring.boot.test)
     testImplementation(libs.spring.jpa.test)
+    testImplementation(libs.kotlin.unit.test)
+    testRuntimeOnly(libs.kotlin.junit.test)
+    // In-memory database so the JPA slice tests run without an external Postgres
+    testRuntimeOnly(libs.h2)
 }
 
 tasks.bootJar { enabled = false }
@@ -28,7 +32,4 @@ tasks.jar { enabled = true }
 
 tasks.withType<Test> {
     useJUnitPlatform()
-    failOnNoDiscoveredTests = false
 }
-
-

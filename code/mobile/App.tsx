@@ -1,4 +1,5 @@
 import React from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -24,8 +25,19 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function AppNavigator() {
+  const { currentUser, loading } = useAuth();
+
+  // Wait for the persisted-session check before deciding the entry screen.
+  if (loading) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
   return (
-    <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
+    <Stack.Navigator initialRouteName={currentUser ? 'Home' : 'Login'} screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login"          component={LoginScreen} />
       <Stack.Screen name="Home"           component={HomeScreen} />
       <Stack.Screen name="ShiftDashboard" component={ShiftDashboardScreen} />

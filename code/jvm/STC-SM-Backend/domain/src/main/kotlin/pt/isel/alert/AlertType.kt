@@ -1,11 +1,13 @@
 package pt.isel.alert
 
 /**
- * LATE_START - If the mechanic arrives 20 or more minutes late from the scheduled time for him
- * EARLY_ENDING - If the mechanic leaves 20 or more minutes early from the scheduled time for him
- * OPEN_CABINET - If the mechanic keeps the cabinet open for more than 20 minutes
- * MISSING_TOOL - If the mechanic looses a tool
- * BROKEN_CABINET - If the mechanic reports a cabinet is broken
+ * LATE_START - the mechanic clocked in later than the allowed grace period.
+ * EARLY_ENDING - the mechanic clocked off earlier than the allowed grace period.
+ * OPEN_CABINET - a cabinet was left open beyond the allowed period.
+ * MISSING_TOOL - a tool was reported missing.
+ * BROKEN_CABINET - a cabinet was reported broken.
+ *
+ * The exact thresholds live in AlertService and TimerService.
  */
 enum class AlertType {
     LATE_START,
@@ -13,5 +15,4 @@ enum class AlertType {
     OPEN_CABINET,
     MISSING_TOOL,
     BROKEN_CABINET,
-
 }

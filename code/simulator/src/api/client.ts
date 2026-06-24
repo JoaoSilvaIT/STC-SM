@@ -136,7 +136,3 @@ export function idFromHref(href: string | null | undefined): number {
     const n = Number(href.split('/').pop())
     return Number.isFinite(n) ? n : 0
 }
-
-export function todo(): string {
-    return TODO();
-}

@@ -1,12 +1,12 @@
 package pt.isel
 
 import org.springframework.context.ApplicationEventPublisher
-import pt.isel.errors.ActivityError
-import org.springframework.stereotype.Service
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import pt.isel.activity.Activity
 import pt.isel.activity.ActivityType
+import pt.isel.errors.ActivityError
 import pt.isel.events.ActivityNotification
 import pt.isel.utils.Either
 import pt.isel.utils.failure
@@ -20,7 +20,7 @@ class ActivityService(
     private val cabinetRepo: CabinetRepository,
     private val toolRepo: ToolRepository,
     private val shiftRepo: ShiftRepository,
-    private val eventPublisher: ApplicationEventPublisher
+    private val eventPublisher: ApplicationEventPublisher,
 ) {
     fun getAllActivities(): List<Activity> = activityRepo.findAll()
 
@@ -29,48 +29,58 @@ class ActivityService(
         return success(activity)
     }
 
-    fun getActivityByTool(tid: Int): Either<ActivityError, List<Activity>> {
-        val activities = activityRepo.findByToolId(tid)
-        return success(activities)
-    }
+    fun getActivityByTool(tid: Int): List<Activity> = activityRepo.findByToolId(tid)
 
-    fun getActivityByUser(uid: Int): Either<ActivityError, List<Activity>> {
-        val activities = activityRepo.findByUserId(uid)
-        return success(activities)
-    }
+    fun getActivityByUser(uid: Int): List<Activity> = activityRepo.findByUserId(uid)
 
-    fun getActivityByCabinet(cid: Int): Either<ActivityError, List<Activity>> {
-        val activities = activityRepo.findByCabinetId(cid)
-        return success(activities)
-    }
+    fun getActivityByCabinet(cid: Int): List<Activity> = activityRepo.findByCabinetId(cid)
 
     @Transactional
-    fun createActivity(uid: Int, tid: Int?, cid: Int?, sid: Int?, type: ActivityType, date: Instant): Either<ActivityError, Activity> {
+    fun createActivity(
+        uid: Int,
+        tid: Int?,
+        cid: Int?,
+        sid: Int?,
+        type: ActivityType,
+        date: Instant,
+    ): Either<ActivityError, Activity> {
         val user = userRepo.findByIdOrNull(uid) ?: return failure(ActivityError.InvalidUserId)
 
-        val tool = if (tid != null) {
-            toolRepo.findByIdOrNull(tid) ?: return failure(ActivityError.InvalidToolId)
-        } else null
+        val tool =
+            if (tid != null) {
+                toolRepo.findByIdOrNull(tid) ?: return failure(ActivityError.InvalidToolId)
+            } else {
+                null
+            }
 
-        val shift = if (sid != null) {
-            shiftRepo.findByIdOrNull(sid) ?: return failure(ActivityError.InvalidToolId)
-        } else null
+        val shift =
+            if (sid != null) {
+                shiftRepo.findByIdOrNull(sid) ?: return failure(ActivityError.InvalidShiftId)
+            } else {
+                null
+            }
 
-        val cabinet = if (cid != null) {
-            cabinetRepo.findByIdOrNull(cid) ?: return failure(ActivityError.InvalidCabinetId)
-        } else null
+        val cabinet =
+            if (cid != null) {
+                cabinetRepo.findByIdOrNull(cid) ?: return failure(ActivityError.InvalidCabinetId)
+            } else {
+                null
+            }
 
-        val activity = Activity(
-            user = user,
-            type = type,
-            date = date,
-            tool = tool,
-            shift = shift,
-            cabinet = cabinet
-        )
+        val activity =
+            Activity(
+                user = user,
+                type = type,
+                date = date,
+                tool = tool,
+                shift = shift,
+                cabinet = cabinet,
+            )
 
-        eventPublisher.publishEvent(ActivityNotification(activity))
+        val saved = activityRepo.save(activity)
 
-        return success(activityRepo.save(activity))
+        eventPublisher.publishEvent(ActivityNotification(saved))
+
+        return success(saved)
     }
 }

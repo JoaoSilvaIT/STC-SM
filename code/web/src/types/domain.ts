@@ -58,6 +58,7 @@ export interface Tool {
   partNumber: string;
   cabinetId: number;
   status: ToolStatus;
+  isActive: boolean;
 }
 
 export interface Shift {

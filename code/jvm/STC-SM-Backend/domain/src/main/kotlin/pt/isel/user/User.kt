@@ -1,6 +1,5 @@
 package pt.isel.user
 
-import pt.isel.auth.PasswordValidationInfo
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
@@ -13,6 +12,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
+import pt.isel.auth.PasswordValidationInfo
 import pt.isel.profile.Profile
 
 @Entity
@@ -25,12 +25,12 @@ class User(
     val name: String,
     @Column(unique = true, nullable = false)
     val email: String,
-    @ManyToOne(fetch = FetchType.LAZY) // When making a database call only gets the User data instead of User + Profile
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_profile", referencedColumnName = "id")
     val profile: Profile,
-    @Enumerated(EnumType.STRING) // Keeps the name of the status (ex: "ACTIVE")
+    @Enumerated(EnumType.STRING)
     val status: UserStatus,
-    @Embedded // This annotation keeps the JPA from creating a new table just for the password
+    @Embedded
     val passwordValidation: PasswordValidationInfo,
 ) {
     fun copy(
@@ -38,13 +38,13 @@ class User(
         email: String = this.email,
         profile: Profile = this.profile,
         status: UserStatus = this.status,
-        password : PasswordValidationInfo = this.passwordValidation,
+        password: PasswordValidationInfo = this.passwordValidation,
     ) = User(
         this.id,
         name,
         email,
         profile,
         status,
-        password
+        password,
     )
 }

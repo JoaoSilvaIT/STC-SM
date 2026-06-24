@@ -21,9 +21,9 @@ function toDomain(r: ActivityResponse): Activity {
     userId: idFromHref(r.user),
     userName: r.userName,
     cabinetId: r.cabinet ? idFromHref(r.cabinet) : 0,
-    cabinetName: r.cabinetName ?? undefined,
+    cabinetName: r.cabinetName,
     toolId: r.tool ? idFromHref(r.tool) : null,
-    toolName: r.toolName ?? undefined,
+    toolName: r.toolName,
     notes: null,
     shiftId: null,
   }

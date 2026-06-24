@@ -92,7 +92,7 @@ export default function MainLayout() {
     const stompClient = new Client({
       brokerURL: 'ws://localhost:8080/ws-simulator', // For now is localhost:8080
       onConnect: () => {
-        stompClient.subscribe('/topic/alertas', (message) => {
+        stompClient.subscribe('/topic/alerts', (message) => {
           const newAlert = JSON.parse(message.body);
 
           // Se for um alerta novo que ainda não vimos
@@ -153,7 +153,6 @@ export default function MainLayout() {
 
   const [shifts, setShifts] = useState<Shift[]>([])
   const activeShifts        = shifts.filter(s => s.status === 'ACTIVE')
-  const isFodRisk           = false
 
   useEffect(() => {
     let cancelled = false
@@ -180,7 +179,7 @@ export default function MainLayout() {
 
       {/* ── Popups ── */}
       <div className={styles.toastContainer}>
-        {popUp.map((toast: any) => (
+        {popUp.map((toast) => (
             <div
                 key={toast.id}
                 className={`${styles.toast} ${styles[toast.type] ?? ''}`}
@@ -191,7 +190,7 @@ export default function MainLayout() {
                 {POP_UP_ICON[toast.type] ?? <AlertTriangle size={16} />}
               </div>
               <div className={styles.toastContent}>
-                <span className={styles.toastType}>{TYPE_META[toast.type].label}</span>
+                <span className={styles.toastType}>{TYPE_META[toast.type]?.label ?? 'Alert'}</span>
                 <span className={styles.toastMsg}>{toast.message}</span>
               </div>
               <button
@@ -213,17 +212,8 @@ export default function MainLayout() {
           <span className={styles.brandSub}>Smart Tool Cabinets</span>
         </div>
 
-        {/* FOD STATUS — the most critical instrument on screen */}
-        <div className={styles.fodWrap}>
-          {isFodRisk && (
-            <div className={styles.fodRisk}>
-              <AlertTriangle size={13} strokeWidth={2.5} />
-              <span className={styles.fodText}>
-                FOD RISK &nbsp;·&nbsp; {missingTools.length}&nbsp;TOOL{missingTools.length !== 1 ? 'S' : ''} UNACCOUNTED
-              </span>
-            </div>
-          )}
-        </div>
+        {/* FOD status indicator — placeholder until wired to live tool data */}
+        <div className={styles.fodWrap} />
 
         <div className={styles.headerRight}>
           <div className={styles.hStat}>
@@ -256,7 +246,7 @@ export default function MainLayout() {
                     {alerts.length === 0 ? (
                         <div className={styles.bellEmpty}>No new alerts</div>
                     ) : (
-                        alerts.map((alert: any) => (
+                        alerts.map((alert) => (
                             <div
                                 key={alert.id}
                                 className={styles.bellItem}

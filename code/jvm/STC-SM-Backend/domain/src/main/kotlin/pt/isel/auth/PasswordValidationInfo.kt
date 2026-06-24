@@ -7,5 +7,4 @@ import jakarta.persistence.Embeddable
 class PasswordValidationInfo(
     @Column(nullable = false)
     val hash: String = "",
-) {
-}
+)

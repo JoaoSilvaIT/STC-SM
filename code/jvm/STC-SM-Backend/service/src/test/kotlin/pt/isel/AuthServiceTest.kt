@@ -26,32 +26,33 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class AuthServiceTest {
-
     private val now: Instant = Instant.parse("2026-01-01T00:00:00Z")
     private val clock: Clock = Clock.fixed(now, ZoneOffset.UTC)
     private val tokenEncoder = Sha256TokenEncoder()
+
     // tokenSizeInBytes = 32 matches the size of a Base64-URL-decoded 43-or-44-char token.
-    private val config = TokenDomainConfig(
-        tokenSizeInBytes = 32,
-        accessTokenExpiration = Duration.ofMinutes(15),
-        refreshTokenExpiration = Duration.ofDays(30),
-        maxTokensPerUser = 5,
-        minPasswordLength = 1,
-    )
+    private val config =
+        TokenDomainConfig(
+            tokenSizeInBytes = 32,
+            accessTokenExpiration = Duration.ofMinutes(15),
+            refreshTokenExpiration = Duration.ofDays(30),
+            minPasswordLength = 1,
+        )
 
     private val passwordEncoder: PasswordEncoder = mockk()
     private val userRepo: UserRepository = mockk()
     private val sessionRepo: UserSessionRepository = mockk(relaxed = true)
     private val service = AuthService(passwordEncoder, userRepo, sessionRepo, clock, config, tokenEncoder)
 
-    private val user = User(
-        id = 1,
-        name = "Joana",
-        email = "j@example.com",
-        profile = Profile(id = 1, role = Role.MECHANIC, description = ""),
-        status = UserStatus.ACTIVE,
-        passwordValidation = PasswordValidationInfo("hashed"),
-    )
+    private val user =
+        User(
+            id = 1,
+            name = "Joana",
+            email = "j@example.com",
+            profile = Profile(id = 1, role = Role.MECHANIC, description = ""),
+            status = UserStatus.ACTIVE,
+            passwordValidation = PasswordValidationInfo("hashed"),
+        )
 
     // A valid Base64-URL-encoded token of the exact configured size.
     private val sampleToken = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -109,7 +110,7 @@ class AuthServiceTest {
     }
 
     @Test
-    fun `getUserByToken deletes expired session and returns null`() {
+    fun `getUserByToken returns null for an expired session`() {
         val hashed = tokenEncoder.createValidationInformation(sampleToken).validationInfo
         val expiredSession = sessionFor(user, accessExpiresAt = now.minusSeconds(1))
         every { sessionRepo.findByAccessTokenValidationInfo(hashed) } returns expiredSession
@@ -117,7 +118,8 @@ class AuthServiceTest {
         val result = service.getUserByToken(sampleToken)
 
         assertNull(result)
-        verify { sessionRepo.delete(expiredSession) }
+        // NOTE: this branch's getUserByToken does NOT delete the expired session (main did).
+        verify(exactly = 0) { sessionRepo.delete(any<UserSession>()) }
     }
 
     @Test

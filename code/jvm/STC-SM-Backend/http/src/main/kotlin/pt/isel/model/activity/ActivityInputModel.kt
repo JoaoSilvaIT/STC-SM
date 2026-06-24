@@ -8,5 +8,5 @@ data class ActivityInputModel(
     val tid: Int? = null,
     val cid: Int? = null,
     val sid: Int? = null,
-    val notes: String? = null
+    val notes: String? = null,
 )

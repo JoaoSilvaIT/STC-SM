@@ -2,8 +2,8 @@ package pt.isel.model.tools
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import pt.isel.errors.ToolError
 import pt.isel.Problem
+import pt.isel.errors.ToolError
 import pt.isel.tools.Tool
 
 fun ToolError.toProblemResponse(): ResponseEntity<Any> =

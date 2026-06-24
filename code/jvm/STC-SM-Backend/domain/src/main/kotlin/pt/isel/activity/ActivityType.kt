@@ -11,5 +11,5 @@ enum class ActivityType {
     CABINET_ANOMALY,
     CABINET_BROKEN,
     STARTED_SHIFT,
-    ENDED_SHIFT
+    ENDED_SHIFT,
 }

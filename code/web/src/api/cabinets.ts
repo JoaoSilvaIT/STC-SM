@@ -42,7 +42,7 @@ export async function createCabinet(input: { name: string; location: string; sta
     },
     auth: true,
   })
-  return toDomain(body, parseLocationId(headers) ?? 0)
+  return toDomain(body, parseLocationId(headers) ?? idFromHref(body.self))
 }
 
 export async function updateCabinet(id: number, status: CabinetStatus): Promise<Cabinet> {

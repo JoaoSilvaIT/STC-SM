@@ -24,16 +24,16 @@ class Alert(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Int = 0,
     @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
-    val date : Instant,
+    val date: Instant,
     @Enumerated(EnumType.STRING)
     val type: AlertType,
     @Enumerated(EnumType.STRING)
-    val status : AlertStatus ,
+    val status: AlertStatus,
     @Column(nullable = false)
-    val message : String,
+    val message: String,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user", nullable = false)
-    val user : User,
+    val user: User,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tool")
     val tool: Tool? = null,
@@ -41,13 +41,13 @@ class Alert(
     @JoinColumn(name = "id_cabinet")
     val cabinet: Cabinet? = null,
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="id_shift")
-    val shift: Shift? = null
+    @JoinColumn(name = "id_shift")
+    val shift: Shift? = null,
 ) {
     fun copy(
         type: AlertType = this.type,
         status: AlertStatus = this.status,
-        message: String = this.message
+        message: String = this.message,
     ): Alert =
         Alert(
             id = this.id,
@@ -58,6 +58,6 @@ class Alert(
             tool = this.tool,
             cabinet = this.cabinet,
             shift = this.shift,
-            user = this.user
+            user = this.user,
         )
 }

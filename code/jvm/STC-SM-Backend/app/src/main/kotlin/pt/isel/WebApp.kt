@@ -1,5 +1,6 @@
 package pt.isel
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
@@ -19,6 +20,8 @@ import java.time.Duration
 class PipelineConfigurer(
     val authenticationInterceptor: AuthenticationInterceptor,
     val authenticatedUserArgumentResolver: AuthenticatedUserArgumentResolver,
+    @param:Value("\${app.cors.allowed-origins:http://localhost:*,http://127.0.0.1:*}")
+    private val allowedOrigins: Array<String>,
 ) : WebMvcConfigurer {
     override fun addInterceptors(registry: InterceptorRegistry) {
         registry.addInterceptor(authenticationInterceptor)
@@ -29,10 +32,12 @@ class PipelineConfigurer(
     }
 
     override fun addCorsMappings(registry: CorsRegistry) {
-        registry.addMapping("/api/**")
-            .allowedOriginPatterns("*")
+        registry
+            .addMapping("/api/**")
+            .allowedOriginPatterns(*allowedOrigins)
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
             .allowedHeaders("*")
+            .exposedHeaders("Location")
             .allowCredentials(true)
     }
 }
@@ -55,10 +60,10 @@ class WebApp {
             tokenSizeInBytes = 256 / 8,
             accessTokenExpiration = Duration.ofMinutes(15),
             refreshTokenExpiration = Duration.ofDays(30),
-            maxTokensPerUser = 1,
             minPasswordLength = 2,
         )
 }
+
 fun main() {
     runApplication<WebApp>()
 }

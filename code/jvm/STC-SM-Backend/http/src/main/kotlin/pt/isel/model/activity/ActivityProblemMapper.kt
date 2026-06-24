@@ -11,4 +11,5 @@ fun ActivityError.toProblemResponse(): ResponseEntity<Any> =
         ActivityError.InvalidUserId -> Problem.UserNotFoundOrInvalidCredentials.response(HttpStatus.BAD_REQUEST)
         ActivityError.InvalidCabinetId -> Problem.CabinetNotFound.response(HttpStatus.BAD_REQUEST)
         ActivityError.InvalidToolId -> Problem.ToolNotFound.response(HttpStatus.BAD_REQUEST)
+        ActivityError.InvalidShiftId -> Problem.ShiftNotFound.response(HttpStatus.BAD_REQUEST)
     }
