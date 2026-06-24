@@ -9,7 +9,7 @@ import { Platform, StyleSheet, type TextStyle } from 'react-native';
  */
 export type ThemeName = 'light' | 'dark';
 
-type Palette = {
+export type Palette = {
   bg: string;        bgElevated: string; surface: string;   surfaceAlt: string; surfaceHi: string;
   border: string;    borderHi: string;   hairline: string;
   amber: string;     amberSoft: string;  amberGlow: string;
@@ -133,77 +133,85 @@ const displayMedium = Platform.select({
 
 export const fonts = { mono, displayBold, displayMedium } as const;
 
-export const typography = {
+// ---------------------------------------------------------------------------
+// Palette-dependent tokens are exposed as FACTORIES so a theme can be built at
+// runtime for any palette. The static exports below (`typography`, `layout`,
+// `btn`, `statusInk`) are kept as defaults for the ACTIVE_THEME palette so any
+// module that still imports them directly keeps working; reactive consumers
+// should pull these from `useTheme()` instead.
+// ---------------------------------------------------------------------------
+
+export const makeTypography = (c: Palette) => ({
   display: {
     fontFamily: displayBold,
     fontSize: 28,
     letterSpacing: 0.5,
-    color: colors.textHi,
+    color: c.textHi,
   } satisfies TextStyle,
   title: {
     fontFamily: displayBold,
     fontSize: 22,
-    color: colors.textHi,
+    color: c.textHi,
     letterSpacing: 0.3,
   } satisfies TextStyle,
   subtitle: {
     fontFamily: displayMedium,
     fontSize: 16,
-    color: colors.textHi,
+    color: c.textHi,
     letterSpacing: 0.2,
   } satisfies TextStyle,
   body: {
     fontSize: 15,
-    color: colors.text,
+    color: c.text,
     lineHeight: 21,
   } satisfies TextStyle,
   small: {
     fontSize: 13,
-    color: colors.textMuted,
+    color: c.textMuted,
     lineHeight: 18,
   } satisfies TextStyle,
   mono: {
     fontFamily: mono,
     fontSize: 12,
-    color: colors.textMuted,
+    color: c.textMuted,
     letterSpacing: 0.5,
   } satisfies TextStyle,
   monoHi: {
     fontFamily: mono,
     fontSize: 13,
-    color: colors.amber,
+    color: c.amber,
     letterSpacing: 1,
   } satisfies TextStyle,
   label: {
     fontFamily: displayMedium,
     fontSize: 11,
-    color: colors.textMuted,
+    color: c.textMuted,
     letterSpacing: 1.8,
     textTransform: 'uppercase',
   } satisfies TextStyle,
   metric: {
     fontFamily: mono,
     fontSize: 32,
-    color: colors.textHi,
+    color: c.textHi,
     letterSpacing: 0,
     fontVariant: ['tabular-nums'],
   } satisfies TextStyle,
-} as const;
+});
 
-export const layout = StyleSheet.create({
+export const makeLayout = (c: Palette) => StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.bg,
+    backgroundColor: c.bg,
   },
   safeContent: {
     flex: 1,
     padding: spacing.md,
   },
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: c.border,
     padding: spacing.md,
     marginBottom: spacing.sm,
   },
@@ -218,9 +226,9 @@ export const layout = StyleSheet.create({
   },
 });
 
-export const btn = StyleSheet.create({
+export const makeBtn = (c: Palette) => StyleSheet.create({
   primary: {
-    backgroundColor: colors.amber,
+    backgroundColor: c.amber,
     borderRadius: radius.md,
     paddingVertical: 16,
     paddingHorizontal: spacing.lg,
@@ -238,7 +246,7 @@ export const btn = StyleSheet.create({
     textTransform: 'uppercase',
   } satisfies TextStyle,
   danger: {
-    backgroundColor: colors.stop,
+    backgroundColor: c.stop,
     borderRadius: radius.md,
     paddingVertical: 16,
     alignItems: 'center',
@@ -256,28 +264,28 @@ export const btn = StyleSheet.create({
   } satisfies TextStyle,
   ghost: {
     borderWidth: 1,
-    borderColor: colors.borderHi,
+    borderColor: c.borderHi,
     borderRadius: radius.md,
     paddingVertical: 16,
     alignItems: 'center',
     backgroundColor: 'transparent',
   },
   ghostLabel: {
-    color: colors.text,
+    color: c.text,
     fontFamily: displayMedium,
     fontSize: 13,
     letterSpacing: 1.5,
     textTransform: 'uppercase',
   } satisfies TextStyle,
   label: {
-    color: colors.textHi,
+    color: c.textHi,
     fontFamily: displayBold,
     fontSize: 14,
     letterSpacing: 2,
     textTransform: 'uppercase',
   } satisfies TextStyle,
   labelMuted: {
-    color: colors.textMuted,
+    color: c.textMuted,
     fontFamily: displayMedium,
     fontSize: 13,
     letterSpacing: 1.5,
@@ -285,9 +293,45 @@ export const btn = StyleSheet.create({
   } satisfies TextStyle,
 });
 
-export const statusInk = {
-  AVAILABLE: { ink: colors.go,    soft: colors.goSoft,   label: 'AVAILABLE' },
-  IN_USE:    { ink: colors.amber, soft: colors.amberSoft, label: 'IN-USE'   },
-  BROKEN:    { ink: colors.stop,  soft: colors.stopSoft, label: 'BROKEN'    },
-  MISSING:   { ink: colors.warn,  soft: colors.warnSoft, label: 'MISSING'   },
-} as const;
+export const makeStatusInk = (c: Palette) => ({
+  AVAILABLE: { ink: c.go,    soft: c.goSoft,    label: 'AVAILABLE' },
+  IN_USE:    { ink: c.amber, soft: c.amberSoft, label: 'IN-USE'   },
+  BROKEN:    { ink: c.stop,  soft: c.stopSoft,  label: 'BROKEN'    },
+  MISSING:   { ink: c.warn,  soft: c.warnSoft,  label: 'MISSING'   },
+} as const);
+
+// A fully-resolved theme for a given palette — what `useTheme()` returns.
+export type Theme = {
+  name: ThemeName;
+  isDark: boolean;
+  colors: Palette;
+  typography: ReturnType<typeof makeTypography>;
+  layout: ReturnType<typeof makeLayout>;
+  btn: ReturnType<typeof makeBtn>;
+  statusInk: ReturnType<typeof makeStatusInk>;
+  fonts: typeof fonts;
+  spacing: typeof spacing;
+  radius: typeof radius;
+};
+
+export function buildTheme(name: ThemeName): Theme {
+  const c = palettes[name];
+  return {
+    name,
+    isDark: name === 'dark',
+    colors: c,
+    typography: makeTypography(c),
+    layout: makeLayout(c),
+    btn: makeBtn(c),
+    statusInk: makeStatusInk(c),
+    fonts,
+    spacing,
+    radius,
+  };
+}
+
+// Backward-compatible static exports (ACTIVE_THEME palette).
+export const typography = makeTypography(colors);
+export const layout = makeLayout(colors);
+export const btn = makeBtn(colors);
+export const statusInk = makeStatusInk(colors);

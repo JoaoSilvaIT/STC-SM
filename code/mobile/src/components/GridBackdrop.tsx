@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { colors } from '../theme';
+import { useTheme } from '../context/ThemeContext';
 
 interface Props {
   rows?: number;
@@ -9,6 +9,7 @@ interface Props {
 }
 
 export default function GridBackdrop({ rows = 22, cols = 9, opacity = 0.5 }: Props) {
+  const { colors } = useTheme();
   const lines: React.ReactNode[] = [];
   for (let i = 1; i < rows; i++) {
     lines.push(

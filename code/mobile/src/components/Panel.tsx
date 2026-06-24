@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, type ViewStyle, type StyleProp } from 'react-native';
-import { colors, radius, spacing, typography } from '../theme';
+import { radius, spacing } from '../theme';
+import { useTheme } from '../context/ThemeContext';
 
 interface Props {
   label?: string;
@@ -11,15 +12,15 @@ interface Props {
   accent?: 'amber' | 'go' | 'stop' | 'sky' | 'none';
 }
 
-const accentLine: Record<NonNullable<Props['accent']>, string> = {
-  amber: colors.amber,
-  go:    colors.go,
-  stop:  colors.stop,
-  sky:   colors.sky,
-  none:  colors.border,
-};
-
 export default function Panel({ label, trailing, children, style, bodyStyle, accent = 'none' }: Props) {
+  const { colors, typography } = useTheme();
+  const accentLine: Record<NonNullable<Props['accent']>, string> = {
+    amber: colors.amber,
+    go:    colors.go,
+    stop:  colors.stop,
+    sky:   colors.sky,
+    none:  colors.border,
+  };
   const accentColor = accentLine[accent];
   return (
     <View style={[{

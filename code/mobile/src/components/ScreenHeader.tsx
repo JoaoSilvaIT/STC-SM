@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, fonts, spacing, typography } from '../theme';
+import { fonts, spacing } from '../theme';
+import { useTheme } from '../context/ThemeContext';
 
 interface Props {
   title: string;
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function ScreenHeader({ title, subtitle, onBack, trailing }: Props) {
+  const { colors, typography } = useTheme();
   return (
     <View style={{
       paddingHorizontal: spacing.md,

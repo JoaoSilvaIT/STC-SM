@@ -1,12 +1,12 @@
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { ShiftProvider } from './src/context/ShiftContext';
-import { isDarkTheme } from './src/theme';
+import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 
 import LoginScreen          from './src/screens/LoginScreen';
 import HomeScreen           from './src/screens/HomeScreen';
@@ -24,18 +24,18 @@ export type RootStackParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+function BootSplash() {
+  const { colors } = useTheme();
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg }}>
+      <ActivityIndicator color={colors.amber} />
+    </View>
+  );
+}
+
 function AppNavigator() {
-  const { currentUser, loading } = useAuth();
-
-  // Wait for the persisted-session check before deciding the entry screen.
-  if (loading) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator />
-      </View>
-    );
-  }
-
+  const { currentUser, bootstrapping } = useAuth();
+  if (bootstrapping) return <BootSplash />;
   return (
     <Stack.Navigator initialRouteName={currentUser ? 'Home' : 'Login'} screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login"          component={LoginScreen} />
@@ -56,17 +56,24 @@ function ShiftProviderWrapper({ children }: { children: React.ReactNode }) {
   );
 }
 
+function ThemedStatusBar() {
+  const { isDark } = useTheme();
+  return <StatusBar style={isDark ? 'light' : 'dark'} />;
+}
+
 export default function App() {
   return (
     <SafeAreaProvider>
-      <StatusBar style={isDarkTheme ? 'light' : 'dark'} />
-      <AuthProvider>
-        <ShiftProviderWrapper>
-          <NavigationContainer>
-            <AppNavigator />
-          </NavigationContainer>
-        </ShiftProviderWrapper>
-      </AuthProvider>
+      <ThemeProvider>
+        <ThemedStatusBar />
+        <AuthProvider>
+          <ShiftProviderWrapper>
+            <NavigationContainer>
+              <AppNavigator />
+            </NavigationContainer>
+          </ShiftProviderWrapper>
+        </AuthProvider>
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, KeyboardAvoidingView, Platform,
@@ -7,7 +7,8 @@ import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../App';
 import { useAuth } from '../context/AuthContext';
-import { colors, fonts, spacing, radius, typography, btn, layout } from '../theme';
+import { useTheme } from '../context/ThemeContext';
+import { fonts, spacing, radius, type Palette } from '../theme';
 import GridBackdrop from '../components/GridBackdrop';
 import Logo from '../components/Logo';
 import LED from '../components/LED';
@@ -16,6 +17,8 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 export default function LoginScreen({ navigation }: Props) {
   const { login, loading } = useAuth();
+  const { colors, typography, btn, layout } = useTheme();
+  const s = useMemo(() => makeStyles(colors), [colors]);
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
   const [error, setError]       = useState('');
@@ -130,7 +133,7 @@ export default function LoginScreen({ navigation }: Props) {
   );
 }
 
-const s = StyleSheet.create({
+const makeStyles = (colors: Palette) => StyleSheet.create({
   amberGlow: {
     position: 'absolute',
     top: -120,

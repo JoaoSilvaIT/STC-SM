@@ -6,7 +6,7 @@ function getApiUrl(): string {
   if (process.env.EXPO_PUBLIC_API_URL) {
     return process.env.EXPO_PUBLIC_API_URL;
   }
-
+  
   // If running in Expo Go over LAN, dynamically get the computer's IP
   const debuggerHost = Constants.expoConfig?.hostUri;
   if (debuggerHost) {
@@ -20,30 +20,32 @@ function getApiUrl(): string {
 
 export const BASE_URL = getApiUrl();
 
-const TOKEN_KEY = 'stc_token';
+const TOKEN_KEY = 'stc_sm_auth_token';
 
-// In-memory cache of the access token. SecureStore is async, so this keeps request() synchronous.
+// In-memory copy so request() can read the token synchronously. The persisted
+// copy in SecureStore survives app restarts and is loaded once on startup.
 let _token: string | null = null;
 
-// Ensures concurrent 401s trigger a single refresh instead of a stampede.
-let refreshPromise: Promise<string | null> | null = null;
+const secureStoreAvailable = Platform.OS !== 'web';
 
 export function getToken(): string | null {
   return _token;
 }
 
-export async function setToken(token: string | null): Promise<void> {
+export function setToken(token: string | null) {
   _token = token;
-  try {
-    if (token) await SecureStore.setItemAsync(TOKEN_KEY, token);
-    else await SecureStore.deleteItemAsync(TOKEN_KEY);
-  } catch {
-    // SecureStore is unavailable on web; the in-memory token still works for this session.
+  // Persist in the background — request() relies on the in-memory copy above.
+  if (!secureStoreAvailable) return;
+  if (token) {
+    SecureStore.setItemAsync(TOKEN_KEY, token).catch(() => { /* best-effort */ });
+  } else {
+    SecureStore.deleteItemAsync(TOKEN_KEY).catch(() => { /* best-effort */ });
   }
 }
 
-// Restores a persisted session on app startup. Returns the stored token, if any.
+/** Load any persisted token into memory. Call once on app startup. */
 export async function loadToken(): Promise<string | null> {
+  if (!secureStoreAvailable) return _token;
   try {
     _token = await SecureStore.getItemAsync(TOKEN_KEY);
   } catch {
@@ -54,11 +56,9 @@ export async function loadToken(): Promise<string | null> {
 
 export class ApiError extends Error {
   status: number;
-  problem: unknown;
-  constructor(status: number, message: string, problem: unknown = undefined) {
+  constructor(status: number, message: string) {
     super(message);
     this.status = status;
-    this.problem = problem;
   }
 }
 
@@ -66,34 +66,6 @@ interface RequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
   auth?: boolean;
-  _isRetry?: boolean;
-}
-
-async function refreshSession(): Promise<string | null> {
-  if (refreshPromise) return refreshPromise;
-
-  refreshPromise = (async () => {
-    try {
-      const res = await fetch(`${BASE_URL}/api/users/refresh`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-      if (!res.ok) {
-        await setToken(null);
-        return null;
-      }
-      const data = await res.json();
-      await setToken(data.token);
-      return data.token as string;
-    } catch {
-      await setToken(null);
-      return null;
-    } finally {
-      refreshPromise = null;
-    }
-  })();
-
-  return refreshPromise;
 }
 
 export async function request<T>(path: string, opts: RequestOptions = {}): Promise<T> {
@@ -111,14 +83,6 @@ export async function request<T>(path: string, opts: RequestOptions = {}): Promi
     credentials: 'include',
   });
 
-  // Access token expired: refresh once and replay the original request.
-  if (res.status === 401 && opts.auth && !opts._isRetry) {
-    const newToken = await refreshSession();
-    if (newToken) {
-      return request<T>(path, { ...opts, _isRetry: true });
-    }
-  }
-
   const text = res.status === 204 ? '' : await res.text();
   const data = text ? safeJson(text) : undefined;
 
@@ -127,7 +91,7 @@ export async function request<T>(path: string, opts: RequestOptions = {}): Promi
       data && typeof data === 'object' && 'title' in (data as object)
         ? String((data as Record<string, unknown>).title)
         : `HTTP ${res.status}`;
-    throw new ApiError(res.status, msg, data);
+    throw new ApiError(res.status, msg);
   }
 
   return data as T;

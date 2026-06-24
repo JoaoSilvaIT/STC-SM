@@ -1,18 +1,21 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FlatList, View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../App';
 import { useShift } from '../context/ShiftContext';
+import { useTheme } from '../context/ThemeContext';
 import ActivityItem from '../components/ActivityItem';
 import ScreenHeader from '../components/ScreenHeader';
-import { colors, fonts, spacing, typography, layout } from '../theme';
+import { fonts, spacing, type Palette } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Activity'>;
 
 export default function ActivityScreen({ navigation }: Props) {
   const { activities, activeShift } = useShift();
+  const { colors, typography, layout } = useTheme();
+  const s = useMemo(() => makeStyles(colors), [colors]);
 
   return (
     <SafeAreaView style={layout.screen} edges={['top', 'left', 'right']}>
@@ -49,7 +52,7 @@ export default function ActivityScreen({ navigation }: Props) {
   );
 }
 
-const s = StyleSheet.create({
+const makeStyles = (colors: Palette) => StyleSheet.create({
   countPill: {
     paddingHorizontal: 10,
     paddingVertical: 4,

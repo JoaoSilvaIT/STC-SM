@@ -2,9 +2,10 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { Activity, ActivityType } from '../types/domain';
-import { colors, fonts, spacing, typography } from '../theme';
+import { fonts, spacing, type Palette } from '../theme';
+import { useTheme } from '../context/ThemeContext';
 
-const iconMap: Record<ActivityType, { name: keyof typeof Ionicons.glyphMap; color: string }> = {
+const makeIconMap = (colors: Palette): Record<ActivityType, { name: keyof typeof Ionicons.glyphMap; color: string }> => ({
   SHIFT_STARTED:        { name: 'play',              color: colors.amber },
   SHIFT_ENDED:          { name: 'stop',              color: colors.textMuted },
   TOOL_REMOVED:         { name: 'arrow-up',          color: colors.warn },
@@ -17,7 +18,7 @@ const iconMap: Record<ActivityType, { name: keyof typeof Ionicons.glyphMap; colo
   CABINET_ONLINE:       { name: 'checkmark-circle',  color: colors.go },
   CABINET_OFFLINE:      { name: 'close-circle',      color: colors.stop },
   CABINET_ANOMALY:      { name: 'alert',             color: colors.stop },
-};
+});
 
 function relTime(iso: string): string {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -50,7 +51,8 @@ interface Props {
 }
 
 export default function ActivityItem({ activity, isLast = false }: Props) {
-  const { name, color } = iconMap[activity.type];
+  const { colors, typography } = useTheme();
+  const { name, color } = makeIconMap(colors)[activity.type];
   return (
     <View style={{ flexDirection: 'row', gap: spacing.md, minHeight: 64 }}>
       <View style={{ width: 28, alignItems: 'center' }}>

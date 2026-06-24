@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { colors, fonts } from '../theme';
+import { fonts } from '../theme';
+import { useTheme } from '../context/ThemeContext';
 
 interface Props {
   size?: number;
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export default function Logo({ size = 56, tone = 'amber' }: Props) {
+  const { colors } = useTheme();
   const stroke = tone === 'amber' ? colors.amber : colors.text;
   const fill   = tone === 'amber' ? colors.amberGlow : 'transparent';
   return (

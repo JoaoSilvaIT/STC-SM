@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -6,10 +6,12 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../App';
 import { useAuth } from '../context/AuthContext';
 import { useShift } from '../context/ShiftContext';
-import { colors, fonts, spacing, radius, typography, btn, layout } from '../theme';
+import { useTheme } from '../context/ThemeContext';
+import { fonts, spacing, radius, type Palette } from '../theme';
 import GridBackdrop from '../components/GridBackdrop';
 import Panel from '../components/Panel';
 import LED from '../components/LED';
+import SettingsDrawer from '../components/SettingsDrawer';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -25,6 +27,9 @@ function useClock() {
 export default function HomeScreen({ navigation }: Props) {
   const { currentUser, logout } = useAuth();
   const { activeShift }  = useShift();
+  const { colors, typography, btn, layout } = useTheme();
+  const s = useMemo(() => makeStyles(colors), [colors]);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const now = useClock();
 
   const firstName = currentUser?.name.split(' ')[0] ?? '';
@@ -45,8 +50,8 @@ export default function HomeScreen({ navigation }: Props) {
           <Text style={s.topBarDivider}>·</Text>
           <Text style={s.topBarText}>{currentUser?.role}</Text>
         </View>
-        <TouchableOpacity onPress={() => { logout(); navigation.replace('Login'); }} hitSlop={10}>
-          <Text style={s.logout}>SIGN OUT</Text>
+        <TouchableOpacity onPress={() => setSettingsOpen(true)} hitSlop={10} accessibilityLabel="Settings">
+          <Ionicons name="settings-outline" size={20} color={colors.textMuted} />
         </TouchableOpacity>
       </View>
 
@@ -99,11 +104,17 @@ export default function HomeScreen({ navigation }: Props) {
           ))}
         </View>
       </View>
+
+      <SettingsDrawer
+        visible={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        onLogout={() => { setSettingsOpen(false); logout(); navigation.replace('Login'); }}
+      />
     </SafeAreaView>
   );
 }
 
-const s = StyleSheet.create({
+const makeStyles = (colors: Palette) => StyleSheet.create({
   amberGlow: {
     position: 'absolute',
     top: -80,

@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../App';
 import { useShift } from '../context/ShiftContext';
-import { colors, fonts, spacing, radius, typography, btn, layout } from '../theme';
+import { useTheme } from '../context/ThemeContext';
+import { fonts, spacing, radius, type Palette } from '../theme';
 import ScreenHeader from '../components/ScreenHeader';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'EndShift'>;
@@ -22,6 +23,8 @@ function shiftDuration(startTime: string): { h: string; m: string } {
 
 export default function EndShiftScreen({ navigation }: Props) {
   const { activeShift, cabinetTools, activities, endShift } = useShift();
+  const { colors, typography, btn, layout } = useTheme();
+  const s = useMemo(() => makeStyles(colors), [colors]);
   const [acknowledged, setAcknowledged] = useState(false);
 
   if (!activeShift) return null;
@@ -139,6 +142,8 @@ export default function EndShiftScreen({ navigation }: Props) {
 }
 
 function StatCell({ value, label, color, muted = false }: { value: number; label: string; color: string; muted?: boolean }) {
+  const { colors } = useTheme();
+  const s = useMemo(() => makeStyles(colors), [colors]);
   return (
     <View style={[s.stat, muted && { opacity: 0.4 }]}>
       <Text style={{
@@ -154,7 +159,7 @@ function StatCell({ value, label, color, muted = false }: { value: number; label
   );
 }
 
-const s = StyleSheet.create({
+const makeStyles = (colors: Palette) => StyleSheet.create({
   scroll: { padding: spacing.md, paddingBottom: spacing.xl },
 
   summaryHero: {

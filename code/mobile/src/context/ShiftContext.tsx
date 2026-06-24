@@ -6,6 +6,7 @@ import { getCabinet } from '../api/cabinets';
 import { createActivity } from '../api/activities';
 
 interface ShiftContextType {
+
   activeShift: Shift | null;
   assignedShift: Shift | null;
   activeCabinet: Cabinet | null;

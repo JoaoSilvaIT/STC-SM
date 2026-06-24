@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -6,7 +6,8 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../App';
 import { useShift } from '../context/ShiftContext';
 import type { ActivityType, Tool } from '../types/domain';
-import { colors, fonts, spacing, radius, typography, btn, layout } from '../theme';
+import { fonts, spacing, radius, type Palette } from '../theme';
+import { useTheme } from '../context/ThemeContext';
 import GridBackdrop from '../components/GridBackdrop';
 import Panel from '../components/Panel';
 import LED from '../components/LED';
@@ -75,14 +76,17 @@ const ACTION_ROWS: ActionRow[] = [
   { label: 'Activity Log',   hint: 'Shift timeline',           icon: 'pulse-outline',        screen: 'Activity', accent: 'sky'   },
 ];
 
-const accentInk: Record<ActionRow['accent'], string> = {
+const makeAccentInk = (colors: Palette): Record<ActionRow['accent'], string> => ({
   amber: colors.amber,
   stop:  colors.stop,
   sky:   colors.sky,
-};
+});
 
 export default function ShiftDashboardScreen({ navigation }: Props) {
   const { activeShift, assignedShift, activeCabinet, cabinetTools, logAnomaly, startShift, refreshAssignment, loading: shiftLoading } = useShift();
+  const { colors, typography, btn, layout } = useTheme();
+  const s = useMemo(() => makeStyles(colors), [colors]);
+  const accentInk = makeAccentInk(colors);
   const [, setTick] = useState(0);
 
   const [selectedAnomaly, setSelectedAnomaly] = useState<ActivityType | null>(null);
@@ -339,7 +343,7 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
   );
 }
 
-const s = StyleSheet.create({
+const makeStyles = (colors: Palette) => StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   statusBar: {
     flexDirection: 'row',
