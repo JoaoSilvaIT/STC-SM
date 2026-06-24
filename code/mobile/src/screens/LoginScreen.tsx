@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
-  StyleSheet, KeyboardAvoidingView, Platform, ScrollView,
+  StyleSheet, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -47,10 +47,7 @@ export default function LoginScreen({ navigation }: Props) {
       <GridBackdrop opacity={0.4} />
       <View style={s.amberGlow} pointerEvents="none" />
 
-      <ScrollView
-        contentContainerStyle={s.scroll}
-        keyboardShouldPersistTaps="handled"
-      >
+      <View style={s.scroll}>
         <View style={s.statusBar}>
           <View style={s.statusItem}>
             <LED color={colors.go} size={6} />
@@ -128,7 +125,7 @@ export default function LoginScreen({ navigation }: Props) {
             Restricted system · Tampering will be logged
           </Text>
         </View>
-      </ScrollView>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -145,7 +142,7 @@ const s = StyleSheet.create({
     opacity: 0.08,
   },
   scroll: {
-    flexGrow: 1,
+    flex: 1,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.xl,
     paddingBottom: spacing.xl,

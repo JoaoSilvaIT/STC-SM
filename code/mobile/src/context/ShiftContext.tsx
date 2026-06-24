@@ -1,10 +1,9 @@
-import React, { createContext, useContext, useState } from 'react';
-import type { Shift, Tool, Activity, Cabinet } from '../types/domain';
-import { startShift as apiStartShift, endShift as apiEndShift } from '../api/shifts';
+import React, { createContext, useContext, useState, useCallback } from 'react';
+import type { Shift, Tool, Activity, Cabinet, ActivityType } from '../types/domain';
+import { startShift as apiStartShift, endShift as apiEndShift, getShiftsByUser } from '../api/shifts';
 import { listTools, updateTool } from '../api/tools';
 import { getCabinet } from '../api/cabinets';
 import { createActivity } from '../api/activities';
-import { ActivityType } from '../types/domain';
 
 interface ShiftContextType {
   activeShift: Shift | null;
@@ -14,12 +13,12 @@ interface ShiftContextType {
   activities: Activity[];
   loading: boolean;
   error: string | null;
-  refreshAssignment(): Promise<void>;
+  refreshAssignment(silent?: boolean): Promise<void>;
   startShift(shift: Shift): Promise<void>;
   takeTool(toolId: number): Promise<void>;
   returnTool(toolId: number): Promise<void>;
   markBroken(toolId: number): Promise<void>;
-  logAnomaly(type: ActivityType): Promise<void>;
+  logAnomaly(type: ActivityType, toolId?: number): Promise<void>;
   endShift(): Promise<void>;
 }
 
@@ -43,11 +42,10 @@ export function ShiftProvider({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const refreshAssignment = async () => {
+  const refreshAssignment = useCallback(async (silent = false) => {
     if (userId <= 0) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
     try {
-      const { getShiftsByUser } = require('../api/shifts');
       const shifts: Shift[] = await getShiftsByUser(userId);
       
       const ongoing = shifts.find(s => s.status === 'ACTIVE');
@@ -76,11 +74,12 @@ export function ShiftProvider({
         setCabinetTools([]);
       }
     } catch (e) {
-      setError('Failed to load shift information');
+      // Don't surface transient errors from a background poll
+      if (!silent) setError('Failed to load shift information');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
-  };
+  }, [userId]);
 
   React.useEffect(() => {
     refreshAssignment();
@@ -169,23 +168,24 @@ export function ShiftProvider({
     });
   }
 
-  async function logAnomaly(type: ActivityType): Promise<void> {
+  async function logAnomaly(type: ActivityType, toolId?: number): Promise<void> {
     if (!activeShift) return;
     try {
       await createActivity(
         type,
         userId,
-        null,
+        toolId ?? null,
         activeShift.cabinetId,
         activeShift.id,
         null
       );
-      
+
       addActivity({
-        type: type,
+        type,
         userId,
         cabinetId: activeShift.cabinetId,
-        toolId: null,
+        toolId: toolId ?? null,
+        toolName: toolId ? cabinetTools.find(t => t.id === toolId)?.name : undefined,
         notes: null,
         shiftId: activeShift.id,
       });

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -50,7 +50,7 @@ export default function HomeScreen({ navigation }: Props) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={s.scroll}>
+      <View style={s.scroll}>
         <View style={s.greetBlock}>
           <Text style={s.eyebrow}>{dateStr}</Text>
           <Text style={s.greet}>Welcome,</Text>
@@ -63,7 +63,7 @@ export default function HomeScreen({ navigation }: Props) {
             <Text style={s.clockLabel}>LOCAL TIME</Text>
           </View>
           <View style={s.clockBox}>
-            <Text style={[s.clockNum, { color: colors.amber }]}>{activeShift ? 'ACTIVE' : 'STBY'}</Text>
+            <Text style={[s.clockNum, { color: colors.amber }]}>{activeShift ? 'ACTIVE' : 'STAND BY'}</Text>
             <Text style={s.clockLabel}>SHIFT STATE</Text>
           </View>
         </View>
@@ -98,7 +98,7 @@ export default function HomeScreen({ navigation }: Props) {
             </View>
           ))}
         </View>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
@@ -136,7 +136,7 @@ const s = StyleSheet.create({
     color: colors.stop,
     letterSpacing: 2,
   },
-  scroll: { padding: spacing.md, paddingBottom: spacing.xl },
+  scroll: { flex: 1, padding: spacing.md, paddingBottom: spacing.xl },
   greetBlock: { marginTop: spacing.lg, marginBottom: spacing.lg },
   eyebrow: {
     fontFamily: fonts.mono,

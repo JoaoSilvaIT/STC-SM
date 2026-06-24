@@ -4,7 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../App';
-import { useShift, type AnomalyType } from '../context/ShiftContext';
+import { useShift } from '../context/ShiftContext';
+import type { ActivityType, Tool } from '../types/domain';
 import { colors, fonts, spacing, radius, typography, btn, layout } from '../theme';
 import GridBackdrop from '../components/GridBackdrop';
 import Panel from '../components/Panel';
@@ -56,7 +57,7 @@ function isTimeWithinShift(startStr?: string | null, endStr?: string | null): bo
   }
 }
 
-const ANOMALY_OPTIONS: { label: string; value: AnomalyType; icon: keyof typeof import('@expo/vector-icons').Ionicons.glyphMap; hint: string }[] = [
+const ANOMALY_OPTIONS: { label: string; value: ActivityType; icon: keyof typeof import('@expo/vector-icons').Ionicons.glyphMap; hint: string }[] = [
   { label: 'Broken Tool', value: 'TOOL_BROKEN', icon: 'hammer-outline', hint: 'A tool is damaged' },
   { label: 'Missing Tool', value: 'TOOL_MISSING', icon: 'search-outline', hint: 'A tool cannot be found' },
   { label: 'Cabinet Anomaly', value: 'CABINET_ANOMALY', icon: 'lock-open-outline', hint: 'Issue with the cabinet hardware' },
@@ -81,16 +82,26 @@ const accentInk: Record<ActionRow['accent'], string> = {
 };
 
 export default function ShiftDashboardScreen({ navigation }: Props) {
-  const { activeShift, assignedShift, activeCabinet, logAnomaly, startShift, loading: shiftLoading } = useShift();
+  const { activeShift, assignedShift, activeCabinet, cabinetTools, logAnomaly, startShift, refreshAssignment, loading: shiftLoading } = useShift();
   const [, setTick] = useState(0);
 
-  const [selectedAnomaly, setSelectedAnomaly] = useState<AnomalyType | null>(null);
+  const [selectedAnomaly, setSelectedAnomaly] = useState<ActivityType | null>(null);
+  const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
   const [anomalySubmitted, setAnomalySubmitted] = useState(false);
 
+  const isToolAnomaly = selectedAnomaly === 'TOOL_BROKEN' || selectedAnomaly === 'TOOL_MISSING';
+  const canSubmit = !!selectedAnomaly && (!isToolAnomaly || !!selectedTool);
+
+  // Re-render every 30s to keep the clock-based duration / shift-window check
+  // current, and silently poll the backend so backoffice changes to this
+  // mechanic's assignment (reassign / cancel) show up without leaving the screen.
   useEffect(() => {
-    const id = setInterval(() => setTick(t => t + 1), 60000);
+    const id = setInterval(() => {
+      setTick(t => t + 1);
+      refreshAssignment(true);
+    }, 30000);
     return () => clearInterval(id);
-  }, []);
+  }, [refreshAssignment]);
 
   const shift = activeShift || assignedShift;
   const cabinet = activeCabinet;
@@ -119,9 +130,10 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
   }
 
   function handleReportAnomaly() {
-    if (!selectedAnomaly) return;
-    logAnomaly(selectedAnomaly);
+    if (!canSubmit || !selectedAnomaly) return;
+    logAnomaly(selectedAnomaly, selectedTool?.id);
     setSelectedAnomaly(null);
+    setSelectedTool(null);
     setAnomalySubmitted(true);
     setTimeout(() => setAnomalySubmitted(false), 3000);
   }
@@ -222,7 +234,7 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
                                 <TouchableOpacity
                                     key={opt.value}
                                     style={[s.option, active && s.optionActive]}
-                                    onPress={() => setSelectedAnomaly(opt.value)}
+                                    onPress={() => { setSelectedAnomaly(opt.value); setSelectedTool(null); }}
                                     activeOpacity={0.8}
                                 >
                                   <View style={[s.optionIcon, active && { backgroundColor: colors.amber + '22', borderColor: colors.amber }]}>
@@ -242,10 +254,38 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
                           })}
                         </View>
 
+                        {isToolAnomaly && (
+                          <>
+                            <View style={s.toolSectionDivider} />
+                            <Text style={[typography.label, { marginBottom: spacing.sm }]}>AFFECTED TOOL</Text>
+                            <View style={{ gap: spacing.sm, marginBottom: spacing.md }}>
+                              {cabinetTools.map(tool => {
+                                const active = selectedTool?.id === tool.id;
+                                return (
+                                  <TouchableOpacity
+                                    key={tool.id}
+                                    style={[s.toolOption, active && s.toolOptionActive]}
+                                    onPress={() => setSelectedTool(tool)}
+                                    activeOpacity={0.8}
+                                  >
+                                    <View style={[s.toolIndicator, active && { backgroundColor: colors.amber }]} />
+                                    <Text style={[typography.body, { flex: 1, color: active ? colors.amber : colors.textHi }]}>
+                                      {tool.name}
+                                    </Text>
+                                    <View style={[s.radio, active && s.radioActive]}>
+                                      {active && <View style={s.radioDot} />}
+                                    </View>
+                                  </TouchableOpacity>
+                                );
+                              })}
+                            </View>
+                          </>
+                        )}
+
                         <TouchableOpacity
-                            style={[btn.primary, !selectedAnomaly && s.btnDisabled, { backgroundColor: colors.stop }]}
+                            style={[btn.primary, !canSubmit && s.btnDisabled, { backgroundColor: colors.stop }]}
                             onPress={handleReportAnomaly}
-                            disabled={!selectedAnomaly}
+                            disabled={!canSubmit}
                             activeOpacity={0.85}
                         >
                           <Ionicons name="send" size={14} color="#FFFFFF" />
@@ -484,6 +524,32 @@ const s = StyleSheet.create({
     backgroundColor: colors.amber,
   },
   btnDisabled: { opacity: 0.3 },
+  toolSectionDivider: {
+    height: 1,
+    backgroundColor: colors.hairline,
+    marginBottom: spacing.md,
+  },
+  toolOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.bgElevated,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+  },
+  toolOptionActive: {
+    borderColor: colors.amber,
+    backgroundColor: colors.amberSoft,
+  },
+  toolIndicator: {
+    width: 3,
+    height: 28,
+    borderRadius: 2,
+    backgroundColor: colors.borderHi,
+  },
   successBanner: {
     flexDirection: 'row',
     alignItems: 'center',

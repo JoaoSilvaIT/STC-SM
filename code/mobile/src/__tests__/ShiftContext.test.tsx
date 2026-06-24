@@ -40,12 +40,12 @@ const mockTools: Tool[] = [
 const mockShift: Shift = {
   id: 10, userId: 2, userName: 'C. Ferreira',
   cabinetId: 1, cabinetName: 'CAB-001',
-  status: 'ON_GOING',
+  status: 'ACTIVE',
   startTime: new Date().toISOString(),
   endTime: null,
 };
 
-const mockAssignedShift: Shift = { ...mockShift, status: 'ENDED' };
+const mockAssignedShift: Shift = { ...mockShift, status: 'INACTIVE' };
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <ShiftProvider userId={2}>{children}</ShiftProvider>

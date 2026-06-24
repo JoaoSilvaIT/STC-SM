@@ -7,15 +7,17 @@ import type { RootStackParamList } from '../../App';
 import { useShift } from '../context/ShiftContext';
 import { colors, fonts, spacing, radius, typography, btn, layout } from '../theme';
 import ScreenHeader from '../components/ScreenHeader';
-import Panel from '../components/Panel';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'EndShift'>;
 
-function shiftDuration(iso: string): { h: string; m: string } {
-  const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  return { h: String(h).padStart(2, '0'), m: String(m).padStart(2, '0') };
+function shiftDuration(startTime: string): { h: string; m: string } {
+  const [sH, sM] = startTime.split(':').map(Number);
+  const startMins = (sH || 0) * 60 + (sM || 0);
+  const now = new Date();
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  let diff = nowMins - startMins;
+  if (diff < 0) diff += 24 * 60;
+  return { h: String(Math.floor(diff / 60)).padStart(2, '0'), m: String(diff % 60).padStart(2, '0') };
 }
 
 export default function EndShiftScreen({ navigation }: Props) {

@@ -1,14 +1,18 @@
 export type ToolStatus = 'AVAILABLE' | 'IN_USE' | 'BROKEN' | 'MISSING';
 export type CabinetStatus = 'OPEN' | 'CLOSED' | 'BROKEN' | 'INACTIVE';
-export type ActivityType = 'OPEN_CABINET'
-| 'CLOSE_CABINET'
-| 'REMOVE_TOOL'
-| 'TOOL_BROKEN'
-| 'TOOL_MISSING'
-| 'TOOL_IN_MAINTENANCE'
-| 'CABINET_ANOMALY'
-| 'STARTED_SHIFT'
-| 'ENDED_SHIFT';
+export type ActivityType =
+  | 'SHIFT_STARTED'
+  | 'SHIFT_ENDED'
+  | 'TOOL_REMOVED'
+  | 'TOOL_RETURNED'
+  | 'TOOL_BROKEN'
+  | 'TOOL_MISSING'
+  | 'TOOL_MISSING_DETECTED'
+  | 'DOOR_OPENED'
+  | 'DOOR_CLOSED'
+  | 'CABINET_ONLINE'
+  | 'CABINET_OFFLINE'
+  | 'CABINET_ANOMALY';
 export type UserRole = 'ADMIN' | 'MECHANIC' | 'BACK_OFFICE';
 export type UserStatus = 'ACTIVE' | 'INACTIVE';
 export type ShiftStatus = 'ACTIVE' | 'INACTIVE';

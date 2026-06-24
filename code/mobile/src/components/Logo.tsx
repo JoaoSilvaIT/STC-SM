@@ -11,7 +11,7 @@ export default function Logo({ size = 56, tone = 'amber' }: Props) {
   const stroke = tone === 'amber' ? colors.amber : colors.text;
   const fill   = tone === 'amber' ? colors.amberGlow : 'transparent';
   return (
-    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+    <View style={{ width: size, height: size + 20, alignItems: 'center', justifyContent: 'center' }}>
       <View
         style={{
           position: 'absolute',

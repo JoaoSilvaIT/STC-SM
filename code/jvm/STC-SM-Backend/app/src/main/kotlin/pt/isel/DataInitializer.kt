@@ -81,26 +81,41 @@ class DataInitializer(
         if (userRepository.count() == 0L) {
             userRepository.saveAll(users)
         }
-        val cabinet = Cabinet(
-            description = "White and Red Cabinet",
-            status = CabinetStatus.CLOSED,
-            location = "Sector 2"
+        val cabinets = listOf(
+            Cabinet(
+                description = "White and Red Cabinet",
+                status = CabinetStatus.CLOSED,
+                location = "Sector 2"
+            ),
+            Cabinet(
+                description = "Black and Blue Cabinet",
+                status = CabinetStatus.CLOSED,
+                location = "Sector 3"
+            )
         )
         if (cabinetRepository.count() == 0L) {
-            cabinetRepository.save(cabinet)
+            cabinetRepository.saveAll(cabinets)
         }
-        val tool = Tool(
+        val tools = listOf(
+            Tool(
             name = "Screwdriver",
-            cabinet = cabinet,
+            cabinet = cabinets[0],
             status = ToolStatus.AVAILABLE,
             location = "Sector 2"
+            ),
+            Tool(
+                name = "Wrench",
+                cabinet = cabinets[1],
+                status = ToolStatus.AVAILABLE,
+                location = "Sector 3"
+            )
         )
         if (toolRepository.count() == 0L) {
-            toolRepository.save(tool)
+            toolRepository.saveAll(tools)
         }
         val shifts = listOf(
             Shift(
-                cabinet = cabinet,
+                cabinet = cabinets[0],
                 user = users[2],
                 startTime = LocalTime.now(),
                 endTime = LocalTime.now().plusSeconds(3 * 60),
@@ -108,9 +123,17 @@ class DataInitializer(
                 lastEvaluatedDate = null
             ),
             Shift(
-                cabinet = cabinet,
+                cabinet = cabinets[0],
                 user = users[3],
                 startTime = LocalTime.now().plusSeconds(3 * 60),
+                endTime = LocalTime.now().plusSeconds(6 * 60),
+                status = ShiftStatus.INACTIVE,
+                lastEvaluatedDate = null
+            ),
+            Shift(
+                cabinet = cabinets[0],
+                user = users[4],
+                startTime = LocalTime.now().plusSeconds(2 * 60),
                 endTime = LocalTime.now().plusSeconds(6 * 60),
                 status = ShiftStatus.INACTIVE,
                 lastEvaluatedDate = null
@@ -125,7 +148,7 @@ class DataInitializer(
                 type = ActivityType.STARTED_SHIFT,
                 date = Instant.now(),
                 tool = null,
-                cabinet = cabinet,
+                cabinet = cabinets[0],
                 shift = shifts[0]
             )
             activityRepository.save(activity)

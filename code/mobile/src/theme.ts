@@ -1,6 +1,26 @@
 import { Platform, StyleSheet, type TextStyle } from 'react-native';
 
-export const colors = {
+/**
+ * THEME SELECTION
+ * ---------------------------------------------------------------------------
+ * The app renders the LIGHT palette so the mobile UI matches the web dashboard.
+ * The original avionics DARK palette is kept fully intact below — to flip the
+ * whole app back to dark, change `ACTIVE_THEME` to 'dark' (single line).
+ */
+export type ThemeName = 'light' | 'dark';
+
+type Palette = {
+  bg: string;        bgElevated: string; surface: string;   surfaceAlt: string; surfaceHi: string;
+  border: string;    borderHi: string;   hairline: string;
+  amber: string;     amberSoft: string;  amberGlow: string;
+  go: string;        goSoft: string;     stop: string;       stopSoft: string;
+  warn: string;      warnSoft: string;   sky: string;
+  textHi: string;    text: string;       textMuted: string;  textDim: string;
+  primary: string;   danger: string;     warning: string;    success: string;    textPrimary: string;
+};
+
+// Original avionics DARK palette — kept ready for when you want to flip back.
+export const darkColors: Palette = {
   bg:          '#07090F',
   bgElevated:  '#0B0E18',
   surface:     '#0F1320',
@@ -32,7 +52,53 @@ export const colors = {
   warning:     '#F0A500',
   success:     '#3DDC97',
   textPrimary: '#F2F4FA',
-} as const;
+};
+
+// LIGHT palette mirroring the web app's `html[data-theme='light']` tokens.
+export const lightColors: Palette = {
+  bg:          '#EBF0F7',              // --bg-primary
+  bgElevated:  '#F6F8FC',              // --bg-surface
+  surface:     '#FFFFFF',              // --bg-elevated (cards)
+  surfaceAlt:  '#F6F8FC',              // --bg-surface
+  surfaceHi:   '#DDE3EF',              // --bg-inset
+  border:      'rgba(50, 65, 110, 0.18)', // --border-default
+  borderHi:    'rgba(50, 65, 110, 0.32)', // --border-strong
+  hairline:    'rgba(50, 65, 110, 0.07)', // --border-subtle
+
+  amber:       '#B8720A',              // --amber
+  amberSoft:   'rgba(184, 114, 10, 0.13)', // --amber-soft
+  amberGlow:   'rgba(184, 114, 10, 0.22)', // --amber-glow
+
+  go:          '#069944',              // --clear
+  goSoft:      'rgba(6, 153, 68, 0.12)',   // --clear-soft
+  stop:        '#CC2010',              // --risk
+  stopSoft:    'rgba(204, 32, 16, 0.10)',  // --risk-soft
+  warn:        '#C2680A',
+  warnSoft:    'rgba(194, 104, 10, 0.13)',
+  sky:         '#0A82B8',              // --info
+
+  textHi:      '#0E1628',              // --text-primary
+  text:        '#364260',              // --text-secondary
+  textMuted:   '#7888A8',              // --text-muted
+  textDim:     '#9AA8C4',
+
+  primary:     '#B8720A',
+  danger:      '#CC2010',
+  warning:     '#C2680A',
+  success:     '#069944',
+  textPrimary: '#0E1628',
+};
+
+export const palettes = { dark: darkColors, light: lightColors } as const;
+
+/** Flip this to 'dark' to switch the entire app back to the dark theme. */
+export const ACTIVE_THEME: ThemeName = 'light';
+
+export const isDarkTheme: boolean = ACTIVE_THEME === ('dark' as ThemeName);
+
+// Active palette consumed across the app. Everything (typography, layout, btn,
+// statusInk) derives from this, so switching ACTIVE_THEME re-themes the app.
+export const colors = palettes[ACTIVE_THEME];
 
 export const spacing = {
   xxs: 2,
