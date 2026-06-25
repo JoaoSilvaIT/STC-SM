@@ -247,6 +247,7 @@ function StatusPill({ status }: { status: Tool['status'] }) {
     IN_USE:      styles.pillInUse,
     MISSING:     styles.pillMissing,
     IN_MAINTENANCE: styles.pillMaint,
+    BROKEN:      styles.pillMissing,
   }[status]
   return <span className={`${styles.pill} ${cls}`}>{status.replace('_', ' ')}</span>
 }

@@ -23,4 +23,16 @@ export interface Tool {
     partNumber: string;
     cabinetId: number;
     status: ToolStatus;
+    isActive: boolean;
+}
+
+export type UserRole = 'ADMIN' | 'MECHANIC' | 'BACK_OFFICE';
+export type UserStatus = 'ACTIVE' | 'INACTIVE';
+
+export interface User {
+    id: number;
+    name: string;
+    email: string;
+    role: UserRole;
+    isActive: boolean;
 }

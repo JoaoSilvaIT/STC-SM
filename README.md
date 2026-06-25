@@ -30,7 +30,45 @@ code/
 - **Web & Simulator:** React 19, Vite, React Router, STOMP over WebSocket
 - **Mobile:** React Native, Expo
 
-## Prerequisites
+## Quick start with Docker (recommended)
+
+The whole stack — PostgreSQL, the backend, the web app and the simulator — runs
+with a single command. The only prerequisite is Docker with the Compose plugin.
+
+```bash
+docker compose up --build
+```
+
+Then open:
+
+| Service        | URL                       |
+|----------------|---------------------------|
+| Back-office    | http://localhost:8081     |
+| Simulator      | http://localhost:8082     |
+| Backend API    | http://localhost:8080     |
+| PostgreSQL     | localhost:5432            |
+
+Each front end is served by nginx, which reverse-proxies `/api` and
+`/ws-simulator` to the backend, so everything is same-origin (no CORS setup
+needed) and the database is created automatically.
+
+To stop: `Ctrl-C`, or `docker compose down` (add `-v` to also wipe the database
+volume). The mobile app (Expo) is not containerised — see *Running the frontends*.
+
+### Configuration
+
+All settings have working defaults. To change ports, the DB password, or the
+Hibernate schema strategy, copy `.env.example` to `.env` and edit it:
+
+```bash
+cp .env.example .env
+```
+
+> If you change `WEB_PORT` / `SIM_PORT`, also update the matching
+> `*_VITE_WS_URL` (it is baked into the bundle at build time) and rebuild that
+> image with `docker compose build web simulator`.
+
+## Prerequisites (running locally without Docker)
 
 - JDK 21 (the Gradle toolchain resolver downloads one automatically if missing)
 - Node.js 20+

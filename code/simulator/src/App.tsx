@@ -1,13 +1,8 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import { AuthProvider} from './context/AuthContext'
+import { AuthProvider } from './context/AuthContext'
 import Login from './pages/Login'
 import './App.css'
 import ProtectedRoute from './components/ProtectedRoute'
-import NotFound from "../../web/src/pages/NotFound.tsx";
 import Simulator from "./components/Simulator"
 
 function App() {
@@ -24,7 +19,7 @@ function App() {
             }
             >
           </Route>
-          <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthProvider>
   )

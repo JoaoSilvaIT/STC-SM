@@ -1,0 +1,18 @@
+# Build outputs and caches — rebuilt inside the image
+.gradle/
+build/
+*/build/
+**/build/
+
+# IDE / local
+.idea/
+*.iml
+.vscode/
+
+# Local secrets — never bake the developer's DB credentials into the image.
+# In containers the datasource is configured via environment variables.
+app/src/main/resources/application.properties
+
+# Misc
+*.log
+.DS_Store

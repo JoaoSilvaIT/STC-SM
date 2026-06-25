@@ -70,6 +70,7 @@ export interface Shift {
   status: ShiftStatus;
   startTime: string;
   endTime: string | null;
+  aircraftReg?: string | null;
 }
 
 export interface Activity {

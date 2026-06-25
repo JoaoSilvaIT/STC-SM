@@ -38,7 +38,7 @@ export default function Simulator() {
 
         // Connects to the webSocket server of Spring Boot, listening for updates on cabinets and tools
         const client = new Client({
-            brokerURL: 'ws://localhost:8080/ws-simulator',
+            brokerURL: (import.meta.env.VITE_WS_URL as string | undefined) ?? 'ws://localhost:8080/ws-simulator',
             onConnect: () => {
                 // In case the backOffice puts the cabinet broken
                 client.subscribe('/topic/cabinets', () => {

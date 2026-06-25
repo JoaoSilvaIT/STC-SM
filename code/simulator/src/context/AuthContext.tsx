@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import * as authApi from '../api/auth'
 import { getToken, setToken } from '../api/client'
-import type { User } from './types/domain'
+import type { User } from '@/types/domain'
 
 interface AuthState {
     user: User | null

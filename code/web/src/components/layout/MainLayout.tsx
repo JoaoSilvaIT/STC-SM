@@ -90,7 +90,7 @@ export default function MainLayout() {
     fetchInitialAlerts()
 
     const stompClient = new Client({
-      brokerURL: 'ws://localhost:8080/ws-simulator', // For now is localhost:8080
+      brokerURL: (import.meta.env.VITE_WS_URL as string | undefined) ?? 'ws://localhost:8080/ws-simulator',
       onConnect: () => {
         stompClient.subscribe('/topic/alerts', (message) => {
           const newAlert = JSON.parse(message.body);

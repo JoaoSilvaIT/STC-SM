@@ -17,3 +17,6 @@ Thumbs.db
 
 # Application Properties
 code/jvm/STC-SM-Backend/app/src/main/resources/application.properties
+
+# Local Docker Compose overrides / secrets
+.env
