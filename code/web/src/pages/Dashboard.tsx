@@ -114,10 +114,10 @@ export default function Dashboard() {
   useEffect(() => {
     let cancelled = false
 
-    Promise.all([listCabinets(), listTools(), listShifts(), listActivities()])
+    Promise.all([listCabinets(), listTools(), listShifts(), listActivities(0, 12)])
       .then(([c, t, s, a]) => {
         if (cancelled) return
-        setCabinets(c); setTools(t); setShifts(s); setActivities(a)
+        setCabinets(c); setTools(t); setShifts(s); setActivities(a.items)
       })
       .catch(err => {
         if (cancelled) return
@@ -146,9 +146,9 @@ export default function Dashboard() {
     }
 
     const handleActivitiesUpdate = () => {
-      listActivities()
+      listActivities(0, 12)
             .then(a => {
-              if (!cancelled) setActivities(a)
+              if (!cancelled) setActivities(a.items)
             })
             .catch(console.error)
     }

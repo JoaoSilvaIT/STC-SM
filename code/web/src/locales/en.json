@@ -204,6 +204,9 @@
     "colNotes": "Notes",
     "noMatch": "No records match the current filters",
     "footer": "Showing {{shown}} of {{total}} records — log is append-only per aviation safety protocol",
+    "prev": "Previous",
+    "next": "Next",
+    "pageOf": "Page {{page}} of {{total}}",
     "type": {
       "OPEN_CABINET": "Opened Cabinet",
       "CLOSE_CABINET": "Closed Cabinet",

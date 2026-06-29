@@ -29,9 +29,37 @@ function toDomain(r: ActivityResponse): Activity {
   }
 }
 
-export async function listActivities(): Promise<Activity[]> {
-  const raw = await request<ActivityResponse[]>('/api/activities', { auth: true })
-  return raw.map(toDomain)
+/** Backend PageOutputModel<T> shape. */
+interface PageResponse<T> {
+  items: T[]
+  currentPage: number
+  totalPages: number
+  totalItems: number
+}
+
+export interface ActivityPage {
+  items: Activity[]
+  currentPage: number
+  totalPages: number
+  totalItems: number
+}
+
+export async function listActivities(
+  page = 0,
+  size = 25,
+  type?: ActivityType | null,
+  cabinetId?: number | null,
+): Promise<ActivityPage> {
+  let url = `/api/activities?page=${page}&size=${size}&sort=id,desc`
+  if (type) url += `&type=${type}`
+  if (cabinetId != null) url += `&cabinetId=${cabinetId}`
+  const raw = await request<PageResponse<ActivityResponse>>(url, { auth: true })
+  return {
+    items: raw.items.map(toDomain),
+    currentPage: raw.currentPage,
+    totalPages: raw.totalPages,
+    totalItems: raw.totalItems,
+  }
 }
 
 export async function getActivity(id: number): Promise<Activity> {

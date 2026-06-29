@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { Unlock, Lock, Wrench, AlertTriangle, Search, Settings,
-  Siren, Play, Square, Filter} from 'lucide-react'
-import { listActivities } from '@/api/activities'
+  Siren, Play, Square, Filter, ChevronLeft, ChevronRight } from 'lucide-react'
+import { listActivities, type ActivityPage } from '@/api/activities'
 import { listCabinets } from '@/api/cabinets'
 import { ApiError } from '@/api/client'
 import type { Activity, ActivityType, Cabinet } from '@/types/domain'
@@ -92,36 +92,45 @@ function ActivityRow({ act, index }: { act: Activity; index: number }) {
   )
 }
 
+const PAGE_SIZE = 10
+
 export default function ActivityLog() {
   const { t } = useTranslation()
-  const [activities, setActivities] = useState<Activity[]>([])
+  const [pageData,   setPageData]   = useState<ActivityPage | null>(null)
+  const [page,       setPage]       = useState(0)
   const [cabinets,   setCabinets]   = useState<Cabinet[]>([])
   const [loading,    setLoading]    = useState(true)
   const [loadError,  setLoadError]  = useState<string | null>(null)
   const [typeF,      setTypeF]      = useState<ActivityType | 'ALL'>('ALL')
   const [cabinetF,   setCabinetF]   = useState<number | 'ALL'>('ALL')
 
+  // Cabinet list for the filter dropdown — loaded once.
   useEffect(() => {
     let cancelled = false
+    listCabinets()
+        .then(c => { if (!cancelled) setCabinets(c) })
+        .catch(() => { /* filter dropdown is best-effort */ })
+    return () => { cancelled = true }
+  }, [])
 
-    Promise.all([listActivities(), listCabinets()])
-        .then(([a, c]) => {
-          if (!cancelled) {
-            setActivities(a)
-            setCabinets(c)
-          }
-        })
+  // Current page of activities — reloaded on page or filter change; live events refresh in place.
+  useEffect(() => {
+    let cancelled = false
+    const typeArg    = typeF    === 'ALL' ? null : typeF
+    const cabinetArg = cabinetF === 'ALL' ? null : cabinetF
+
+    listActivities(page, PAGE_SIZE, typeArg, cabinetArg)
+        .then(p => { if (!cancelled) { setPageData(p); setLoadError(null) } })
         .catch(err => {
-          if (cancelled) return
-          setLoadError(err instanceof ApiError ? err.message : 'Failed to load activity log')
+          if (!cancelled) setLoadError(err instanceof ApiError ? err.message : 'Failed to load activity log')
         })
         .finally(() => {
           if (!cancelled) setLoading(false)
         })
 
     const handleActivitiesUpdate = () => {
-      listActivities()
-          .then(a => { if (!cancelled) setActivities(a) })
+      listActivities(page, PAGE_SIZE, typeArg, cabinetArg)
+          .then(p => { if (!cancelled) setPageData(p) })
           .catch(console.error)
     }
 
@@ -131,17 +140,13 @@ export default function ActivityLog() {
       cancelled = true
       window.removeEventListener('activities-updated', handleActivitiesUpdate)
     }
-  }, [])
+  }, [page, typeF, cabinetF])
 
-  const filtered = useMemo(() =>
-    activities.filter(a => {
-      if (typeF    !== 'ALL' && a.type      !== typeF)     return false
-      if (cabinetF !== 'ALL' && a.cabinetId !== cabinetF)  return false
-      return true
-    }),
-  [activities, typeF, cabinetF])
-
-  const missCount = activities.filter(a => a.type === 'TOOL_MISSING').length
+  const items       = pageData?.items       ?? []
+  const totalItems  = pageData?.totalItems  ?? 0
+  const totalPages  = pageData?.totalPages  ?? 0
+  const currentPage = pageData?.currentPage ?? 0
+  const missCount = items.filter(a => a.type === 'TOOL_MISSING').length
 
   return (
     <div className={styles.page}>
@@ -153,7 +158,7 @@ export default function ActivityLog() {
               ? t('activity.loading')
               : loadError
                 ? loadError
-                : t('activity.subtitle', { count: activities.length })}
+                : t('activity.subtitle', { count: totalItems })}
           </p>
         </div>
         <div className={styles.headRight}>
@@ -175,7 +180,7 @@ export default function ActivityLog() {
         <select
           className={styles.select}
           value={typeF}
-          onChange={e => setTypeF(e.target.value as ActivityType | 'ALL')}
+          onChange={e => { setTypeF(e.target.value as ActivityType | 'ALL'); setPage(0) }}
         >
           <option value="ALL">{t('activity.allTypes')}</option>
           {(Object.keys(TYPE_META) as ActivityType[]).map(ty => (
@@ -186,7 +191,7 @@ export default function ActivityLog() {
         <select
           className={styles.select}
           value={cabinetF}
-          onChange={e => setCabinetF(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value))}
+          onChange={e => { setCabinetF(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value)); setPage(0) }}
         >
           <option value="ALL">{t('activity.allCabinets')}</option>
           {cabinets.map(c => (
@@ -195,10 +200,30 @@ export default function ActivityLog() {
         </select>
 
         <span className={styles.filterCount}>
-          {t('activity.records', { count: filtered.length })}
+          {t('activity.records', { count: totalItems })}
         </span>
       </div>
-
+      <div className={styles.pagination}>
+        <button
+            className={styles.pageBtn}
+            disabled={currentPage <= 0}
+            onClick={() => setPage(p => Math.max(0, p - 1))}
+        >
+          <ChevronLeft size={13} />
+          {t('activity.prev')}
+        </button>
+        <span className={styles.pageInfo}>
+          {t('activity.pageOf', { page: totalPages === 0 ? 0 : currentPage + 1, total: totalPages })}
+        </span>
+        <button
+            className={styles.pageBtn}
+            disabled={currentPage >= totalPages - 1}
+            onClick={() => setPage(p => p + 1)}
+        >
+          {t('activity.next')}
+          <ChevronRight size={13} />
+        </button>
+      </div>
       <div className={styles.tableWrap}>
         <table className={styles.table}>
           <thead>
@@ -213,10 +238,10 @@ export default function ActivityLog() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((act, i) => (
+            {items.map((act, i) => (
               <ActivityRow key={act.id} act={act} index={i} />
             ))}
-            {filtered.length === 0 && (
+            {items.length === 0 && (
               <tr>
                 <td colSpan={7} className={styles.empty}>
                   {loading ? t('common.loading') : t('activity.noMatch')}
@@ -226,8 +251,9 @@ export default function ActivityLog() {
           </tbody>
         </table>
       </div>
+
       <div className={styles.footer}>
-        {t('activity.footer', { shown: filtered.length, total: activities.length })}
+        {t('activity.footer', { shown: items.length, total: totalItems })}
       </div>
     </div>
   )

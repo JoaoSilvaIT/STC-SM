@@ -26,6 +26,15 @@ class ActivityService(
 ) {
     fun getAllActivities(pageable: Pageable): Page<Activity> = activityRepo.findAll(pageable)
 
+    /** Paginated activities, optionally narrowed by type and/or cabinet. */
+    fun getActivities(type: ActivityType?, cabinetId: Int?, pageable: Pageable): Page<Activity> =
+        when {
+            type != null && cabinetId != null -> activityRepo.findByTypeAndCabinetId(type, cabinetId, pageable)
+            type != null -> activityRepo.findByType(type, pageable)
+            cabinetId != null -> activityRepo.findByCabinetId(cabinetId, pageable)
+            else -> activityRepo.findAll(pageable)
+        }
+
     fun getActivity(id: Int): Either<ActivityError, Activity> {
         val activity = activityRepo.findByIdOrNull(id) ?: return failure(ActivityError.ActivityNotFound)
         return success(activity)

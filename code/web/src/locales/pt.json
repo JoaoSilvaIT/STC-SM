@@ -204,6 +204,9 @@
     "colNotes": "Notas",
     "noMatch": "Nenhum registo corresponde aos filtros atuais",
     "footer": "A mostrar {{shown}} de {{total}} registos — o registo é apenas de adição conforme o protocolo de segurança da aviação",
+    "prev": "Anterior",
+    "next": "Seguinte",
+    "pageOf": "Página {{page}} de {{total}}",
     "type": {
       "OPEN_CABINET": "Armário Aberto",
       "CLOSE_CABINET": "Armário Fechado",

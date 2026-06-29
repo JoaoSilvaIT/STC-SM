@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.ActivityService
+import pt.isel.activity.ActivityType
 import pt.isel.model.PageOutputModel
 import pt.isel.user.User
 import pt.isel.utils.Either
@@ -21,9 +23,11 @@ class ActivityController(
     @GetMapping("/api/activities")
     fun getAllActivities(
         @Suppress("UNUSED_PARAMETER") user: User,
+        @RequestParam(required = false) type: ActivityType?,
+        @RequestParam(required = false) cabinetId: Int?,
         pageable: Pageable,
     ): ResponseEntity<PageOutputModel<ActivityOutputModel>> {
-        val result = activityService.getAllActivities(pageable).map { ActivityOutputModel.fromDomain(it) }
+        val result = activityService.getActivities(type, cabinetId, pageable).map { ActivityOutputModel.fromDomain(it) }
         return ResponseEntity
             .status(HttpStatus.OK)
             .body(PageOutputModel.fromDomain(result))
