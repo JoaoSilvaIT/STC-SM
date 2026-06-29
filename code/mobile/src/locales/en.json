@@ -2,7 +2,8 @@
   "common": {
     "loading": "Loading…",
     "cancel": "Cancel",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "tool": "Tool"
   },
   "login": {
     "sysOnline": "SYS ONLINE",

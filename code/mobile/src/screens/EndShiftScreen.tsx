@@ -8,6 +8,7 @@ import { useShift } from '../context/ShiftContext';
 import { useTheme } from '../context/ThemeContext';
 import { fonts, spacing, radius, type Palette } from '../theme';
 import ScreenHeader from '../components/ScreenHeader';
+import { useTranslation } from 'react-i18next';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'EndShift'>;
 
@@ -23,6 +24,7 @@ function shiftDuration(startTime: string): { h: string; m: string } {
 
 export default function EndShiftScreen({ navigation }: Props) {
   const { activeShift, cabinetTools, activities, endShift } = useShift();
+  const { t } = useTranslation();
   const { colors, typography, btn, layout } = useTheme();
   const s = useMemo(() => makeStyles(colors), [colors]);
   const [acknowledged, setAcknowledged] = useState(false);
@@ -46,14 +48,14 @@ export default function EndShiftScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={layout.screen} edges={['top', 'left', 'right']}>
       <ScreenHeader
-        title="End Shift"
+        title={t('endShift.title')}
         subtitle={`SH-${String(activeShift.id).padStart(4, '0')}`}
         onBack={() => navigation.goBack()}
       />
 
       <ScrollView contentContainerStyle={s.scroll}>
         <View style={s.summaryHero}>
-          <Text style={s.summaryLabel}>SHIFT SUMMARY</Text>
+          <Text style={s.summaryLabel}>{t('endShift.summary')}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 4 }}>
             <Text style={s.durBig}>{dur.h}</Text>
             <Text style={s.durUnit}>H</Text>
@@ -64,10 +66,10 @@ export default function EndShiftScreen({ navigation }: Props) {
         </View>
 
         <View style={s.statsGrid}>
-          <StatCell value={toolsTaken}    label="TAKEN"     color={colors.warn} />
-          <StatCell value={toolsReturned} label="RETURNED"  color={colors.go} />
-          <StatCell value={brokenTools.length} label="BROKEN"    color={colors.stop} muted={brokenTools.length === 0} />
-          <StatCell value={anomalies}     label="ANOMALIES" color={colors.sky}  muted={anomalies === 0} />
+          <StatCell value={toolsTaken}    label={t('endShift.taken')}     color={colors.warn} />
+          <StatCell value={toolsReturned} label={t('endShift.returned')}  color={colors.go} />
+          <StatCell value={brokenTools.length} label={t('endShift.broken')}    color={colors.stop} muted={brokenTools.length === 0} />
+          <StatCell value={anomalies}     label={t('endShift.anomalies')} color={colors.sky}  muted={anomalies === 0} />
         </View>
 
         {hasFOD ? (
@@ -77,9 +79,9 @@ export default function EndShiftScreen({ navigation }: Props) {
                 <Ionicons name="warning" size={18} color={colors.stop} />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={s.fodTitle}>FOD RISK DETECTED</Text>
+                <Text style={s.fodTitle}>{t('endShift.fodTitle')}</Text>
                 <Text style={s.fodSubtitle}>
-                  {inUseTools.length} tool{inUseTools.length !== 1 ? 's' : ''} not returned to cabinet
+                  {t('endShift.fodSubtitle', { count: inUseTools.length })}
                 </Text>
               </View>
             </View>
@@ -105,7 +107,7 @@ export default function EndShiftScreen({ navigation }: Props) {
                 {acknowledged && <Ionicons name="checkmark" size={12} color="#0A0A0A" />}
               </View>
               <Text style={[typography.small, { color: acknowledged ? colors.textHi : colors.text, flex: 1, lineHeight: 17 }]}>
-                I acknowledge FOD risk and confirm all tools are accounted for and recorded.
+                {t('endShift.ackText')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -115,8 +117,8 @@ export default function EndShiftScreen({ navigation }: Props) {
               <Ionicons name="checkmark-circle" size={20} color={colors.go} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={s.allClearTitle}>ALL TOOLS ACCOUNTED FOR</Text>
-              <Text style={s.allClearSub}>Cabinet inventory matches checkout records.</Text>
+              <Text style={s.allClearTitle}>{t('endShift.allClearTitle')}</Text>
+              <Text style={s.allClearSub}>{t('endShift.allClearSub')}</Text>
             </View>
           </View>
         )}
@@ -130,11 +132,11 @@ export default function EndShiftScreen({ navigation }: Props) {
           activeOpacity={0.85}
         >
           <Ionicons name="stop" size={14} color="#FFFFFF" />
-          <Text style={btn.dangerLabel}>Confirm End Shift</Text>
+          <Text style={btn.dangerLabel}>{t('endShift.confirm')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={[btn.ghost, { marginTop: spacing.sm }]} onPress={() => navigation.goBack()} activeOpacity={0.85}>
-          <Text style={btn.ghostLabel}>Cancel</Text>
+          <Text style={btn.ghostLabel}>{t('common.cancel')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

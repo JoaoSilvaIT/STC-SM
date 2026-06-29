@@ -12,6 +12,7 @@ import GridBackdrop from '../components/GridBackdrop';
 import Panel from '../components/Panel';
 import LED from '../components/LED';
 import SettingsDrawer from '../components/SettingsDrawer';
+import { useTranslation } from 'react-i18next';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -26,6 +27,7 @@ function useClock() {
 
 export default function HomeScreen({ navigation }: Props) {
   const { currentUser, logout } = useAuth();
+  const { t } = useTranslation();
   const { activeShift }  = useShift();
   const { colors, typography, btn, layout } = useTheme();
   const s = useMemo(() => makeStyles(colors), [colors]);
@@ -46,7 +48,7 @@ export default function HomeScreen({ navigation }: Props) {
       <View style={s.topBar}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
           <LED color={colors.go} size={6} />
-          <Text style={s.topBarText}>READY</Text>
+          <Text style={s.topBarText}>{t('home.ready')}</Text>
           <Text style={s.topBarDivider}>·</Text>
           <Text style={s.topBarText}>{currentUser?.role}</Text>
         </View>
@@ -58,24 +60,24 @@ export default function HomeScreen({ navigation }: Props) {
       <View style={s.scroll}>
         <View style={s.greetBlock}>
           <Text style={s.eyebrow}>{dateStr}</Text>
-          <Text style={s.greet}>Welcome,</Text>
+          <Text style={s.greet}>{t('home.welcome')}</Text>
           <Text style={s.greetName}>{firstName}.</Text>
         </View>
 
         <View style={s.clockRow}>
           <View style={s.clockBox}>
             <Text style={s.clockNum}>{hh}<Text style={s.clockSep}>:</Text>{mm}<Text style={s.clockSep}>:</Text>{ss}</Text>
-            <Text style={s.clockLabel}>LOCAL TIME</Text>
+            <Text style={s.clockLabel}>{t('home.localTime')}</Text>
           </View>
           <View style={s.clockBox}>
-            <Text style={[s.clockNum, { color: colors.amber }]}>{activeShift ? 'ACTIVE' : 'STAND BY'}</Text>
-            <Text style={s.clockLabel}>SHIFT STATE</Text>
+            <Text style={[s.clockNum, { color: colors.amber }]}>{activeShift ? t('home.active') : t('home.standby')}</Text>
+            <Text style={s.clockLabel}>{t('home.shiftState')}</Text>
           </View>
         </View>
 
-        <Panel label={activeShift ? "Active Shift" : "No Active Shift"} accent="amber" style={{ marginTop: spacing.lg }}>
+        <Panel label={activeShift ? t('home.activeShift') : t('home.noActiveShift')} accent="amber" style={{ marginTop: spacing.lg }}>
           <Text style={[typography.body, { color: colors.text, marginBottom: spacing.md }]}>
-            {activeShift ? 'You have an ongoing shift.' : 'Begin a new shift to access cabinet tools and report activity.'}
+            {activeShift ? t('home.ongoing') : t('home.beginPrompt')}
           </Text>
 
           <TouchableOpacity 
@@ -84,16 +86,16 @@ export default function HomeScreen({ navigation }: Props) {
             activeOpacity={0.85}
           >
             <Ionicons name={activeShift ? "settings" : "play"} size={14} color="#0A0A0A" />
-            <Text style={btn.primaryLabel}>Shift</Text>
+            <Text style={btn.primaryLabel}>{t('home.shiftBtn')}</Text>
           </TouchableOpacity>
         </Panel>
 
         <View style={s.checklist}>
-          <Text style={s.checklistLabel}>PRE-SHIFT CHECKLIST</Text>
+          <Text style={s.checklistLabel}>{t('home.checklist')}</Text>
           {[
-            { icon: 'shield-checkmark-outline' as const, text: 'Verify cabinet status before selection' },
-            { icon: 'time-outline' as const,             text: 'Ensure enough time is allocated' },
-            { icon: 'warning-outline' as const,          text: 'Return all tools before ending shift' },
+            { icon: 'shield-checkmark-outline' as const, text: t('home.check1') },
+            { icon: 'time-outline' as const,             text: t('home.check2') },
+            { icon: 'warning-outline' as const,          text: t('home.check3') },
           ].map(item => (
             <View key={item.text} style={s.checkRow}>
               <Ionicons name={item.icon} size={14} color={colors.amber} />

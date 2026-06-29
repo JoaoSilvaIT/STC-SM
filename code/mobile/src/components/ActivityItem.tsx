@@ -4,6 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import type { Activity, ActivityType } from '../types/domain';
 import { fonts, spacing, type Palette } from '../theme';
 import { useTheme } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
 const makeIconMap = (colors: Palette): Record<ActivityType, { name: keyof typeof Ionicons.glyphMap; color: string }> => ({
   SHIFT_STARTED:        { name: 'play',              color: colors.amber },
@@ -20,28 +22,28 @@ const makeIconMap = (colors: Palette): Record<ActivityType, { name: keyof typeof
   CABINET_ANOMALY:      { name: 'alert',             color: colors.stop },
 });
 
-function relTime(iso: string): string {
+function relTime(iso: string, t: TFunction): string {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
-  if (mins < 1)  return 'JUST NOW';
-  if (mins < 60) return `${mins}M AGO`;
-  return `${Math.floor(mins / 60)}H AGO`;
+  if (mins < 1)  return t('activity.time.justNow');
+  if (mins < 60) return t('activity.time.minsAgo', { count: mins });
+  return t('activity.time.hoursAgo', { count: Math.floor(mins / 60) });
 }
 
-function describeActivity(act: Activity): string {
-  const tool = act.toolName ? act.toolName : (act.toolId ? `Tool #${act.toolId}` : null);
+function describeActivity(act: Activity, t: TFunction): string {
+  const tool = act.toolName ? act.toolName : (act.toolId ? `Tool #${act.toolId}` : t('common.tool'));
   switch (act.type) {
-    case 'SHIFT_STARTED':         return 'Shift Started';
-    case 'SHIFT_ENDED':           return 'Shift Ended';
-    case 'TOOL_REMOVED':          return tool ? `${tool} Removed` : 'Tool Removed';
-    case 'TOOL_RETURNED':         return tool ? `${tool} Returned` : 'Tool Returned';
-    case 'TOOL_BROKEN':           return tool ? `${tool} Marked Broken` : 'Tool Marked Broken';
-    case 'TOOL_MISSING':          return tool ? `${tool} Marked Missing` : 'Tool Marked Missing';
-    case 'TOOL_MISSING_DETECTED': return tool ? `${tool} Missing` : 'Tool Missing';
-    case 'DOOR_OPENED':           return 'Cabinet Door Opened';
-    case 'DOOR_CLOSED':           return 'Cabinet Door Closed';
-    case 'CABINET_ONLINE':        return 'Cabinet Online';
-    case 'CABINET_OFFLINE':       return 'Cabinet Offline';
-    case 'CABINET_ANOMALY':       return 'Cabinet Anomaly';
+    case 'SHIFT_STARTED':         return t('activity.type.shiftStarted');
+    case 'SHIFT_ENDED':           return t('activity.type.shiftEnded');
+    case 'TOOL_REMOVED':          return t('activity.type.toolRemoved', { tool });
+    case 'TOOL_RETURNED':         return t('activity.type.toolReturned', { tool });
+    case 'TOOL_BROKEN':           return t('activity.type.toolBroken', { tool });
+    case 'TOOL_MISSING':          return t('activity.type.toolMissing', { tool });
+    case 'TOOL_MISSING_DETECTED': return t('activity.type.toolMissingDetected', { tool });
+    case 'DOOR_OPENED':           return t('activity.type.doorOpened');
+    case 'DOOR_CLOSED':           return t('activity.type.doorClosed');
+    case 'CABINET_ONLINE':        return t('activity.type.cabinetOnline');
+    case 'CABINET_OFFLINE':       return t('activity.type.cabinetOffline');
+    case 'CABINET_ANOMALY':       return t('activity.type.cabinetAnomaly');
   }
 }
 
@@ -52,6 +54,7 @@ interface Props {
 
 export default function ActivityItem({ activity, isLast = false }: Props) {
   const { colors, typography } = useTheme();
+  const { t } = useTranslation();
   const { name, color } = makeIconMap(colors)[activity.type];
   return (
     <View style={{ flexDirection: 'row', gap: spacing.md, minHeight: 64 }}>
@@ -81,7 +84,7 @@ export default function ActivityItem({ activity, isLast = false }: Props) {
       <View style={{ flex: 1, paddingBottom: spacing.md, gap: 2 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <Text style={[typography.body, { color: colors.textHi }]}>
-            {describeActivity(activity)}
+            {describeActivity(activity, t)}
           </Text>
           <Text style={{
             fontFamily: fonts.mono,
@@ -89,7 +92,7 @@ export default function ActivityItem({ activity, isLast = false }: Props) {
             color: colors.textDim,
             letterSpacing: 1,
           }}>
-            {relTime(activity.timestamp)}
+            {relTime(activity.timestamp, t)}
           </Text>
         </View>
         {activity.notes && (

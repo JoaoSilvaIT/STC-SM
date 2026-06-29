@@ -9,19 +9,21 @@ import { useTheme } from '../context/ThemeContext';
 import ActivityItem from '../components/ActivityItem';
 import ScreenHeader from '../components/ScreenHeader';
 import { fonts, spacing, type Palette } from '../theme';
+import { useTranslation } from 'react-i18next';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Activity'>;
 
 export default function ActivityScreen({ navigation }: Props) {
   const { activities, activeShift } = useShift();
+  const { t } = useTranslation();
   const { colors, typography, layout } = useTheme();
   const s = useMemo(() => makeStyles(colors), [colors]);
 
   return (
     <SafeAreaView style={layout.screen} edges={['top', 'left', 'right']}>
       <ScreenHeader
-        title="Activity Log"
-        subtitle={activeShift ? `SHIFT SH-${String(activeShift.id).padStart(4, '0')}` : 'NO SHIFT'}
+        title={t('activity.title')}
+        subtitle={activeShift ? t('activity.shiftCode', { id: String(activeShift.id).padStart(4, '0') }) : t('activity.noShift')}
         onBack={() => navigation.goBack()}
         trailing={
           <View style={s.countPill}>
@@ -33,9 +35,9 @@ export default function ActivityScreen({ navigation }: Props) {
       {activities.length === 0 ? (
         <View style={s.empty}>
           <Ionicons name="pulse-outline" size={36} color={colors.textDim} />
-          <Text style={[typography.label, { marginTop: spacing.md }]}>NO EVENTS YET</Text>
+          <Text style={[typography.label, { marginTop: spacing.md }]}>{t('activity.noEvents')}</Text>
           <Text style={[typography.small, { marginTop: spacing.xs }]}>
-            Activity from this shift will appear here.
+            {t('activity.emptyHint')}
           </Text>
         </View>
       ) : (

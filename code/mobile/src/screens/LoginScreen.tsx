@@ -12,11 +12,13 @@ import { fonts, spacing, radius, type Palette } from '../theme';
 import GridBackdrop from '../components/GridBackdrop';
 import Logo from '../components/Logo';
 import LED from '../components/LED';
+import { useTranslation } from 'react-i18next';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 export default function LoginScreen({ navigation }: Props) {
   const { login, loading } = useAuth();
+  const { t } = useTranslation();
   const { colors, typography, btn, layout } = useTheme();
   const s = useMemo(() => makeStyles(colors), [colors]);
   const [email, setEmail]       = useState('');
@@ -33,12 +35,12 @@ export default function LoginScreen({ navigation }: Props) {
       if (result === 'ok') {
         navigation.replace('Home');
       } else if (result === 'not_mechanic') {
-        setError('Mobile access restricted to mechanic role.');
+        setError(t('login.errNotMechanic'));
       } else {
-        setError('Invalid credentials. Verify and retry.');
+        setError(t('login.errInvalid'));
       }
     } catch {
-      setError('Network error. Check your connection.');
+      setError(t('login.errNetwork'));
     }
   }
 
@@ -54,7 +56,7 @@ export default function LoginScreen({ navigation }: Props) {
         <View style={s.statusBar}>
           <View style={s.statusItem}>
             <LED color={colors.go} size={6} />
-            <Text style={s.statusText}>SYS ONLINE</Text>
+            <Text style={s.statusText}>{t('login.sysOnline')}</Text>
           </View>
           <Text style={s.statusCode}>v1.0 · ATL-MRO</Text>
         </View>
@@ -62,15 +64,15 @@ export default function LoginScreen({ navigation }: Props) {
         <View style={s.brandBlock}>
           <Logo size={64} />
           <View style={{ height: 28 }} />
-          <Text style={s.eyebrow}>SMART TOOL CABINET</Text>
-          <Text style={s.brand}>FLIGHT LINE</Text>
+          <Text style={s.eyebrow}>{t('login.eyebrow')}</Text>
+          <Text style={s.brand}>{t('login.brand')}</Text>
           <Text style={s.tagline}>
-            Authenticated access for ground crew & line mechanics.
+            {t('login.tagline')}
           </Text>
         </View>
 
         <View style={s.formBlock}>
-          <Text style={s.fieldLabel}>OPERATOR ID</Text>
+          <Text style={s.fieldLabel}>{t('login.operatorId')}</Text>
           <View style={[s.inputWrap, emailFocus && s.inputWrapFocus]}>
             <Ionicons name="person-outline" size={16} color={emailFocus ? colors.amber : colors.textDim} />
             <TextInput
@@ -89,7 +91,7 @@ export default function LoginScreen({ navigation }: Props) {
 
           <View style={{ height: spacing.sm }} />
 
-          <Text style={s.fieldLabel}>ACCESS KEY</Text>
+          <Text style={s.fieldLabel}>{t('login.accessKey')}</Text>
           <View style={[s.inputWrap, passFocus && s.inputWrapFocus]}>
             <Ionicons name="key-outline" size={16} color={passFocus ? colors.amber : colors.textDim} />
             <TextInput
@@ -117,7 +119,7 @@ export default function LoginScreen({ navigation }: Props) {
           <View style={{ height: spacing.lg }} />
 
           <TouchableOpacity style={[btn.primary, loading && { opacity: 0.6 }]} onPress={handleLogin} disabled={loading} activeOpacity={0.85}>
-            <Text style={btn.primaryLabel}>{loading ? 'Signing In…' : 'Sign In'}</Text>
+            <Text style={btn.primaryLabel}>{loading ? t('login.signingIn') : t('login.signIn')}</Text>
             <Ionicons name="arrow-forward" size={16} color="#0A0A0A" />
           </TouchableOpacity>
         </View>
@@ -125,7 +127,7 @@ export default function LoginScreen({ navigation }: Props) {
         <View style={s.footer}>
           <View style={s.footerLine} />
           <Text style={s.footerText}>
-            Restricted system · Tampering will be logged
+            {t('login.footer')}
           </Text>
         </View>
       </View>

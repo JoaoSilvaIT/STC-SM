@@ -9,9 +9,6 @@ import pt.isel.activity.Activity
 interface ActivityRepository : JpaRepository<Activity, Int> {
     // The DTO mapper reads user, cabinet and tool, so fetch them eagerly to avoid N+1.
     @EntityGraph(attributePaths = ["user", "cabinet", "tool"])
-    override fun findAll(): List<Activity>
-
-    @EntityGraph(attributePaths = ["user", "cabinet", "tool"])
     fun findByUserId(userId: Int): List<Activity>
 
     @EntityGraph(attributePaths = ["user", "cabinet", "tool"])

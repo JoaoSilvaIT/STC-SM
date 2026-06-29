@@ -2,7 +2,8 @@
   "common": {
     "loading": "A carregar…",
     "cancel": "Cancelar",
-    "confirm": "Confirmar"
+    "confirm": "Confirmar",
+    "tool": "Ferramenta"
   },
   "login": {
     "sysOnline": "SISTEMA ONLINE",

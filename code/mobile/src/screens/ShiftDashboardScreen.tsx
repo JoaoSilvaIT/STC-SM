@@ -12,6 +12,7 @@ import GridBackdrop from '../components/GridBackdrop';
 import Panel from '../components/Panel';
 import LED from '../components/LED';
 import ScreenHeader from '../components/ScreenHeader';
+import { useTranslation } from 'react-i18next';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ShiftDashboard'>;
 
@@ -58,22 +59,22 @@ function isTimeWithinShift(startStr?: string | null, endStr?: string | null): bo
   }
 }
 
-const ANOMALY_OPTIONS: { label: string; value: ActivityType; icon: keyof typeof import('@expo/vector-icons').Ionicons.glyphMap; hint: string }[] = [
-  { label: 'Broken Tool', value: 'TOOL_BROKEN', icon: 'hammer-outline', hint: 'A tool is damaged' },
-  { label: 'Missing Tool', value: 'TOOL_MISSING', icon: 'search-outline', hint: 'A tool cannot be found' },
-  { label: 'Cabinet Anomaly', value: 'CABINET_ANOMALY', icon: 'lock-open-outline', hint: 'Issue with the cabinet hardware' },
+const ANOMALY_OPTIONS: { labelKey: string; value: ActivityType; icon: keyof typeof import('@expo/vector-icons').Ionicons.glyphMap; hintKey: string }[] = [
+  { labelKey: 'shiftDash.anomaly.brokenLabel', value: 'TOOL_BROKEN', icon: 'hammer-outline', hintKey: 'shiftDash.anomaly.brokenHint' },
+  { labelKey: 'shiftDash.anomaly.missingLabel', value: 'TOOL_MISSING', icon: 'search-outline', hintKey: 'shiftDash.anomaly.missingHint' },
+  { labelKey: 'shiftDash.anomaly.cabinetLabel', value: 'CABINET_ANOMALY', icon: 'lock-open-outline', hintKey: 'shiftDash.anomaly.cabinetHint' },
 ];
 
 type ActionRow = {
-  label: string;
-  hint: string;
+  labelKey: string;
+  hintKey: string;
   icon: keyof typeof Ionicons.glyphMap;
   screen: keyof RootStackParamList;
   accent: 'amber' | 'stop' | 'sky';
 };
 
 const ACTION_ROWS: ActionRow[] = [
-  { label: 'Activity Log',   hint: 'Shift timeline',           icon: 'pulse-outline',        screen: 'Activity', accent: 'sky'   },
+  { labelKey: 'shiftDash.activityLog',   hintKey: 'shiftDash.shiftTimeline',           icon: 'pulse-outline',        screen: 'Activity', accent: 'sky'   },
 ];
 
 const makeAccentInk = (colors: Palette): Record<ActionRow['accent'], string> => ({
@@ -84,6 +85,7 @@ const makeAccentInk = (colors: Palette): Record<ActionRow['accent'], string> => 
 
 export default function ShiftDashboardScreen({ navigation }: Props) {
   const { activeShift, assignedShift, activeCabinet, cabinetTools, logAnomaly, startShift, refreshAssignment, loading: shiftLoading } = useShift();
+  const { t } = useTranslation();
   const { colors, typography, btn, layout } = useTheme();
   const s = useMemo(() => makeStyles(colors), [colors]);
   const accentInk = makeAccentInk(colors);
@@ -114,9 +116,9 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
   if (!shift) {
     return (
         <SafeAreaView style={layout.screen}>
-          <ScreenHeader title="Shift" onBack={() => navigation.goBack()} />
+          <ScreenHeader title={t('shiftDash.title')} onBack={() => navigation.goBack()} />
           <View style={s.center}>
-            <Text style={typography.body}>No shift assigned to you.</Text>
+            <Text style={typography.body}>{t('shiftDash.noShiftAssigned')}</Text>
           </View>
         </SafeAreaView>
     );
@@ -129,8 +131,8 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
     try {
       await startShift(assignedShift);
     } catch (e) {
-      const message = e instanceof Error ? e.message : 'A operação falhou. Verifique as horas permitidas.';
-      Alert.alert("Erro de Turno", message);
+      const message = e instanceof Error ? e.message : t('shiftDash.errorGeneric');
+      Alert.alert(t('shiftDash.errorTitle'), message);
     }
   }
 
@@ -160,7 +162,7 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
             <LED color={isOngoing ? colors.go : colors.textDim} size={6} pulse={isOngoing} />
             <Text style={[s.statusText, !isOngoing && { color: colors.textMuted }]}>
-              {isOngoing ? 'ON GOING' : 'ASSIGNED'}
+              {isOngoing ? t('shiftDash.onGoing') : t('shiftDash.assigned')}
             </Text>
           </View>
           <Text style={s.statusCode}>SH-{String(shift.id).padStart(4, '0')}</Text>
@@ -171,7 +173,7 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
             <View style={s.heroAmberBar} />
             <View style={s.heroTop}>
               <View>
-                <Text style={s.heroEyebrow}>STATION</Text>
+                <Text style={s.heroEyebrow}>{t('shiftDash.station')}</Text>
                 <Text style={s.heroCabinet}>{cabinet?.name ?? '—'}</Text>
                 <Text style={s.heroLocation}>{cabinet?.location}</Text>
               </View>
@@ -179,14 +181,14 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
 
             <View style={s.timerRow}>
               <View>
-                <Text style={s.timerLabel}>SHIFT HOURS</Text>
+                <Text style={s.timerLabel}>{t('shiftDash.shiftHours')}</Text>
                 <Text style={s.timeText}>
-                  {formatTime(shift.startTime)} - {shift.endTime ? formatTime(shift.endTime) : 'TBD'}
+                  {formatTime(shift.startTime)} - {shift.endTime ? formatTime(shift.endTime) : t('shiftDash.tbd')}
                 </Text>
               </View>
               {isOngoing && (
                   <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={s.timerLabel}>ELAPSED</Text>
+                    <Text style={s.timerLabel}>{t('shiftDash.elapsed')}</Text>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
                       <Text style={s.timerBig}>{duration.h}</Text>
                       <Text style={s.timerUnit}>H</Text>
@@ -202,7 +204,7 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
           {isOngoing && (
               <>
                 <View style={{ gap: spacing.sm }}>
-                  {ACTION_ROWS.map(({ label, hint, icon, screen, accent }) => (
+                  {ACTION_ROWS.map(({ labelKey, hintKey, icon, screen, accent }) => (
                       <TouchableOpacity
                           key={screen}
                           style={s.actionRow}
@@ -213,8 +215,8 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
                           <Ionicons name={icon} size={20} color={accentInk[accent]} />
                         </View>
                         <View style={{ flex: 1 }}>
-                          <Text style={[typography.subtitle, { color: colors.textHi }]}>{label}</Text>
-                          <Text style={typography.small}>{hint}</Text>
+                          <Text style={[typography.subtitle, { color: colors.textHi }]}>{t(labelKey)}</Text>
+                          <Text style={typography.small}>{t(hintKey)}</Text>
                         </View>
                         <Ionicons name="chevron-forward" size={16} color={colors.textDim} />
                       </TouchableOpacity>
@@ -223,15 +225,15 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
 
                 <View style={{ height: spacing.md }} />
 
-                <Panel label="Report Anomaly" accent="stop">
+                <Panel label={t('shiftDash.reportAnomaly')} accent="stop">
                   {anomalySubmitted ? (
                       <View style={s.successBanner}>
                         <Ionicons name="checkmark-circle" size={20} color={colors.go} />
-                        <Text style={s.successText}>Report submitted successfully.</Text>
+                        <Text style={s.successText}>{t('shiftDash.reportSubmitted')}</Text>
                       </View>
                   ) : (
                       <View>
-                        <Text style={[typography.label, { marginBottom: spacing.sm }]}>CATEGORY</Text>
+                        <Text style={[typography.label, { marginBottom: spacing.sm }]}>{t('shiftDash.category')}</Text>
                         <View style={{ gap: spacing.sm, marginBottom: spacing.md }}>
                           {ANOMALY_OPTIONS.map(opt => {
                             const active = selectedAnomaly === opt.value;
@@ -247,9 +249,9 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
                                   </View>
                                   <View style={{ flex: 1 }}>
                                     <Text style={[typography.subtitle, { color: active ? colors.amber : colors.textHi }]}>
-                                      {opt.label}
+                                      {t(opt.labelKey)}
                                     </Text>
-                                    <Text style={typography.small}>{opt.hint}</Text>
+                                    <Text style={typography.small}>{t(opt.hintKey)}</Text>
                                   </View>
                                   <View style={[s.radio, active && s.radioActive]}>
                                     {active && <View style={s.radioDot} />}
@@ -262,7 +264,7 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
                         {isToolAnomaly && (
                           <>
                             <View style={s.toolSectionDivider} />
-                            <Text style={[typography.label, { marginBottom: spacing.sm }]}>AFFECTED TOOL</Text>
+                            <Text style={[typography.label, { marginBottom: spacing.sm }]}>{t('shiftDash.affectedTool')}</Text>
                             <View style={{ gap: spacing.sm, marginBottom: spacing.md }}>
                               {cabinetTools.map(tool => {
                                 const active = selectedTool?.id === tool.id;
@@ -294,7 +296,7 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
                             activeOpacity={0.85}
                         >
                           <Ionicons name="send" size={14} color="#FFFFFF" />
-                          <Text style={[btn.primaryLabel, { color: '#FFFFFF' }]}>Submit Report</Text>
+                          <Text style={[btn.primaryLabel, { color: '#FFFFFF' }]}>{t('shiftDash.submitReport')}</Text>
                         </TouchableOpacity>
                       </View>
                   )}
@@ -306,7 +308,7 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
                 <View style={s.stbyCard}>
                   <Ionicons name="information-circle-outline" size={24} color={colors.amber} />
                   <Text style={[typography.body, { textAlign: 'center', color: colors.text }]}>
-                    Your shift is assigned to this station. Press below to begin your work session.
+                    {t('shiftDash.standbyPrompt')}
                   </Text>
                 </View>
               </View>
@@ -317,7 +319,7 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
           {isOngoing ? (
               <TouchableOpacity style={btn.danger} onPress={() => navigation.navigate('EndShift')} activeOpacity={0.85}>
                 <Ionicons name="stop" size={14} color="#FFFFFF" />
-                <Text style={btn.dangerLabel}>End Shift</Text>
+                <Text style={btn.dangerLabel}>{t('shiftDash.endShift')}</Text>
               </TouchableOpacity>
           ) : (
               <TouchableOpacity
@@ -331,7 +333,7 @@ export default function ShiftDashboardScreen({ navigation }: Props) {
                 ) : (
                     <>
                       <Text style={btn.primaryLabel}>
-                        {isOutOfHours ? 'Outside of shift hours' : 'START SHIFT'}
+                        {isOutOfHours ? t('shiftDash.outOfHours') : t('shiftDash.startShift')}
                       </Text>
                       {!isOutOfHours && <Ionicons name="play" size={16} color="#0A0A0A" />}
                     </>

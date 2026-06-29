@@ -10,9 +10,10 @@ import { listShifts } from '@/api/shifts'
 import { listCabinets } from '@/api/cabinets'
 import { useAuth } from '@/context/AuthContext'
 import { usePrefs } from '@/context/PrefsContext'
-import type { Shift, Alert, AlertType} from '@/types/domain'
+import type { Shift, Alert } from '@/types/domain'
 import styles from './MainLayout.module.css'
 import { getUnreadAlerts, updateAlert } from '@/api/alerts'
+import { useTranslation } from 'react-i18next'
 
 const POP_UP_ICON: Record<string, React.ReactNode> = {
   LATE_START:    <Clock        size={16} color="#3b82f6" />,
@@ -20,26 +21,21 @@ const POP_UP_ICON: Record<string, React.ReactNode> = {
   OPEN_CABINET:  <DoorOpen        size={16} color="#3b82f6" />,
 }
 
-const TYPE_META: Record<AlertType, {label: string}> = {
-  LATE_START: { label: 'Clocked in late'},
-  EARLY_ENDING: { label: 'Clocked off early'},
-  OPEN_CABINET: { label: 'Cabinet opened for too long'},
-}
-
 const NAV_PRIMARY = [
-  { to: '/dashboard', label: 'Dashboard',    icon: LayoutDashboard },
-  { to: '/cabinets',  label: '  Cabinets',     icon: Package },
-  { to: '/inventory', label: 'Inventory',    icon: Wrench },
-  { to: '/activity',  label: 'Activity Log', icon: Activity },
-  { to: '/shifts',    label: 'Shifts',       icon: Clock },
+  { to: '/dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard },
+  { to: '/cabinets',  labelKey: 'nav.cabinets',  icon: Package },
+  { to: '/inventory', labelKey: 'nav.inventory', icon: Wrench },
+  { to: '/activity',  labelKey: 'nav.activity',  icon: Activity },
+  { to: '/shifts',    labelKey: 'nav.shifts',    icon: Clock },
 ]
 
 const NAV_SECONDARY_ALL = [
-  { to: '/users',    label: 'Users',    icon: Users,    adminOnly: true },
-  { to: '/settings', label: 'Settings', icon: Settings, adminOnly: false },
+  { to: '/users',    labelKey: 'nav.users',    icon: Users,    adminOnly: true },
+  { to: '/settings', labelKey: 'nav.settings', icon: Settings, adminOnly: false },
 ]
 
 export default function MainLayout() {
+  const { t }                         = useTranslation()
   const { user, logout }              = useAuth()
   const { clockFormat }               = usePrefs()
   const isAdmin                       = user?.role === 'ADMIN'
@@ -201,7 +197,7 @@ export default function MainLayout() {
                     {POP_UP_ICON[toast.type] ?? <AlertTriangle size={16} />}
                   </div>
                   <div className={styles.toastContent}>
-                    <span className={styles.toastType}>{TYPE_META[toast.type]?.label ?? 'Alert'}</span>
+                    <span className={styles.toastType}>{t(`alerts.${toast.type}`)}</span>
                     <span className={styles.toastMsg}>{toast.message}</span>
                   </div>
                   <button
@@ -222,7 +218,7 @@ export default function MainLayout() {
       <header className={styles.header}>
         <div className={styles.brand}>
           <span className={styles.brandMark}>STC·SM</span>
-          <span className={styles.brandSub}>Smart Tool Cabinets</span>
+          <span className={styles.brandSub}>{t('header.brandSub')}</span>
         </div>
 
         {/* FOD status indicator — placeholder until wired to live tool data */}
@@ -231,7 +227,7 @@ export default function MainLayout() {
         <div className={styles.headerRight}>
           <div className={styles.hStat}>
             <span className={styles.hStatVal}>{activeShifts.length}</span>
-            <span className={styles.hStatKey}>Active Shifts</span>
+            <span className={styles.hStatKey}>{t('header.activeShifts')}</span>
           </div>
           <div className={styles.hDivider} />
           {/* ── NOTIFICATIONS BELL ── */}
@@ -240,7 +236,7 @@ export default function MainLayout() {
                 <button
                     className={styles.bellBtn}
                     onClick={() => setIsBellOpen(!isBellOpen)}
-                    title="Notificações"
+                    title={t('header.notifications')}
                 >
                   <Bell size={18} className={styles.bellIcon} />
                   {alerts.length > 0 && (
@@ -252,13 +248,13 @@ export default function MainLayout() {
                 {isBellOpen && (
                     <div className={styles.bellDropdown}>
                       <div className={styles.bellHeader}>
-                        <span>Alerts</span>
-                        <span className={styles.bellCount}>{alerts.length} unread</span>
+                        <span>{t('alerts.title')}</span>
+                        <span className={styles.bellCount}>{t('alerts.unread', { count: alerts.length })}</span>
                       </div>
 
                       <div className={styles.bellList}>
                         {alerts.length === 0 ? (
-                            <div className={styles.bellEmpty}>No new alerts</div>
+                            <div className={styles.bellEmpty}>{t('alerts.empty')}</div>
                         ) : (
                             alerts.map((alert) => (
                                 <div
@@ -272,7 +268,7 @@ export default function MainLayout() {
                                     {POP_UP_ICON[alert.type] ?? <AlertTriangle size={14} />}
                                   </div>
                                   <div className={styles.bellItemContent}>
-                                    <span className={styles.bellItemTitle}>{TYPE_META[alert.type]?.label ?? 'Alert'}</span>
+                                    <span className={styles.bellItemTitle}>{t(`alerts.${alert.type}`)}</span>
                                     <span className={styles.bellItemMsg}>{alert.message}</span>
                                   </div>
                                 </div>
@@ -293,8 +289,8 @@ export default function MainLayout() {
           <button
             className={styles.logoutBtn}
             onClick={handleLogout}
-            title="Log out"
-            aria-label="Log out"
+            title={t('header.logout')}
+            aria-label={t('header.logout')}
           >
             <LogOut size={14} />
           </button>
@@ -309,8 +305,8 @@ export default function MainLayout() {
       {/* ── SIDEBAR ── */}
       <aside className={styles.sidebar}>
         <nav className={styles.nav}>
-          <span className={styles.navGroup}>Operations</span>
-          {NAV_PRIMARY.map(({ to, label, icon: Icon }) => (
+          <span className={styles.navGroup}>{t('nav.operations')}</span>
+          {NAV_PRIMARY.map(({ to, labelKey, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
@@ -319,12 +315,12 @@ export default function MainLayout() {
               }
             >
               <Icon size={15} />
-              <span>{label}</span>
+              <span>{t(labelKey)}</span>
             </NavLink>
           ))}
 
-          <span className={styles.navGroup}>System</span>
-          {navSecondary.map(({ to, label, icon: Icon }) => (
+          <span className={styles.navGroup}>{t('nav.system')}</span>
+          {navSecondary.map(({ to, labelKey, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
@@ -333,7 +329,7 @@ export default function MainLayout() {
               }
             >
               <Icon size={15} />
-              <span>{label}</span>
+              <span>{t(labelKey)}</span>
             </NavLink>
           ))}
         </nav>
