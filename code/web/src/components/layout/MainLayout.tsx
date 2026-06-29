@@ -162,10 +162,20 @@ export default function MainLayout() {
     return () => { cancelled = true }
   }, [])
 
-  const hh = clockFormat === '12h'
-    ? utcTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true, timeZone: 'UTC' })
-    : utcTime.toISOString().slice(11, 19)
-  const dd = utcTime.toISOString().slice(0, 10)
+
+  const local = clockFormat === '12h' ? 'en-US' : 'pt-PT';
+
+  const hh = utcTime.toLocaleTimeString(local, {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: clockFormat === '12h',
+    timeZone: 'Europe/Lisbon'
+  });
+
+  const dd = utcTime.toLocaleDateString('en-CA', {
+    timeZone: 'Europe/Lisbon'
+  });
 
   const handleLogout = () => {
     logout()
@@ -178,32 +188,35 @@ export default function MainLayout() {
     <div className={styles.layout}>
 
       {/* ── Popups ── */}
-      <div className={styles.toastContainer}>
-        {popUp.map((toast) => (
-            <div
-                key={toast.id}
-                className={`${styles.toast} ${styles[toast.type] ?? ''}`}
-                onClick={() => handlePopUpClick(toast.id)}
-                style={{ cursor: 'pointer' }}
-            >
-              <div className={styles.toastIconWrap}>
-                {POP_UP_ICON[toast.type] ?? <AlertTriangle size={16} />}
-              </div>
-              <div className={styles.toastContent}>
-                <span className={styles.toastType}>{TYPE_META[toast.type]?.label ?? 'Alert'}</span>
-                <span className={styles.toastMsg}>{toast.message}</span>
-              </div>
-              <button
-                  className={styles.toastClose}
-                  onClick={(e) => {
-                    closePopUp(toast.id)
-                  }}
-              >
-                <X size={14} />
-              </button>
-            </div>
-        ))}
-      </div>
+      {!isAdmin && (
+          <div className={styles.toastContainer}>
+            {popUp.map((toast) => (
+                <div
+                    key={toast.id}
+                    className={`${styles.toast} ${styles[toast.type] ?? ''}`}
+                    onClick={() => handlePopUpClick(toast.id)}
+                    style={{ cursor: 'pointer' }}
+                >
+                  <div className={styles.toastIconWrap}>
+                    {POP_UP_ICON[toast.type] ?? <AlertTriangle size={16} />}
+                  </div>
+                  <div className={styles.toastContent}>
+                    <span className={styles.toastType}>{TYPE_META[toast.type]?.label ?? 'Alert'}</span>
+                    <span className={styles.toastMsg}>{toast.message}</span>
+                  </div>
+                  <button
+                      className={styles.toastClose}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        closePopUp(toast.id)
+                      }}
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+            ))}
+          </div>
+      )}
 
       {/* ── HEADER ── */}
       <header className={styles.header}>
@@ -222,52 +235,54 @@ export default function MainLayout() {
           </div>
           <div className={styles.hDivider} />
           {/* ── NOTIFICATIONS BELL ── */}
-          <div className={styles.bellWrap}>
-            <button
-                className={styles.bellBtn}
-                onClick={() => setIsBellOpen(!isBellOpen)}
-                title="Notificações"
-            >
-              <Bell size={18} className={styles.bellIcon} />
-              {alerts.length > 0 && (
-                  <span className={styles.bellBadge}>{alerts.length}</span>
-              )}
-            </button>
+          {!isAdmin && (
+              <div className={styles.bellWrap}>
+                <button
+                    className={styles.bellBtn}
+                    onClick={() => setIsBellOpen(!isBellOpen)}
+                    title="Notificações"
+                >
+                  <Bell size={18} className={styles.bellIcon} />
+                  {alerts.length > 0 && (
+                      <span className={styles.bellBadge}>{alerts.length}</span>
+                  )}
+                </button>
 
-            {/* LIST OF NOTIFICATIONS UNREAD */}
-            {isBellOpen && (
-                <div className={styles.bellDropdown}>
-                  <div className={styles.bellHeader}>
-                    <span>Alerts</span>
-                    <span className={styles.bellCount}>{alerts.length} unread</span>
-                  </div>
+                {/* LIST OF NOTIFICATIONS UNREAD */}
+                {isBellOpen && (
+                    <div className={styles.bellDropdown}>
+                      <div className={styles.bellHeader}>
+                        <span>Alerts</span>
+                        <span className={styles.bellCount}>{alerts.length} unread</span>
+                      </div>
 
-                  <div className={styles.bellList}>
-                    {alerts.length === 0 ? (
-                        <div className={styles.bellEmpty}>No new alerts</div>
-                    ) : (
-                        alerts.map((alert) => (
-                            <div
-                                key={alert.id}
-                                className={styles.bellItem}
-                                onClick={() => {
-                                  handlePopUpClick(alert.id);
-                                }}
-                            >
-                              <div className={styles.bellItemIcon}>
-                                {POP_UP_ICON[alert.type] ?? <AlertTriangle size={14} />}
-                              </div>
-                              <div className={styles.bellItemContent}>
-                                <span className={styles.bellItemTitle}>{TYPE_META[alert.type]?.label ?? 'Alert'}</span>
-                                <span className={styles.bellItemMsg}>{alert.message}</span>
-                              </div>
-                            </div>
-                        ))
-                    )}
-                  </div>
-                </div>
-            )}
-          </div>
+                      <div className={styles.bellList}>
+                        {alerts.length === 0 ? (
+                            <div className={styles.bellEmpty}>No new alerts</div>
+                        ) : (
+                            alerts.map((alert) => (
+                                <div
+                                    key={alert.id}
+                                    className={styles.bellItem}
+                                    onClick={() => {
+                                      handlePopUpClick(alert.id);
+                                    }}
+                                >
+                                  <div className={styles.bellItemIcon}>
+                                    {POP_UP_ICON[alert.type] ?? <AlertTriangle size={14} />}
+                                  </div>
+                                  <div className={styles.bellItemContent}>
+                                    <span className={styles.bellItemTitle}>{TYPE_META[alert.type]?.label ?? 'Alert'}</span>
+                                    <span className={styles.bellItemMsg}>{alert.message}</span>
+                                  </div>
+                                </div>
+                            ))
+                        )}
+                      </div>
+                    </div>
+                )}
+              </div>
+          )}
           <div className={styles.userChip}>
             <div className={styles.userAvatar}>{initials}</div>
             <div>
@@ -286,7 +301,7 @@ export default function MainLayout() {
           <div className={styles.hDivider} />
           <div className={styles.clock}>
             <span className={styles.clockHms}>{hh}</span>
-            <span className={styles.clockDate}>{dd} UTC</span>
+            <span className={styles.clockDate}>{dd}</span>
           </div>
         </div>
       </header>

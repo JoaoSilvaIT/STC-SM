@@ -9,9 +9,16 @@ import styles from './ActivityLog.module.css'
 
 function formatTs(iso: string): { date: string; time: string } {
   const d = new Date(iso)
+
   return {
-    date: d.toISOString().slice(0, 10),
-    time: d.toISOString().slice(11, 19),
+    date: d.toLocaleDateString('en-CA', { timeZone: 'Europe/Lisbon' }),
+    time: d.toLocaleTimeString('pt-PT', {
+      timeZone: 'Europe/Lisbon',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    }),
   }
 }
 
