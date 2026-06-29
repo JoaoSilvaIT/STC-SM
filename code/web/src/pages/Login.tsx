@@ -1,11 +1,13 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Shield, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { ApiError } from '@/api/client'
 import styles from './Login.module.css'
 
 export default function Login() {
+  const { t }        = useTranslation()
   const { login }    = useAuth()
   const navigate     = useNavigate()
   const location     = useLocation()
@@ -21,7 +23,7 @@ export default function Login() {
     e.preventDefault()
     setError('')
     if (!email.trim() || !password.trim()) {
-      setError('Email and password are required.')
+      setError(t('login.errRequired'))
       return
     }
     setLoading(true)
@@ -30,11 +32,11 @@ export default function Login() {
       navigate(from, { replace: true })
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
-        setError('Invalid credentials.')
+        setError(t('login.errInvalid'))
       } else if (err instanceof ApiError) {
         setError(err.message)
       } else {
-        setError('Unable to reach the server.')
+        setError(t('login.errServer'))
       }
       setLoading(false)
     }
@@ -47,7 +49,7 @@ export default function Login() {
         {/* Brand */}
         <div className={styles.brand}>
           <span className={styles.brandMark}>STC·SM</span>
-          <span className={styles.brandSub}>Smart Tool Cabinet Management</span>
+          <span className={styles.brandSub}>{t('login.brandSub')}</span>
         </div>
 
         <div className={styles.divider} />
@@ -55,13 +57,13 @@ export default function Login() {
         {/* Title */}
         <div className={styles.titleRow}>
           <Shield size={14} className={styles.titleIcon} />
-          <span className={styles.title}>Operator Login</span>
+          <span className={styles.title}>{t('login.title')}</span>
         </div>
 
         {/* Form */}
         <form className={styles.form} onSubmit={handleSubmit} noValidate>
           <div className={styles.field}>
-            <label className={styles.label}>Email</label>
+            <label className={styles.label}>{t('login.email')}</label>
             <input
               className={styles.input}
               type="email"
@@ -74,7 +76,7 @@ export default function Login() {
           </div>
 
           <div className={styles.field}>
-            <label className={styles.label}>Password</label>
+            <label className={styles.label}>{t('login.password')}</label>
             <div className={styles.passWrap}>
               <input
                 className={styles.input}
@@ -89,7 +91,7 @@ export default function Login() {
                 className={styles.eyeBtn}
                 onClick={() => setShowPass(v => !v)}
                 tabIndex={-1}
-                aria-label={showPass ? 'Hide password' : 'Show password'}
+                aria-label={showPass ? t('login.hidePassword') : t('login.showPassword')}
               >
                 {showPass ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>
@@ -105,13 +107,12 @@ export default function Login() {
             type="submit"
             disabled={loading}
           >
-            {loading ? 'Authenticating…' : 'Log In'}
+            {loading ? t('login.authenticating') : t('login.submit')}
           </button>
         </form>
 
         <div className={styles.footer}>
-          Access restricted to authorised personnel only.
-          Contact your administrator to reset credentials.
+          {t('login.footer')}
         </div>
 
       </div>

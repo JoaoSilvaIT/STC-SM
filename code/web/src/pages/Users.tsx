@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Search, UserPlus, Shield, User, Briefcase } from 'lucide-react'
 import { createUser, listUsers, updateUserState } from '@/api/users'
 import { ApiError } from '@/api/client'
@@ -9,6 +10,7 @@ import styles from './Users.module.css'
 type RoleFilter = UserRole | 'ALL'
 
 export default function Users() {
+  const { t } = useTranslation()
   const [users,        setUsers]        = useState<UserType[]>([])
   const [loading,      setLoading]      = useState(true)
   const [loadError,    setLoadError]    = useState<string | null>(null)
@@ -55,7 +57,7 @@ export default function Users() {
     setLoadError(null)
     try {
       if (drawerMode === 'create') {
-        if (!data.password) { setLoadError('Password is required for new users'); return }
+        if (!data.password) { setLoadError(t('users.passwordRequired')); return }
         await createUser({
           name: data.name,
           email: data.email,
@@ -104,13 +106,13 @@ export default function Users() {
     <div className={styles.page}>
       <div className={styles.pageHead}>
         <div>
-          <h1 className={styles.pageTitle}>User Management</h1>
+          <h1 className={styles.pageTitle}>{t('users.title')}</h1>
           <p className={styles.pageSubtitle}>
             {loading
-              ? 'Loading users…'
+              ? t('users.loading')
               : loadError
                 ? loadError
-                : `System accounts · ${activeCount} active${inactiveCount > 0 ? ` · ${inactiveCount} inactive` : ''}`}
+                : `${t('users.subtitle', { active: activeCount })}${inactiveCount > 0 ? ` · ${t('users.inactiveSuffix', { count: inactiveCount })}` : ''}`}
           </p>
         </div>
       </div>
@@ -124,7 +126,7 @@ export default function Users() {
               className={`${styles.filterBtn} ${roleFilter === r ? styles.filterActive : ''}`}
               onClick={() => setRoleFilter(r)}
             >
-              {r === 'ALL' ? 'All Roles' : r === 'ADMIN' ? 'Admin' : r === 'BACK_OFFICE' ? 'BackOffice' : 'Mechanic'}
+              {t(`roles.${r}`)}
               <span className={styles.filterCount}>{counts[r]}</span>
             </button>
           ))}
@@ -132,7 +134,7 @@ export default function Users() {
             className={`${styles.filterBtn} ${showInactive ? styles.filterActive : ''}`}
             onClick={() => setShowInactive(v => !v)}
           >
-            Show Inactive
+            {t('users.showInactive')}
           </button>
         </div>
 
@@ -141,7 +143,7 @@ export default function Users() {
             <Search size={13} className={styles.searchIcon} />
             <input
               type="text"
-              placeholder="Search name or email…"
+              placeholder={t('users.searchPlaceholder')}
               value={search}
               onChange={e => setSearch(e.target.value)}
               className={styles.searchInput}
@@ -149,7 +151,7 @@ export default function Users() {
           </div>
           <button className={styles.addBtn} onClick={() => setDrawerMode('create')}>
             <UserPlus size={13} />
-            Add User
+            {t('users.addUser')}
           </button>
         </div>
       </div>
@@ -159,17 +161,17 @@ export default function Users() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>{t('users.colName')}</th>
+              <th>{t('users.colEmail')}</th>
+              <th>{t('users.colRole')}</th>
+              <th>{t('users.colStatus')}</th>
+              <th>{t('users.colActions')}</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={5} className={styles.empty}>No users match the current filters</td>
+                <td colSpan={5} className={styles.empty}>{t('users.noMatch')}</td>
               </tr>
             ) : filtered.map(user => (
               <tr
@@ -189,7 +191,7 @@ export default function Users() {
                 <td><StatusPill isActive={user.isActive} /></td>
                 <td>
                   <button className={styles.editBtn} onClick={() => openEdit(user)}>
-                    Edit
+                    {t('users.edit')}
                   </button>
                 </td>
               </tr>
@@ -198,7 +200,7 @@ export default function Users() {
         </table>
       </div>
       <div className={styles.tableFooter}>
-        Showing {filtered.length} of {users.length} users
+        {t('users.showing', { shown: filtered.length, total: users.length })}
       </div>
 
       <UserDrawer
@@ -213,18 +215,20 @@ export default function Users() {
 }
 
 function RoleBadge({ role }: { role: UserRole }) {
+  const { t } = useTranslation()
   return (
     <span className={`${styles.roleBadge} ${role === 'ADMIN' ? styles.roleAdmin : role === 'BACK_OFFICE' ? styles.roleBack : styles.roleMech}`}>
       {role === 'ADMIN' ? <Shield size={10} /> : role === 'BACK_OFFICE' ? <Briefcase size={10} /> : <User size={10} />}
-      {role === 'ADMIN' ? 'Admin' : role === 'BACK_OFFICE' ? 'BackOffice' : 'Mechanic'}
+      {t(`roles.${role}`)}
     </span>
   )
 }
 
 function StatusPill({ isActive }: { isActive: boolean }) {
+  const { t } = useTranslation()
   return (
     <span className={`${styles.pill} ${isActive ? styles.pillActive : styles.pillInactive}`}>
-      {isActive ? 'Active' : 'Inactive'}
+      {t(`status.${isActive ? 'ACTIVE' : 'INACTIVE'}`)}
     </span>
   )
 }

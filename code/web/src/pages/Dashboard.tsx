@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { Wrench, Package, AlertTriangle, Play } from 'lucide-react'
 import { listCabinets } from '@/api/cabinets'
 import { listTools } from '@/api/tools'
@@ -8,31 +10,31 @@ import { ApiError } from '@/api/client'
 import type { Activity, Cabinet, Shift, Tool } from '@/types/domain'
 import styles from './Dashboard.module.css'
 
-function relTime(iso: string): string {
+function relTime(iso: string, t: TFunction): string {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000)
-  if (mins < 1)  return 'just now'
-  if (mins < 60) return `${mins}m ago`
+  if (mins < 1)  return t('dashboard.time.justNow')
+  if (mins < 60) return t('dashboard.time.minsAgo', { count: mins })
   const hrs = Math.floor(mins / 60)
-  if (hrs < 24)  return `${hrs}h ago`
-  return `${Math.floor(hrs / 24)}d ago`
+  if (hrs < 24)  return t('dashboard.time.hoursAgo', { count: hrs })
+  return t('dashboard.time.daysAgo', { count: Math.floor(hrs / 24) })
 }
 
-function describeActivity(act: Activity): string {
+function describeActivity(act: Activity, t: TFunction): string {
   const cab = act.cabinetName ?? (act.cabinetId ? `CAB-${String(act.cabinetId).padStart(3, '0')}` : '—')
-  const tool = act.toolName ?? (act.toolId != null ? `Tool #${act.toolId}` : null)
+  const toolName = act.toolName ?? (act.toolId != null ? `Tool #${act.toolId}` : t('common.tool'))
   switch (act.type) {
-    case 'OPEN_CABINET':        return `${cab} door opened`
-    case 'CLOSE_CABINET':       return `${cab} door secured`
-    case 'REMOVE_TOOL':         return `${tool ?? 'Tool'} removed from ${cab}`
-    case 'RETURN_TOOL':         return `${tool ?? 'Tool'} returned to ${cab}`
-    case 'TOOL_BROKEN':         return `${tool ?? 'Tool'} reported broken in ${cab}`
-    case 'TOOL_MISSING':        return `${tool ?? 'Tool'} reported missing in ${cab}`
-    case 'TOOL_IN_MAINTENANCE': return `${tool ?? 'Tool'} sent for maintenance`
-    case 'CABINET_ANOMALY':     return `Anomaly detected on ${cab}`
-    case 'CABINET_BROKEN':      return `${cab} reported broken`
-    case 'STARTED_SHIFT':       return `Shift started on ${cab}`
-    case 'ENDED_SHIFT':         return `Shift ended on ${cab}`
-    default:                    return `Event on ${cab}`
+    case 'OPEN_CABINET':        return t('dashboard.activity.openCabinet', { cab })
+    case 'CLOSE_CABINET':       return t('dashboard.activity.closeCabinet', { cab })
+    case 'REMOVE_TOOL':         return t('dashboard.activity.removeTool', { tool: toolName, cab })
+    case 'RETURN_TOOL':         return t('dashboard.activity.returnTool', { tool: toolName, cab })
+    case 'TOOL_BROKEN':         return t('dashboard.activity.toolBroken', { tool: toolName, cab })
+    case 'TOOL_MISSING':        return t('dashboard.activity.toolMissing', { tool: toolName, cab })
+    case 'TOOL_IN_MAINTENANCE': return t('dashboard.activity.toolMaintenance', { tool: toolName })
+    case 'CABINET_ANOMALY':     return t('dashboard.activity.cabinetAnomaly', { cab })
+    case 'CABINET_BROKEN':      return t('dashboard.activity.cabinetBroken', { cab })
+    case 'STARTED_SHIFT':       return t('dashboard.activity.shiftStarted', { cab })
+    case 'ENDED_SHIFT':         return t('dashboard.activity.shiftEnded', { cab })
+    default:                    return t('dashboard.activity.default', { cab })
   }
 }
 
@@ -43,6 +45,7 @@ interface CabinetCardProps {
 }
 
 function CabinetCard({ cabinet, tools, activeShift }: CabinetCardProps) {
+  const { t } = useTranslation()
   const avail = tools.filter(t => t.status === 'AVAILABLE').length
   const inUse = tools.filter(t => t.status === 'IN_USE').length
   const miss  = tools.filter(t => t.status === 'MISSING').length
@@ -66,7 +69,7 @@ function CabinetCard({ cabinet, tools, activeShift }: CabinetCardProps) {
           cabinet.status === 'INACTIVE'  ? styles.badgeOffline :
               styles.badgeMaint
         }>
-          {cabinet.status}
+          {t(`status.${cabinet.status}`)}
         </span>
       </div>
 
@@ -78,8 +81,8 @@ function CabinetCard({ cabinet, tools, activeShift }: CabinetCardProps) {
             {miss  > 0 && <div className={`${styles.seg}`} style={{ flex: miss, background: 'var(--risk, #d33)' }} />}
           </div>
           <div className={styles.toolCounts}>
-            <span className={styles.countAvail}>{avail}<em>Stored Tools</em></span>
-            <span className={styles.countInUse}>{inUse}<em>In Use Tools</em></span>
+            <span className={styles.countAvail}>{avail}<em>{t('dashboard.storedTools')}</em></span>
+            <span className={styles.countInUse}>{inUse}<em>{t('dashboard.inUseTools')}</em></span>
             {miss > 0 && <span style={{ color: 'var(--risk, #d33)' }}>{miss}<em>M</em></span>}
           </div>
         </>
@@ -92,7 +95,7 @@ function CabinetCard({ cabinet, tools, activeShift }: CabinetCardProps) {
             <span>{activeShift.userName ?? `User #${activeShift.userId}`}</span>
           </div>
         ) : (
-          <span className={styles.noShift}>No active shift</span>
+          <span className={styles.noShift}>{t('dashboard.noActiveShift')}</span>
         )}
       </div>
     </div>
@@ -100,6 +103,7 @@ function CabinetCard({ cabinet, tools, activeShift }: CabinetCardProps) {
 }
 
 export default function Dashboard() {
+  const { t } = useTranslation()
   const [cabinets,   setCabinets]   = useState<Cabinet[]>([])
   const [tools,      setTools]      = useState<Tool[]>([])
   const [shifts,     setShifts]     = useState<Shift[]>([])
@@ -174,9 +178,9 @@ export default function Dashboard() {
     <div className={styles.page}>
       <div className={styles.pageHead}>
         <div>
-          <h1 className={styles.pageTitle}>Operations Overview</h1>
+          <h1 className={styles.pageTitle}>{t('dashboard.title')}</h1>
           <p className={styles.pageTs}>
-            {loading ? 'Loading…' : loadError ? loadError : now}
+            {loading ? t('common.loading') : loadError ? loadError : now}
           </p>
         </div>
       </div>
@@ -188,8 +192,8 @@ export default function Dashboard() {
           </div>
           <div className={styles.statBody}>
             <span className={styles.statVal}>{tools.length}</span>
-            <span className={styles.statLabel}>Tools Tracked</span>
-            <span className={styles.statSub}>{inUseTools.length} in use</span>
+            <span className={styles.statLabel}>{t('dashboard.toolsTracked')}</span>
+            <span className={styles.statSub}>{t('dashboard.inUse', { count: inUseTools.length })}</span>
           </div>
         </div>
 
@@ -199,8 +203,8 @@ export default function Dashboard() {
           </div>
           <div className={styles.statBody}>
             <span className={styles.statVal}>{activeShifts.length}</span>
-            <span className={styles.statLabel}>Active Shifts</span>
-            <span className={styles.statSub}>{shifts.length} total</span>
+            <span className={styles.statLabel}>{t('dashboard.activeShifts')}</span>
+            <span className={styles.statSub}>{t('dashboard.totalShifts', { count: shifts.length })}</span>
           </div>
         </div>
 
@@ -212,8 +216,8 @@ export default function Dashboard() {
             <span className={`${styles.statVal} ${missingTools.length === 0 ? styles.statValClear : ''}`}>
               {missingTools.length}
             </span>
-            <span className={styles.statLabel}>Missing Tools</span>
-            <span className={styles.statSub}>{missingTools.length === 0 ? 'All accounted for' : 'FOD risk'}</span>
+            <span className={styles.statLabel}>{t('dashboard.missingTools')}</span>
+            <span className={styles.statSub}>{missingTools.length === 0 ? t('dashboard.allAccounted') : t('dashboard.fodRisk')}</span>
           </div>
         </div>
 
@@ -226,9 +230,9 @@ export default function Dashboard() {
               {cabinets.filter(c => ['OPEN', 'CLOSED'].includes(c.status)).length}
               <span className={styles.statOf}>/{cabinets.length}</span>
             </span>
-            <span className={styles.statLabel}>Cabinets Online</span>
+            <span className={styles.statLabel}>{t('dashboard.cabinetsOnline')}</span>
             <span className={styles.statSub}>
-              {cabinets.filter(c => !['OPEN', 'CLOSED'].includes(c.status)).length} offline / maint.
+              {t('dashboard.offlineMaint', { count: cabinets.filter(c => !['OPEN', 'CLOSED'].includes(c.status)).length })}
             </span>
           </div>
         </div>
@@ -237,8 +241,8 @@ export default function Dashboard() {
       <div className={styles.contentGrid}>
         <section className={styles.section}>
           <div className={styles.sectionHead}>
-            <span className={styles.sectionTitle}>Cabinet Status</span>
-            <span className={styles.sectionBadge}>{cabinets.length} units</span>
+            <span className={styles.sectionTitle}>{t('dashboard.cabinetStatus')}</span>
+            <span className={styles.sectionBadge}>{t('dashboard.units', { count: cabinets.length })}</span>
           </div>
           <div className={styles.cabGrid}>
             {cabinets.map(c => (
@@ -254,13 +258,13 @@ export default function Dashboard() {
 
         <section className={styles.section}>
           <div className={styles.sectionHead}>
-            <span className={styles.sectionTitle}>Recent Activity</span>
-            <span className={styles.badgeLive}>Live</span>
+            <span className={styles.sectionTitle}>{t('dashboard.recentActivity')}</span>
+            <span className={styles.badgeLive}>{t('dashboard.live')}</span>
           </div>
           <div className={styles.feed}>
             {recent.length === 0 ? (
               <div style={{ padding: '1rem', color: 'var(--text-muted)', fontSize: '.8rem' }}>
-                {loading ? 'Loading…' : 'No activity recorded yet.'}
+                {loading ? t('common.loading') : t('dashboard.noActivity')}
               </div>
             ) : recent.map(act => {
               const isReturn = act.type === 'RETURN_TOOL'
@@ -272,9 +276,9 @@ export default function Dashboard() {
                 >
                   <div className={`${styles.feedDot} ${isReturn ? styles.dotClear : styles.dotNeonGreen}`} />
                   <div className={styles.feedBody}>
-                    <span className={styles.feedDesc}>{describeActivity(act)}</span>
+                    <span className={styles.feedDesc}>{describeActivity(act, t)}</span>
                   </div>
-                  <span className={styles.feedTime}>{relTime(act.timestamp)}</span>
+                  <span className={styles.feedTime}>{relTime(act.timestamp, t)}</span>
                 </div>
               )
             })}

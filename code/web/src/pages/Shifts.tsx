@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Clock, Package, User, Square, AlertTriangle, Edit2 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { listShifts, endShift, editShiftHours } from '@/api/shifts'
@@ -54,6 +55,7 @@ function ShiftCard({
                      shift, currentUserId, isBackOffice,
                      isConfirming, onRequestEnd, onConfirmEnd, onCancelEnd, onEdit
                    }: ShiftCardProps) {
+  const { t } = useTranslation()
   const userName    = shift.userName    ?? `User #${shift.userId}`
   const cabinetName = shift.cabinetName ?? `Cabinet #${shift.cabinetId}`
   const isActive    = shift.status === 'ACTIVE'
@@ -63,7 +65,7 @@ function ShiftCard({
       <div className={styles.card}>
         <div
             className={`${styles.statusDot} ${isActive ? styles.dotActive : styles.dotInactive}`}
-            title={isActive ? 'Active Shift' : 'Inactive Shift'}
+            title={isActive ? t('shifts.activeShift') : t('shifts.inactiveShift')}
         />
 
         <div className={styles.cardHead}>
@@ -74,7 +76,7 @@ function ShiftCard({
           </div>
 
           {isBackOffice &&
-              <button className={styles.editBtn} onClick={onEdit} title="Edit Shift Times">
+              <button className={styles.editBtn} onClick={onEdit} title={t('shifts.editTimes')}>
                 <Edit2 size={14} />
               </button>
           }
@@ -84,37 +86,37 @@ function ShiftCard({
           <div className={styles.metaItem}>
             <User size={11} className={styles.metaIcon} />
             <div>
-              <span className={styles.metaKey}>Mechanic</span>
+              <span className={styles.metaKey}>{t('shifts.mechanic')}</span>
               <span className={styles.metaVal}>{userName}</span>
             </div>
           </div>
           <div className={styles.metaItem}>
             <Package size={11} className={styles.metaIcon} />
             <div>
-              <span className={styles.metaKey}>Cabinet</span>
+              <span className={styles.metaKey}>{t('shifts.cabinet')}</span>
               <span className={styles.metaVal}>{cabinetName}</span>
             </div>
           </div>
           <div className={styles.metaItem}>
             <Clock size={11} className={styles.metaIcon} />
             <div>
-              <span className={styles.metaKey}>Duration</span>
+              <span className={styles.metaKey}>{t('shifts.duration')}</span>
               <span className={`${styles.metaVal} ${isActive ? styles.metaValActive : ''}`}>
               {formatDuration(shift.startTime, shift.endTime)}
             </span>
-              <span className={styles.metaSub}>{isActive ? 'ongoing' : 'inactive'}</span>
+              <span className={styles.metaSub}>{isActive ? t('shifts.ongoing') : t('shifts.inactive')}</span>
             </div>
           </div>
         </div>
 
         <div className={styles.timeline}>
           <div className={styles.timelineRow}>
-            <span className={styles.tlKey}>Start</span>
+            <span className={styles.tlKey}>{t('shifts.start')}</span>
             <span className={styles.tlVal}>{formatTime(shift.startTime)}</span>
           </div>
           {shift.endTime && (
               <div className={styles.timelineRow}>
-                <span className={styles.tlKey}>End</span>
+                <span className={styles.tlKey}>{t('shifts.end')}</span>
                 <span className={styles.tlVal}>{formatTime(shift.endTime)}</span>
               </div>
           )}
@@ -126,14 +128,14 @@ function ShiftCard({
                   <div className={styles.endConfirm}>
                     <AlertTriangle size={12} className={styles.endConfirmIcon} />
                     <span className={styles.endConfirmText}>
-                End shift for {shift.aircraftReg || cabinetName}? This locks {cabinetName}.
+                {t('shifts.endConfirm', { name: shift.aircraftReg || cabinetName, cabinet: cabinetName })}
               </span>
-                    <button className={styles.endConfirmYes} onClick={onConfirmEnd}>Confirm</button>
-                    <button className={styles.endConfirmNo}  onClick={onCancelEnd}>Cancel</button>
+                    <button className={styles.endConfirmYes} onClick={onConfirmEnd}>{t('shifts.confirm')}</button>
+                    <button className={styles.endConfirmNo}  onClick={onCancelEnd}>{t('shifts.cancel')}</button>
                   </div>
               ) : (
                   <button className={styles.endBtn} onClick={onRequestEnd}>
-                    <Square size={11} /> End Shift
+                    <Square size={11} /> {t('shifts.endShift')}
                   </button>
               )}
             </div>
@@ -143,6 +145,7 @@ function ShiftCard({
 }
 
 export default function Shifts() {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const [shifts,       setShifts]       = useState<Shift[]>([])
   const [cabinets,     setCabinets]     = useState<Cabinet[]>([])
@@ -214,24 +217,24 @@ export default function Shifts() {
       <div className={styles.page}>
         <div className={styles.pageHead}>
           <div>
-            <h1 className={styles.pageTitle}>Shift Management</h1>
+            <h1 className={styles.pageTitle}>{t('shifts.title')}</h1>
             <p className={styles.pageSubtitle}>
               {loading
-                  ? 'Loading shifts…'
+                  ? t('shifts.loading')
                   : loadError
                       ? loadError
-                      : `${shifts.length} total mechanics · ${active.length} active · ${inactive.length} inactive`}
+                      : t('shifts.subtitle', { total: shifts.length, active: active.length, inactive: inactive.length })}
             </p>
 
             {!loading && !loadError && (
                 <div className={styles.legend}>
                   <div className={styles.legendItem}>
                     <span className={`${styles.statusDot} ${styles.dotActive}`} style={{ position: 'static' }} />
-                    <span>Clocked In</span>
+                    <span>{t('shifts.clockedIn')}</span>
                   </div>
                   <div className={styles.legendItem}>
                     <span className={`${styles.statusDot} ${styles.dotInactive}`} style={{ position: 'static' }} />
-                    <span>Clocked Out</span>
+                    <span>{t('shifts.clockedOut')}</span>
                   </div>
                 </div>
             )}
@@ -245,7 +248,7 @@ export default function Shifts() {
         <div className={styles.section}>
           <div className={styles.cards}>
             {shifts.length === 0 && !loading
-                ? <div className={styles.empty}>No shifts found</div>
+                ? <div className={styles.empty}>{t('shifts.noShifts')}</div>
                 : shifts.map(s => (
                     <ShiftCard
                         key={s.id}

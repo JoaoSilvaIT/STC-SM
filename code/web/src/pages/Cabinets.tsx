@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Play, Lock, Unlock, Plus, Pencil, Settings } from 'lucide-react'
 import { createCabinet, listCabinets, updateCabinet } from '@/api/cabinets'
 import { listTools } from '@/api/tools'
@@ -23,6 +24,7 @@ interface CabinetPanelProps {
 }
 
 function CabinetPanel({ cabinet, tools, activeShift, onEdit }: CabinetPanelProps) {
+  const { t } = useTranslation()
   const avail = tools.filter(t => t.status === 'AVAILABLE').length
   const inUse = tools.filter(t => t.status === 'IN_USE').length
   const miss  = tools.filter(t => t.status === 'MISSING').length
@@ -50,7 +52,7 @@ function CabinetPanel({ cabinet, tools, activeShift, onEdit }: CabinetPanelProps
             </div>
           </div>
           <div className={styles.panelActions}>
-            <button className={styles.editBtn} onClick={onEdit} title="Edit cabinet">
+            <button className={styles.editBtn} onClick={onEdit} title={t('cabinets.editCabinet')}>
               <Pencil size={12} />
             </button>
             <div className={styles.lockIcon}>
@@ -72,18 +74,18 @@ function CabinetPanel({ cabinet, tools, activeShift, onEdit }: CabinetPanelProps
             {cabinet.status === 'CLOSED'   && <Lock size={10} />}
             {cabinet.status === 'INACTIVE' && <Settings size={10} />}
 
-            {cabinet.status}
+            {t(`status.${cabinet.status}`)}
         </span>
           {miss > 0 && (
-              <span className={styles.missAlert}>⚠ {miss} MISSING</span>
+              <span className={styles.missAlert}>⚠ {t('cabinets.missing', { count: miss })}</span>
           )}
         </div>
 
         {isOnline && total > 0 && (
             <div className={styles.gauge}>
               <div className={styles.gaugeLabel}>
-                <span className={styles.gaugeLabelText}>Tool Inventory</span>
-                <span className={styles.gaugeFraction}>{avail}/{total} available</span>
+                <span className={styles.gaugeLabelText}>{t('cabinets.toolInventory')}</span>
+                <span className={styles.gaugeFraction}>{t('cabinets.available', { avail, total })}</span>
               </div>
               <div className={styles.gaugeBar}>
                 {avail > 0 && <div className={`${styles.gaugeSeg} ${styles.gsAvail}`} style={{ flex: avail }} />}
@@ -92,17 +94,17 @@ function CabinetPanel({ cabinet, tools, activeShift, onEdit }: CabinetPanelProps
                 {maint > 0 && <div className={`${styles.gaugeSeg} ${styles.gsMaint}`} style={{ flex: maint }} />}
               </div>
               <div className={styles.gaugeLegend}>
-                <span className={styles.legAvail}>{avail} Available </span>
-                <span className={styles.legInUse}>{inUse} In Use</span>
-                {miss  > 0 && <span className={styles.legMiss}>{miss} Missing</span>}
-                {maint > 0 && <span className={styles.legMaint}>{maint} Maint.</span>}
+                <span className={styles.legAvail}>{t('cabinets.legAvailable', { count: avail })} </span>
+                <span className={styles.legInUse}>{t('cabinets.legInUse', { count: inUse })}</span>
+                {miss  > 0 && <span className={styles.legMiss}>{t('cabinets.legMissing', { count: miss })}</span>}
+                {maint > 0 && <span className={styles.legMaint}>{t('cabinets.legMaint', { count: maint })}</span>}
               </div>
             </div>
         )}
 
         {!isOnline && (
             <div className={styles.offlineMsg}>
-              Cabinet is inactive (under maintenance or setup).
+              {t('cabinets.offlineMsg')}
             </div>
         )}
 
@@ -110,22 +112,22 @@ function CabinetPanel({ cabinet, tools, activeShift, onEdit }: CabinetPanelProps
           {activeShift ? (
               <>
                 <div className={styles.shiftLabel}>
-                  <Play size={10} /><span>Active Shift</span>
+                  <Play size={10} /><span>{t('cabinets.activeShift')}</span>
                 </div>
                 <div className={styles.shiftInfo}>
                   <div className={styles.shiftRow}>
-                    <span className={styles.shiftKey}>Mechanic</span>
+                    <span className={styles.shiftKey}>{t('cabinets.mechanic')}</span>
                     <span className={styles.shiftVal}>{activeShift.userName ?? `User #${activeShift.userId}`}</span>
                   </div>
                   <div className={styles.shiftRow}>
-                    <span className={styles.shiftKey}>Duration</span>
+                    <span className={styles.shiftKey}>{t('cabinets.duration')}</span>
                     <span className={styles.shiftVal}>{shiftDuration(activeShift.startTime)}</span>
                   </div>
                 </div>
               </>
           ) : (
               <div className={styles.noShift}>
-                <Lock size={11} /><span>No active shift — cabinet locked</span>
+                <Lock size={11} /><span>{t('cabinets.noActiveShift')}</span>
               </div>
           )}
         </div>
@@ -135,6 +137,7 @@ function CabinetPanel({ cabinet, tools, activeShift, onEdit }: CabinetPanelProps
 }
 
 export default function Cabinets() {
+  const { t } = useTranslation()
   const [cabinets,        setCabinets]        = useState<Cabinet[]>([])
   const [tools,           setTools]           = useState<Tool[]>([])
   const [shifts,          setShifts]          = useState<Shift[]>([])
@@ -240,26 +243,26 @@ export default function Cabinets() {
     <div className={styles.page}>
       <div className={styles.pageHead}>
         <div>
-          <h1 className={styles.pageTitle}>Cabinet Status</h1>
+          <h1 className={styles.pageTitle}>{t('cabinets.title')}</h1>
           <p className={styles.pageSubtitle}>
-            {cabinetsOnline}/{cabinets.filter(c => c.status !== 'BROKEN').length} online
-            {missing > 0 ? ` · ${missing} tools missing` : ' · all tools accounted for'}
+            {t('cabinets.online', { online: cabinetsOnline, total: cabinets.filter(c => c.status !== 'BROKEN').length })}
+            {missing > 0 ? ` · ${t('cabinets.toolsMissing', { count: missing })}` : ` · ${t('cabinets.allAccounted')}`}
           </p>
         </div>
         <button className={styles.addBtn} onClick={() => setDrawerMode('create')}>
           <Plus size={14} />
-          Add Cabinet
+          {t('cabinets.addCabinet')}
         </button>
       </div>
 
       <div className={styles.legend}>
-        <span className={styles.legItem}><span className={`${styles.legDot} ${styles.ldGreen}`}  /> Online</span>
-        <span className={styles.legItem}><span className={`${styles.legDot} ${styles.ldAmber}`} /> Maintenance</span>
-        <span className={styles.legItem}><span className={`${styles.legDot} ${styles.ldRed}`}   /> Missing tools</span>
+        <span className={styles.legItem}><span className={`${styles.legDot} ${styles.ldGreen}`}  /> {t('cabinets.legendOnline')}</span>
+        <span className={styles.legItem}><span className={`${styles.legDot} ${styles.ldAmber}`} /> {t('cabinets.legendMaintenance')}</span>
+        <span className={styles.legItem}><span className={`${styles.legDot} ${styles.ldRed}`}   /> {t('cabinets.legendMissing')}</span>
       </div>
 
       {loading ? (
-        <div className={styles.legend}>Loading cabinets…</div>
+        <div className={styles.legend}>{t('cabinets.loading')}</div>
       ) : loadError ? (
         <div className={styles.legend} style={{ color: 'var(--color-danger, #c00)' }}>{loadError}</div>
       ) : (

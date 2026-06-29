@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   User, Shield, Monitor, Info,
   Check, ChevronRight, Sun, Moon,
@@ -8,44 +9,55 @@ import { usePrefs } from '@/context/PrefsContext'
 import type { UserRole } from '@/types/domain'
 import styles from './Settings.module.css'
 
-// ── Role permission definitions ───────────────────────────────────────────────
+// ── Role permission definitions (translation keys, resolved via t() below) ────
 
 const ROLE_PERMISSIONS: Record<UserRole, { can: string[]; cannot: string[] }> = {
   ADMIN: {
     can: [
-      'View all cabinets, tools, shifts and activities',
-      'Create, edit and deactivate user accounts',
-      'Add and manage tool cabinets',
-      'Add and manage tools in inventory',
-      'View full audit log',
-      'Access system settings',
+      'settings.perm.viewAll',
+      'settings.perm.manageUsers',
+      'settings.perm.manageCabinets',
+      'settings.perm.manageTools',
+      'settings.perm.viewFullAudit',
+      'settings.perm.accessSettings',
     ],
     cannot: [],
   },
   MECHANIC: {
     can: [
-      'View cabinet status and tool inventory',
-      'Start and end shifts',
-      'View activity log for own shifts',
+      'settings.perm.viewCabinetTool',
+      'settings.perm.startEndShifts',
+      'settings.perm.viewOwnActivity',
     ],
     cannot: [
-      'Manage user accounts',
-      'Add or edit cabinets or tools',
-      'Access system settings',
+      'settings.perm.noManageUsers',
+      'settings.perm.noEditCabinetsTools',
+      'settings.perm.noAccessSettings',
     ],
   },
   BACK_OFFICE: {
     can: [
-      'View cabinets, tools, shifts and activity log',
-      'Generate reports',
+      'settings.perm.viewResources',
+      'settings.perm.generateReports',
     ],
     cannot: [
-      'Manage user accounts',
-      'Add or edit cabinets or tools',
-      'Access system settings',
+      'settings.perm.noManageUsers',
+      'settings.perm.noEditCabinetsTools',
+      'settings.perm.noAccessSettings',
     ],
   },
 }
+
+// System rows: `ok` drives the styling, `value`/`valueKey` the (translatable) text.
+const SYS_ROWS: { labelKey: string; value?: string; valueKey?: string; ok: boolean }[] = [
+  { labelKey: 'settings.system.application', value: 'STC-SM',                          ok: false },
+  { labelKey: 'settings.system.version',     value: '0.1.0-dev',                       ok: false },
+  { labelKey: 'settings.system.environment', valueKey: 'settings.system.development',  ok: false },
+  { labelKey: 'settings.system.api',         valueKey: 'settings.system.operational',  ok: true  },
+  { labelKey: 'settings.system.rfid',        valueKey: 'settings.system.operational',  ok: true  },
+  { labelKey: 'settings.system.database',    valueKey: 'settings.system.connected',    ok: true  },
+  { labelKey: 'settings.system.auditLog',    valueKey: 'settings.system.active',       ok: true  },
+]
 
 // ── Section wrapper ───────────────────────────────────────────────────────────
 
@@ -70,9 +82,10 @@ function Section({
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function Settings() {
+  const { t } = useTranslation()
   const { user }                          = useAuth()
-  const { clockFormat, compactMode, theme,
-          setClockFormat, setCompactMode, setTheme } = usePrefs()
+  const { clockFormat, compactMode, theme, language,
+          setClockFormat, setCompactMode, setTheme, setLanguage } = usePrefs()
 
   const [profileName,    setProfileName]    = useState(user?.name ?? '')
   const [profileEmail,   setProfileEmail]   = useState(user?.email ?? '')
@@ -90,8 +103,8 @@ export default function Settings() {
   return (
     <div className={styles.page}>
       <div className={styles.pageHead}>
-        <h1 className={styles.pageTitle}>Settings</h1>
-        <p className={styles.pageSubtitle}>Account · display preferences · system</p>
+        <h1 className={styles.pageTitle}>{t('settings.title')}</h1>
+        <p className={styles.pageSubtitle}>{t('settings.subtitle')}</p>
       </div>
 
       <div className={styles.grid}>
@@ -100,7 +113,7 @@ export default function Settings() {
         <div className={styles.col}>
 
           {/* Profile */}
-          <Section icon={User} title="User Profile">
+          <Section icon={User} title={t('settings.profile.title')}>
             <div className={styles.profileRow}>
               <div className={`${styles.profileAvatar} ${user.role === 'ADMIN' ? styles.avatarAdmin : styles.avatarMech}`}>
                 {initials}
@@ -116,7 +129,7 @@ export default function Settings() {
 
             <div className={styles.fields}>
               <div className={styles.field}>
-                <label className={styles.label}>Display Name</label>
+                <label className={styles.label}>{t('settings.profile.displayName')}</label>
                 <input
                   className={styles.input}
                   value={profileName}
@@ -124,7 +137,7 @@ export default function Settings() {
                 />
               </div>
               <div className={styles.field}>
-                <label className={styles.label}>Email</label>
+                <label className={styles.label}>{t('settings.profile.email')}</label>
                 <input
                   className={styles.input}
                   type="email"
@@ -133,11 +146,11 @@ export default function Settings() {
                 />
               </div>
               <div className={styles.field}>
-                <label className={styles.label}>New Password</label>
+                <label className={styles.label}>{t('settings.profile.newPassword')}</label>
                 <input
                   className={styles.input}
                   type="password"
-                  placeholder="Leave blank to keep current"
+                  placeholder={t('settings.profile.passwordPlaceholder')}
                 />
               </div>
             </div>
@@ -146,37 +159,58 @@ export default function Settings() {
               className={`${styles.saveBtn} ${profileSaved ? styles.saveBtnDone : ''}`}
               onClick={handleProfileSave}
             >
-              {profileSaved ? <><Check size={12} /> Saved</> : 'Save Changes'}
+              {profileSaved ? <><Check size={12} /> {t('settings.profile.saved')}</> : t('settings.profile.save')}
             </button>
           </Section>
 
           {/* Display */}
-          <Section icon={Monitor} title="Display Preferences">
+          <Section icon={Monitor} title={t('settings.display.title')}>
             <div className={styles.prefRow}>
               <div className={styles.prefLabel}>
-                <span className={styles.prefName}>Theme</span>
-                <span className={styles.prefHint}>Interface colour scheme</span>
+                <span className={styles.prefName}>{t('settings.display.theme')}</span>
+                <span className={styles.prefHint}>{t('settings.display.themeHint')}</span>
               </div>
               <div className={styles.segControl}>
                 <button
                   className={`${styles.seg} ${theme === 'dark' ? styles.segActive : ''}`}
                   onClick={() => setTheme('dark')}
                 >
-                  <Moon size={11} /> Dark
+                  <Moon size={11} /> {t('settings.display.dark')}
                 </button>
                 <button
                   className={`${styles.seg} ${theme === 'light' ? styles.segActive : ''}`}
                   onClick={() => setTheme('light')}
                 >
-                  <Sun size={11} /> Light
+                  <Sun size={11} /> {t('settings.display.light')}
                 </button>
               </div>
             </div>
 
             <div className={styles.prefRow}>
               <div className={styles.prefLabel}>
-                <span className={styles.prefName}>Clock Format</span>
-                <span className={styles.prefHint}>Affects the header clock</span>
+                <span className={styles.prefName}>{t('settings.language.name')}</span>
+                <span className={styles.prefHint}>{t('settings.language.hint')}</span>
+              </div>
+              <div className={styles.segControl}>
+                <button
+                  className={`${styles.seg} ${language === 'en' ? styles.segActive : ''}`}
+                  onClick={() => setLanguage('en')}
+                >
+                  EN
+                </button>
+                <button
+                  className={`${styles.seg} ${language === 'pt' ? styles.segActive : ''}`}
+                  onClick={() => setLanguage('pt')}
+                >
+                  PT
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.prefRow}>
+              <div className={styles.prefLabel}>
+                <span className={styles.prefName}>{t('settings.display.clock')}</span>
+                <span className={styles.prefHint}>{t('settings.display.clockHint')}</span>
               </div>
               <div className={styles.segControl}>
                 <button
@@ -196,8 +230,8 @@ export default function Settings() {
 
             <div className={styles.prefRow}>
               <div className={styles.prefLabel}>
-                <span className={styles.prefName}>Compact Mode</span>
-                <span className={styles.prefHint}>Tighter rows in tables</span>
+                <span className={styles.prefName}>{t('settings.display.compact')}</span>
+                <span className={styles.prefHint}>{t('settings.display.compactHint')}</span>
               </div>
               <button
                 className={`${styles.toggle} ${compactMode ? styles.toggleOn : ''}`}
@@ -215,21 +249,13 @@ export default function Settings() {
         <div className={styles.col}>
 
           {/* System Info */}
-          <Section icon={Info} title="System Information">
+          <Section icon={Info} title={t('settings.system.title')}>
             <div className={styles.sysGrid}>
-              {[
-                { k: 'Application',  v: 'STC-SM'        },
-                { k: 'Version',      v: '0.1.0-dev'     },
-                { k: 'Environment',  v: 'Development'   },
-                { k: 'API',          v: 'Operational'   },
-                { k: 'RFID',         v: 'Operational'   },
-                { k: 'Database',     v: 'Connected'     },
-                { k: 'Audit Log',    v: 'Active'        },
-              ].map(({ k, v }) => (
-                <div key={k} className={styles.sysRow}>
-                  <span className={styles.sysKey}>{k}</span>
-                  <span className={`${styles.sysVal} ${v === 'Operational' || v === 'Connected' || v === 'Active' ? styles.sysValOk : styles.sysValInfo}`}>
-                    {v}
+              {SYS_ROWS.map(({ labelKey, value, valueKey, ok }) => (
+                <div key={labelKey} className={styles.sysRow}>
+                  <span className={styles.sysKey}>{t(labelKey)}</span>
+                  <span className={`${styles.sysVal} ${ok ? styles.sysValOk : styles.sysValInfo}`}>
+                    {valueKey ? t(valueKey) : value}
                   </span>
                 </div>
               ))}
@@ -238,9 +264,9 @@ export default function Settings() {
 
           {/* Access Control — ADMIN only */}
           {user.role === 'ADMIN' && (
-            <Section icon={Shield} title="Access Control">
+            <Section icon={Shield} title={t('settings.access.title')}>
               <p className={styles.sectionNote}>
-                Role definitions for this installation.
+                {t('settings.access.note')}
               </p>
               <div className={styles.roleCards}>
                 {(Object.entries(ROLE_PERMISSIONS) as [UserRole, typeof ROLE_PERMISSIONS[UserRole]][]).map(([role, perms]) => (
@@ -253,13 +279,13 @@ export default function Settings() {
                       {perms.can.map(p => (
                         <li key={p} className={styles.permCan}>
                           <ChevronRight size={10} />
-                          {p}
+                          {t(p)}
                         </li>
                       ))}
                       {perms.cannot.map(p => (
                         <li key={p} className={styles.permCannot}>
                           <span className={styles.permX}>✕</span>
-                          {p}
+                          {t(p)}
                         </li>
                       ))}
                     </ul>

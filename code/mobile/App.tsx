@@ -7,6 +7,8 @@ import { StatusBar } from 'expo-status-bar';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { ShiftProvider } from './src/context/ShiftContext';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
+import { LanguageProvider } from './src/context/LanguageContext';
+import './src/i18n';
 
 import LoginScreen          from './src/screens/LoginScreen';
 import HomeScreen           from './src/screens/HomeScreen';
@@ -65,14 +67,16 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <ThemedStatusBar />
-        <AuthProvider>
-          <ShiftProviderWrapper>
-            <NavigationContainer>
-              <AppNavigator />
-            </NavigationContainer>
-          </ShiftProviderWrapper>
-        </AuthProvider>
+        <LanguageProvider>
+          <ThemedStatusBar />
+          <AuthProvider>
+            <ShiftProviderWrapper>
+              <NavigationContainer>
+                <AppNavigator />
+              </NavigationContainer>
+            </ShiftProviderWrapper>
+          </AuthProvider>
+        </LanguageProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );

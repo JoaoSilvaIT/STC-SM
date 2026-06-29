@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { Unlock, Lock, Wrench, AlertTriangle, Search, Settings,
   Siren, Play, Square, Filter} from 'lucide-react'
 import { listActivities } from '@/api/activities'
@@ -22,30 +24,31 @@ function formatTs(iso: string): { date: string; time: string } {
   }
 }
 
-function relTime(iso: string): string {
+function relTime(iso: string, t: TFunction): string {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000)
-  if (mins < 1)  return 'just now'
-  if (mins < 60) return `${mins}m ago`
+  if (mins < 1)  return t('dashboard.time.justNow')
+  if (mins < 60) return t('dashboard.time.minsAgo', { count: mins })
   const hrs = Math.floor(mins / 60)
-  if (hrs < 24)  return `${hrs}h ago`
-  return `${Math.floor(hrs / 24)}d ago`
+  if (hrs < 24)  return t('dashboard.time.hoursAgo', { count: hrs })
+  return t('dashboard.time.daysAgo', { count: Math.floor(hrs / 24) })
 }
 
 const TYPE_META: Record<ActivityType, { label: string; icon: React.ElementType; color: string }> = {
-  OPEN_CABINET:         { label: 'Opened Cabinet',      icon: Unlock,        color: 'clear'   },
-  CLOSE_CABINET:        { label: 'Closed Cabinet',      icon: Lock,          color: 'muted'   },
-  REMOVE_TOOL:          { label: 'Removed Tool',        icon: Wrench,        color: 'info'    },
-  RETURN_TOOL:          { label: 'Returned Tool',       icon: Wrench,        color: 'clear'   },
-  TOOL_BROKEN:          { label: 'Broken Tool',         icon: AlertTriangle, color: 'risk'    },
-  TOOL_MISSING:         { label: 'Missing Tool',        icon: Search,        color: 'risk'    },
-  TOOL_IN_MAINTENANCE:  { label: 'Tool in Maintenance', icon: Settings,      color: 'amber'   },
-  CABINET_ANOMALY:      { label: 'Cabinet Anomaly',     icon: Siren,         color: 'risk'    },
-  STARTED_SHIFT:        { label: 'Started Shift',       icon: Play,          color: 'clear'   },
-  ENDED_SHIFT:          { label: 'Ended Shift',         icon: Square,        color: 'muted'   },
-  CABINET_BROKEN:       { label: 'Broken Tool',         icon: AlertTriangle, color: 'risk'    },
+  OPEN_CABINET:         { label: 'activity.type.OPEN_CABINET',        icon: Unlock,        color: 'clear'   },
+  CLOSE_CABINET:        { label: 'activity.type.CLOSE_CABINET',       icon: Lock,          color: 'muted'   },
+  REMOVE_TOOL:          { label: 'activity.type.REMOVE_TOOL',         icon: Wrench,        color: 'info'    },
+  RETURN_TOOL:          { label: 'activity.type.RETURN_TOOL',         icon: Wrench,        color: 'clear'   },
+  TOOL_BROKEN:          { label: 'activity.type.TOOL_BROKEN',         icon: AlertTriangle, color: 'risk'    },
+  TOOL_MISSING:         { label: 'activity.type.TOOL_MISSING',        icon: Search,        color: 'risk'    },
+  TOOL_IN_MAINTENANCE:  { label: 'activity.type.TOOL_IN_MAINTENANCE', icon: Settings,      color: 'amber'   },
+  CABINET_ANOMALY:      { label: 'activity.type.CABINET_ANOMALY',     icon: Siren,         color: 'risk'    },
+  STARTED_SHIFT:        { label: 'activity.type.STARTED_SHIFT',       icon: Play,          color: 'clear'   },
+  ENDED_SHIFT:          { label: 'activity.type.ENDED_SHIFT',         icon: Square,        color: 'muted'   },
+  CABINET_BROKEN:       { label: 'activity.type.CABINET_BROKEN',      icon: AlertTriangle, color: 'risk'    },
 }
 
 function ActivityRow({ act, index }: { act: Activity; index: number }) {
+  const { t } = useTranslation()
   const meta   = TYPE_META[act.type]
   const Icon   = meta.icon
   const ts     = formatTs(act.timestamp)
@@ -62,12 +65,12 @@ function ActivityRow({ act, index }: { act: Activity; index: number }) {
       <td className={styles.tdTime}>
         <span className={styles.timeHms}>{ts.time}</span>
         <span className={styles.timeDate}>{ts.date}</span>
-        <span className={styles.timeRel}>{relTime(act.timestamp)}</span>
+        <span className={styles.timeRel}>{relTime(act.timestamp, t)}</span>
       </td>
       <td className={styles.tdType}>
         <span className={`${styles.typeBadge} ${styles[`type_${meta.color}`]}`}>
           <Icon size={11} />
-          {meta.label}
+          {t(meta.label)}
         </span>
       </td>
       <td className={styles.tdCabinet}>
@@ -90,6 +93,7 @@ function ActivityRow({ act, index }: { act: Activity; index: number }) {
 }
 
 export default function ActivityLog() {
+  const { t } = useTranslation()
   const [activities, setActivities] = useState<Activity[]>([])
   const [cabinets,   setCabinets]   = useState<Cabinet[]>([])
   const [loading,    setLoading]    = useState(true)
@@ -143,25 +147,25 @@ export default function ActivityLog() {
     <div className={styles.page}>
       <div className={styles.pageHead}>
         <div>
-          <h1 className={styles.pageTitle}>Activity Log</h1>
+          <h1 className={styles.pageTitle}>{t('activity.title')}</h1>
           <p className={styles.pageSubtitle}>
             {loading
-              ? 'Loading activity log…'
+              ? t('activity.loading')
               : loadError
                 ? loadError
-                : `Immutable audit trail · ${activities.length} record${activities.length !== 1 ? 's' : ''} · append-only`}
+                : t('activity.subtitle', { count: activities.length })}
           </p>
         </div>
         <div className={styles.headRight}>
           {missCount > 0 && (
             <div className={styles.missBadge}>
               <AlertTriangle size={12} />
-              {missCount} FOD event{missCount !== 1 ? 's' : ''} recorded
+              {t('activity.fodEvents', { count: missCount })}
             </div>
           )}
           <div className={styles.immutableNote}>
             <span className={styles.immutableDot} />
-            Audit log is read-only
+            {t('activity.readonly')}
           </div>
         </div>
       </div>
@@ -173,9 +177,9 @@ export default function ActivityLog() {
           value={typeF}
           onChange={e => setTypeF(e.target.value as ActivityType | 'ALL')}
         >
-          <option value="ALL">All Event Types</option>
-          {(Object.keys(TYPE_META) as ActivityType[]).map(t => (
-            <option key={t} value={t}>{TYPE_META[t].label}</option>
+          <option value="ALL">{t('activity.allTypes')}</option>
+          {(Object.keys(TYPE_META) as ActivityType[]).map(ty => (
+            <option key={ty} value={ty}>{t(TYPE_META[ty].label)}</option>
           ))}
         </select>
 
@@ -184,14 +188,14 @@ export default function ActivityLog() {
           value={cabinetF}
           onChange={e => setCabinetF(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value))}
         >
-          <option value="ALL">All Cabinets</option>
+          <option value="ALL">{t('activity.allCabinets')}</option>
           {cabinets.map(c => (
             <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
 
         <span className={styles.filterCount}>
-          {filtered.length} record{filtered.length !== 1 ? 's' : ''}
+          {t('activity.records', { count: filtered.length })}
         </span>
       </div>
 
@@ -199,13 +203,13 @@ export default function ActivityLog() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>Seq.</th>
-              <th>Timestamp (UTC)</th>
-              <th>Event Type</th>
-              <th>Cabinet</th>
-              <th>Tool</th>
-              <th>Operator</th>
-              <th>Notes</th>
+              <th>{t('activity.colSeq')}</th>
+              <th>{t('activity.colTimestamp')}</th>
+              <th>{t('activity.colType')}</th>
+              <th>{t('activity.colCabinet')}</th>
+              <th>{t('activity.colTool')}</th>
+              <th>{t('activity.colOperator')}</th>
+              <th>{t('activity.colNotes')}</th>
             </tr>
           </thead>
           <tbody>
@@ -215,7 +219,7 @@ export default function ActivityLog() {
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={7} className={styles.empty}>
-                  {loading ? 'Loading…' : 'No records match the current filters'}
+                  {loading ? t('common.loading') : t('activity.noMatch')}
                 </td>
               </tr>
             )}
@@ -223,7 +227,7 @@ export default function ActivityLog() {
         </table>
       </div>
       <div className={styles.footer}>
-        Showing {filtered.length} of {activities.length} records — log is append-only per aviation safety protocol
+        {t('activity.footer', { shown: filtered.length, total: activities.length })}
       </div>
     </div>
   )

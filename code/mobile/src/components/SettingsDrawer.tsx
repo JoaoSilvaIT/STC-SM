@@ -12,8 +12,11 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import type { Language } from '../i18n';
 import type { ThemeName, Theme } from '../theme';
 
 interface Props {
@@ -23,14 +26,21 @@ interface Props {
   onLogout: () => void;
 }
 
-const THEME_OPTIONS: { name: ThemeName; label: string; icon: keyof typeof Ionicons.glyphMap }[] = [
-  { name: 'light', label: 'Light', icon: 'sunny-outline' },
-  { name: 'dark',  label: 'Dark',  icon: 'moon-outline' },
+const THEME_OPTIONS: { name: ThemeName; labelKey: string; icon: keyof typeof Ionicons.glyphMap }[] = [
+  { name: 'light', labelKey: 'settings.light', icon: 'sunny-outline' },
+  { name: 'dark',  labelKey: 'settings.dark',  icon: 'moon-outline' },
+];
+
+const LANGUAGE_OPTIONS: { code: Language; label: string }[] = [
+  { code: 'en', label: 'EN' },
+  { code: 'pt', label: 'PT' },
 ];
 
 export default function SettingsDrawer({ visible, onClose, onLogout }: Props) {
   const theme = useTheme();
   const { colors, spacing } = theme;
+  const { t } = useTranslation();
+  const { language, setLanguage } = useLanguage();
   const { currentUser } = useAuth();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -74,7 +84,7 @@ export default function SettingsDrawer({ visible, onClose, onLogout }: Props) {
         <Animated.View style={[s.panel, { width: panelWidth, transform: [{ translateX }] }]}>
           <View style={[s.panelInner, { paddingTop: insets.top + spacing.sm, paddingBottom: insets.bottom + spacing.md }]}>
             <View style={s.header}>
-              <Text style={s.headerTitle}>Settings</Text>
+              <Text style={s.headerTitle}>{t('settings.title')}</Text>
               <TouchableOpacity onPress={onClose} hitSlop={10} style={s.closeBtn}>
                 <Ionicons name="close" size={18} color={colors.textHi} />
               </TouchableOpacity>
@@ -90,7 +100,7 @@ export default function SettingsDrawer({ visible, onClose, onLogout }: Props) {
               </View>
 
               <View>
-                <Text style={s.sectionLabel}>Appearance</Text>
+                <Text style={s.sectionLabel}>{t('settings.appearance')}</Text>
                 <View style={s.segment}>
                   {THEME_OPTIONS.map(opt => {
                     const active = theme.name === opt.name;
@@ -102,6 +112,25 @@ export default function SettingsDrawer({ visible, onClose, onLogout }: Props) {
                         activeOpacity={0.8}
                       >
                         <Ionicons name={opt.icon} size={16} color={active ? colors.amber : colors.textMuted} />
+                        <Text style={[s.segmentText, active && s.segmentTextActive]}>{t(opt.labelKey)}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+
+              <View>
+                <Text style={s.sectionLabel}>{t('settings.language')}</Text>
+                <View style={s.segment}>
+                  {LANGUAGE_OPTIONS.map(opt => {
+                    const active = language === opt.code;
+                    return (
+                      <TouchableOpacity
+                        key={opt.code}
+                        style={[s.segmentBtn, active && s.segmentBtnActive]}
+                        onPress={() => setLanguage(opt.code)}
+                        activeOpacity={0.8}
+                      >
                         <Text style={[s.segmentText, active && s.segmentTextActive]}>{opt.label}</Text>
                       </TouchableOpacity>
                     );
@@ -112,7 +141,7 @@ export default function SettingsDrawer({ visible, onClose, onLogout }: Props) {
 
             <TouchableOpacity style={s.signOut} onPress={onLogout} activeOpacity={0.8}>
               <Ionicons name="log-out-outline" size={18} color={colors.stop} />
-              <Text style={s.signOutText}>Sign out</Text>
+              <Text style={s.signOutText}>{t('settings.signOut')}</Text>
             </TouchableOpacity>
           </View>
         </Animated.View>

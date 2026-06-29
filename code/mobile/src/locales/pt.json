@@ -1,0 +1,118 @@
+{
+  "common": {
+    "loading": "A carregar…",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar"
+  },
+  "login": {
+    "sysOnline": "SISTEMA ONLINE",
+    "eyebrow": "ARMÁRIO DE FERRAMENTAS",
+    "brand": "FLIGHT LINE",
+    "tagline": "Acesso autenticado para pessoal de pista e mecânicos de linha.",
+    "operatorId": "ID DO OPERADOR",
+    "accessKey": "CHAVE DE ACESSO",
+    "signingIn": "A entrar…",
+    "signIn": "Entrar",
+    "footer": "Sistema restrito · Qualquer adulteração será registada",
+    "errNotMechanic": "Acesso móvel restrito à função de mecânico.",
+    "errInvalid": "Credenciais inválidas. Verifique e tente novamente.",
+    "errNetwork": "Erro de rede. Verifique a sua ligação."
+  },
+  "home": {
+    "ready": "PRONTO",
+    "welcome": "Bem-vindo,",
+    "localTime": "HORA LOCAL",
+    "active": "ATIVO",
+    "standby": "EM ESPERA",
+    "shiftState": "ESTADO DO TURNO",
+    "activeShift": "Turno Ativo",
+    "noActiveShift": "Sem Turno Ativo",
+    "ongoing": "Tem um turno em curso.",
+    "beginPrompt": "Inicie um novo turno para aceder às ferramentas do armário e reportar atividade.",
+    "shiftBtn": "Turno",
+    "checklist": "LISTA PRÉ-TURNO",
+    "check1": "Verificar o estado do armário antes da seleção",
+    "check2": "Garantir que há tempo suficiente alocado",
+    "check3": "Devolver todas as ferramentas antes de terminar o turno"
+  },
+  "activity": {
+    "title": "Registo de Atividade",
+    "shiftCode": "TURNO SH-{{id}}",
+    "noShift": "SEM TURNO",
+    "noEvents": "AINDA SEM EVENTOS",
+    "emptyHint": "A atividade deste turno aparecerá aqui.",
+    "time": {
+      "justNow": "AGORA MESMO",
+      "minsAgo": "HÁ {{count}}M",
+      "hoursAgo": "HÁ {{count}}H"
+    },
+    "type": {
+      "shiftStarted": "Turno Iniciado",
+      "shiftEnded": "Turno Terminado",
+      "toolRemoved": "{{tool}} Retirada",
+      "toolReturned": "{{tool}} Devolvida",
+      "toolBroken": "{{tool}} Marcada como Avariada",
+      "toolMissing": "{{tool}} Marcada como em Falta",
+      "toolMissingDetected": "{{tool}} em Falta",
+      "doorOpened": "Porta do Armário Aberta",
+      "doorClosed": "Porta do Armário Fechada",
+      "cabinetOnline": "Armário Online",
+      "cabinetOffline": "Armário Offline",
+      "cabinetAnomaly": "Anomalia no Armário"
+    }
+  },
+  "endShift": {
+    "title": "Terminar Turno",
+    "summary": "RESUMO DO TURNO",
+    "taken": "RETIRADAS",
+    "returned": "DEVOLVIDAS",
+    "broken": "AVARIADAS",
+    "anomalies": "ANOMALIAS",
+    "fodTitle": "RISCO FOD DETETADO",
+    "fodSubtitle_one": "{{count}} ferramenta não devolvida ao armário",
+    "fodSubtitle_other": "{{count}} ferramentas não devolvidas ao armário",
+    "ackText": "Reconheço o risco FOD e confirmo que todas as ferramentas estão contabilizadas e registadas.",
+    "allClearTitle": "TODAS AS FERRAMENTAS CONTABILIZADAS",
+    "allClearSub": "O inventário do armário corresponde aos registos de levantamento.",
+    "confirm": "Confirmar Fim do Turno"
+  },
+  "shiftDash": {
+    "title": "Turno",
+    "noShiftAssigned": "Nenhum turno atribuído a si.",
+    "onGoing": "EM CURSO",
+    "assigned": "ATRIBUÍDO",
+    "station": "ESTAÇÃO",
+    "shiftHours": "HORÁRIO DO TURNO",
+    "tbd": "POR DEFINIR",
+    "elapsed": "DECORRIDO",
+    "activityLog": "Registo de Atividade",
+    "shiftTimeline": "Cronologia do turno",
+    "reportAnomaly": "Reportar Anomalia",
+    "reportSubmitted": "Relatório submetido com sucesso.",
+    "category": "CATEGORIA",
+    "affectedTool": "FERRAMENTA AFETADA",
+    "submitReport": "Submeter Relatório",
+    "standbyPrompt": "O seu turno está atribuído a esta estação. Prima abaixo para iniciar a sua sessão de trabalho.",
+    "endShift": "Terminar Turno",
+    "outOfHours": "Fora do horário do turno",
+    "startShift": "INICIAR TURNO",
+    "errorTitle": "Erro de Turno",
+    "errorGeneric": "A operação falhou. Verifique as horas permitidas.",
+    "anomaly": {
+      "brokenLabel": "Ferramenta Avariada",
+      "brokenHint": "Uma ferramenta está danificada",
+      "missingLabel": "Ferramenta em Falta",
+      "missingHint": "Não é possível encontrar uma ferramenta",
+      "cabinetLabel": "Anomalia no Armário",
+      "cabinetHint": "Problema no hardware do armário"
+    }
+  },
+  "settings": {
+    "title": "Definições",
+    "appearance": "Aparência",
+    "light": "Claro",
+    "dark": "Escuro",
+    "language": "Idioma",
+    "signOut": "Terminar sessão"
+  }
+}

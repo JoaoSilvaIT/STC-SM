@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Search, AlertTriangle, Plus, Pencil } from 'lucide-react'
 import { createTool, listTools, updateTool } from '@/api/tools'
 import { listCabinets } from '@/api/cabinets'
@@ -10,6 +11,7 @@ import styles from './Inventory.module.css'
 const STATUS_FILTERS: Array<ToolStatus | 'ALL'> = ['ALL', 'AVAILABLE', 'IN_USE', 'MISSING', 'IN_MAINTENANCE']
 
 export default function Inventory() {
+  const { t } = useTranslation()
   const [tools,          setTools]          = useState<Tool[]>([])
   const [liveCabinets,   setLiveCabinets]   = useState<Cabinet[]>([])
   const [loading,        setLoading]        = useState(true)
@@ -121,13 +123,13 @@ export default function Inventory() {
     <div className={styles.page}>
       <div className={styles.pageHead}>
         <div>
-          <h1 className={styles.pageTitle}>Tool Inventory</h1>
+          <h1 className={styles.pageTitle}>{t('inventory.title')}</h1>
           <p className={styles.pageSubtitle}>
-            {loading ? 'Loading inventory…' : loadError ? loadError : `Asset registry · ${tools.length} tracked items`}
+            {loading ? t('inventory.loading') : loadError ? loadError : t('inventory.subtitle', { count: tools.length })}
           </p>
         </div>
         <button className={styles.addBtn} onClick={() => setDrawerMode('create')}>
-          <Plus size={13} /> Add Tool
+          <Plus size={13} /> {t('inventory.addTool')}
         </button>
       </div>
 
@@ -136,7 +138,7 @@ export default function Inventory() {
         <div className={styles.fodBanner}>
           <AlertTriangle size={15} strokeWidth={2.5} />
           <span>
-            <strong>{counts.MISSING} tool{counts.MISSING !== 1 ? 's' : ''}</strong> currently unaccounted — FOD risk is active
+            <strong>{t('inventory.fodCount', { count: counts.MISSING })}</strong> {t('inventory.fodRest')}
           </span>
         </div>
       )}
@@ -150,7 +152,7 @@ export default function Inventory() {
               className={`${styles.filterBtn} ${statusF === s ? styles.filterActive : ''} ${s === 'MISSING' ? styles.filterMissing : ''}`}
               onClick={() => setStatusF(s)}
             >
-              {s === 'ALL' ? 'All' : s.replace('_', ' ')}
+              {s === 'ALL' ? t('inventory.filterAll') : t(`status.${s}`)}
               <span className={styles.filterCount}>
                 {s === 'ALL' ? counts.ALL : counts[s as ToolStatus]}
               </span>
@@ -164,7 +166,7 @@ export default function Inventory() {
             value={cabinetF}
             onChange={e => setCabinetF(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value))}
           >
-            <option value="ALL">All Cabinets</option>
+            <option value="ALL">{t('inventory.allCabinets')}</option>
             {liveCabinets.map(c => (
               <option key={c.id} value={c.id}>{c.name} — {c.location}</option>
             ))}
@@ -174,7 +176,7 @@ export default function Inventory() {
             <Search size={13} className={styles.searchIcon} />
             <input
               type="text"
-              placeholder="Search name or part no…"
+              placeholder={t('inventory.searchPlaceholder')}
               value={search}
               onChange={e => setSearch(e.target.value)}
               className={styles.searchInput}
@@ -188,17 +190,17 @@ export default function Inventory() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>Tool Name</th>
-              <th>Cabinet</th>
-              <th>Location</th>
-              <th>Status</th>
+              <th>{t('inventory.colName')}</th>
+              <th>{t('inventory.colCabinet')}</th>
+              <th>{t('inventory.colLocation')}</th>
+              <th>{t('inventory.colStatus')}</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={5} className={styles.empty}>No tools match the current filters</td>
+                <td colSpan={5} className={styles.empty}>{t('inventory.noMatch')}</td>
               </tr>
             ) : filtered.map(tool => {
               const cab = liveCabinets.find(c => c.id === tool.cabinetId)
@@ -215,7 +217,7 @@ export default function Inventory() {
                   <td className={styles.location}>{cab?.location ?? '—'}</td>
                   <td><StatusPill status={tool.status} /></td>
                   <td className={styles.actionCell}>
-                    <button className={styles.editBtn} onClick={() => openEdit(tool)} title="Edit tool">
+                    <button className={styles.editBtn} onClick={() => openEdit(tool)} title={t('inventory.editTool')}>
                       <Pencil size={12} />
                     </button>
                   </td>
@@ -226,7 +228,7 @@ export default function Inventory() {
         </table>
       </div>
       <div className={styles.tableFooter}>
-        Showing {filtered.length} of {tools.length} tools
+        {t('inventory.showing', { shown: filtered.length, total: tools.length })}
       </div>
 
       <ToolDrawer
@@ -242,6 +244,7 @@ export default function Inventory() {
 }
 
 function StatusPill({ status }: { status: Tool['status'] }) {
+  const { t } = useTranslation()
   const cls = {
     AVAILABLE:   styles.pillAvail,
     IN_USE:      styles.pillInUse,
@@ -249,5 +252,5 @@ function StatusPill({ status }: { status: Tool['status'] }) {
     IN_MAINTENANCE: styles.pillMaint,
     BROKEN:      styles.pillMissing,
   }[status]
-  return <span className={`${styles.pill} ${cls}`}>{status.replace('_', ' ')}</span>
+  return <span className={`${styles.pill} ${cls}`}>{t(`status.${status}`)}</span>
 }

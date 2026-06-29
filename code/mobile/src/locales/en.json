@@ -1,0 +1,118 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  },
+  "login": {
+    "sysOnline": "SYS ONLINE",
+    "eyebrow": "SMART TOOL CABINET",
+    "brand": "FLIGHT LINE",
+    "tagline": "Authenticated access for ground crew & line mechanics.",
+    "operatorId": "OPERATOR ID",
+    "accessKey": "ACCESS KEY",
+    "signingIn": "Signing In…",
+    "signIn": "Sign In",
+    "footer": "Restricted system · Tampering will be logged",
+    "errNotMechanic": "Mobile access restricted to mechanic role.",
+    "errInvalid": "Invalid credentials. Verify and retry.",
+    "errNetwork": "Network error. Check your connection."
+  },
+  "home": {
+    "ready": "READY",
+    "welcome": "Welcome,",
+    "localTime": "LOCAL TIME",
+    "active": "ACTIVE",
+    "standby": "STAND BY",
+    "shiftState": "SHIFT STATE",
+    "activeShift": "Active Shift",
+    "noActiveShift": "No Active Shift",
+    "ongoing": "You have an ongoing shift.",
+    "beginPrompt": "Begin a new shift to access cabinet tools and report activity.",
+    "shiftBtn": "Shift",
+    "checklist": "PRE-SHIFT CHECKLIST",
+    "check1": "Verify cabinet status before selection",
+    "check2": "Ensure enough time is allocated",
+    "check3": "Return all tools before ending shift"
+  },
+  "activity": {
+    "title": "Activity Log",
+    "shiftCode": "SHIFT SH-{{id}}",
+    "noShift": "NO SHIFT",
+    "noEvents": "NO EVENTS YET",
+    "emptyHint": "Activity from this shift will appear here.",
+    "time": {
+      "justNow": "JUST NOW",
+      "minsAgo": "{{count}}M AGO",
+      "hoursAgo": "{{count}}H AGO"
+    },
+    "type": {
+      "shiftStarted": "Shift Started",
+      "shiftEnded": "Shift Ended",
+      "toolRemoved": "{{tool}} Removed",
+      "toolReturned": "{{tool}} Returned",
+      "toolBroken": "{{tool}} Marked Broken",
+      "toolMissing": "{{tool}} Marked Missing",
+      "toolMissingDetected": "{{tool}} Missing",
+      "doorOpened": "Cabinet Door Opened",
+      "doorClosed": "Cabinet Door Closed",
+      "cabinetOnline": "Cabinet Online",
+      "cabinetOffline": "Cabinet Offline",
+      "cabinetAnomaly": "Cabinet Anomaly"
+    }
+  },
+  "endShift": {
+    "title": "End Shift",
+    "summary": "SHIFT SUMMARY",
+    "taken": "TAKEN",
+    "returned": "RETURNED",
+    "broken": "BROKEN",
+    "anomalies": "ANOMALIES",
+    "fodTitle": "FOD RISK DETECTED",
+    "fodSubtitle_one": "{{count}} tool not returned to cabinet",
+    "fodSubtitle_other": "{{count}} tools not returned to cabinet",
+    "ackText": "I acknowledge FOD risk and confirm all tools are accounted for and recorded.",
+    "allClearTitle": "ALL TOOLS ACCOUNTED FOR",
+    "allClearSub": "Cabinet inventory matches checkout records.",
+    "confirm": "Confirm End Shift"
+  },
+  "shiftDash": {
+    "title": "Shift",
+    "noShiftAssigned": "No shift assigned to you.",
+    "onGoing": "ON GOING",
+    "assigned": "ASSIGNED",
+    "station": "STATION",
+    "shiftHours": "SHIFT HOURS",
+    "tbd": "TBD",
+    "elapsed": "ELAPSED",
+    "activityLog": "Activity Log",
+    "shiftTimeline": "Shift timeline",
+    "reportAnomaly": "Report Anomaly",
+    "reportSubmitted": "Report submitted successfully.",
+    "category": "CATEGORY",
+    "affectedTool": "AFFECTED TOOL",
+    "submitReport": "Submit Report",
+    "standbyPrompt": "Your shift is assigned to this station. Press below to begin your work session.",
+    "endShift": "End Shift",
+    "outOfHours": "Outside of shift hours",
+    "startShift": "START SHIFT",
+    "errorTitle": "Shift Error",
+    "errorGeneric": "The operation failed. Check the allowed hours.",
+    "anomaly": {
+      "brokenLabel": "Broken Tool",
+      "brokenHint": "A tool is damaged",
+      "missingLabel": "Missing Tool",
+      "missingHint": "A tool cannot be found",
+      "cabinetLabel": "Cabinet Anomaly",
+      "cabinetHint": "Issue with the cabinet hardware"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "light": "Light",
+    "dark": "Dark",
+    "language": "Language",
+    "signOut": "Sign out"
+  }
+}
