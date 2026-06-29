@@ -4,6 +4,9 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import pt.isel.activity.Activity
 import pt.isel.activity.ActivityType
@@ -46,6 +49,7 @@ class ActivityServiceTest {
     private val cabinet = Cabinet(id = 1, description = "C", status = CabinetStatus.OPEN, location = "loc")
     private val tool = Tool(id = 1, name = "Drill", cabinet = cabinet, status = ToolStatus.AVAILABLE, location = "loc")
     private val date: Instant = Instant.parse("2026-01-01T10:00:00Z")
+    private val pageable = PageRequest.of(0, 20)
 
     @Test
     fun `getAllActivities delegates to repo`() {
@@ -54,9 +58,10 @@ class ActivityServiceTest {
                 Activity(id = 1, type = ActivityType.OPEN_CABINET, date = date, user = user),
                 Activity(id = 2, type = ActivityType.REMOVE_TOOL, date = date, user = user, tool = tool),
             )
-        every { activityRepo.findAll() } returns activities
+        val page = PageImpl(activities, pageable, activities.size.toLong())
+        every { activityRepo.findAll(pageable) } returns page
 
-        assertEquals(activities, service.getAllActivities())
+        assertEquals(page, service.getAllActivities(pageable))
     }
 
     @Test
@@ -81,25 +86,37 @@ class ActivityServiceTest {
     }
 
     @Test
-    fun `getActivityByTool delegates to repo`() {
+    fun `getActivitiesByTool delegates to repo`() {
         val activities = listOf(Activity(type = ActivityType.REMOVE_TOOL, date = date, user = user, tool = tool))
-        every { activityRepo.findByToolId(1) } returns activities
+        val page = PageImpl(activities, pageable, activities.size.toLong())
+        every { activityRepo.findByToolId(1, pageable) } returns page
 
-        assertEquals(activities, service.getActivityByTool(1))
+        val result = service.getActivitiesByTool(1, pageable)
+
+        assertIs<Either.Success<Page<Activity>>>(result)
+        assertEquals(page, result.value)
     }
 
     @Test
-    fun `getActivityByUser delegates to repo`() {
-        every { activityRepo.findByUserId(1) } returns emptyList()
+    fun `getActivitiesByUser delegates to repo`() {
+        val page = PageImpl(emptyList<Activity>(), pageable, 0L)
+        every { activityRepo.findByUserId(1, pageable) } returns page
 
-        assertEquals(emptyList<Activity>(), service.getActivityByUser(1))
+        val result = service.getActivitiesByUser(1, pageable)
+
+        assertIs<Either.Success<Page<Activity>>>(result)
+        assertEquals(page, result.value)
     }
 
     @Test
-    fun `getActivityByCabinet delegates to repo`() {
-        every { activityRepo.findByCabinetId(1) } returns emptyList()
+    fun `getActivitiesByCabinet delegates to repo`() {
+        val page = PageImpl(emptyList<Activity>(), pageable, 0L)
+        every { activityRepo.findByCabinetId(1, pageable) } returns page
 
-        assertEquals(emptyList<Activity>(), service.getActivityByCabinet(1))
+        val result = service.getActivitiesByCabinet(1, pageable)
+
+        assertIs<Either.Success<Page<Activity>>>(result)
+        assertEquals(page, result.value)
     }
 
     @Test

@@ -1,6 +1,8 @@
 package pt.isel
 
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -22,18 +24,27 @@ class ActivityService(
     private val shiftRepo: ShiftRepository,
     private val eventPublisher: ApplicationEventPublisher,
 ) {
-    fun getAllActivities(): List<Activity> = activityRepo.findAll()
+    fun getAllActivities(pageable: Pageable): Page<Activity> = activityRepo.findAll(pageable)
 
     fun getActivity(id: Int): Either<ActivityError, Activity> {
         val activity = activityRepo.findByIdOrNull(id) ?: return failure(ActivityError.ActivityNotFound)
         return success(activity)
     }
 
-    fun getActivityByTool(tid: Int): List<Activity> = activityRepo.findByToolId(tid)
+    fun getActivitiesByTool(tid: Int, pageable: Pageable): Either<ActivityError, Page<Activity>> {
+        val activities = activityRepo.findByToolId(tid, pageable)
+        return success(activities)
+    }
 
-    fun getActivityByUser(uid: Int): List<Activity> = activityRepo.findByUserId(uid)
+    fun getActivitiesByUser(uid: Int, pageable: Pageable): Either<ActivityError, Page<Activity>> {
+        val activities = activityRepo.findByUserId(uid, pageable)
+        return success(activities)
+    }
 
-    fun getActivityByCabinet(cid: Int): List<Activity> = activityRepo.findByCabinetId(cid)
+    fun getActivitiesByCabinet(cid: Int, pageable: Pageable): Either<ActivityError, Page<Activity>> {
+        val activities = activityRepo.findByCabinetId(cid, pageable)
+        return success(activities)
+    }
 
     @Transactional
     fun createActivity(

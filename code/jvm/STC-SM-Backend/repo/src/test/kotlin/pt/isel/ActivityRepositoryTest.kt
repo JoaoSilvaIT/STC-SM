@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager
+import org.springframework.data.domain.PageRequest
 import pt.isel.activity.Activity
 import pt.isel.activity.ActivityType
 import pt.isel.auth.PasswordValidationInfo
@@ -57,7 +58,7 @@ class ActivityRepositoryTest {
         em.persist(Activity(type = ActivityType.REMOVE_TOOL, date = date, user = user, tool = tool))
         em.flush()
 
-        assertEquals(2, activities.findByUserId(user.id).size)
+        assertEquals(2, activities.findByUserId(user.id, PageRequest.of(0, 10)).content.size)
     }
 
     @Test
@@ -67,10 +68,10 @@ class ActivityRepositoryTest {
         em.persist(Activity(type = ActivityType.OPEN_CABINET, date = date, user = user, cabinet = cabinet))
         em.flush()
 
-        val result = activities.findByToolId(tool.id)
+        val result = activities.findByToolId(tool.id, PageRequest.of(0, 10))
 
-        assertEquals(1, result.size)
-        assertEquals(tool.id, result.single().tool?.id)
+        assertEquals(1, result.content.size)
+        assertEquals(tool.id, result.content.single().tool?.id)
     }
 
     @Test
@@ -80,9 +81,9 @@ class ActivityRepositoryTest {
         em.persist(Activity(type = ActivityType.REMOVE_TOOL, date = date, user = user, tool = tool))
         em.flush()
 
-        val result = activities.findByCabinetId(cabinet.id)
+        val result = activities.findByCabinetId(cabinet.id, PageRequest.of(0, 10))
 
-        assertEquals(1, result.size)
-        assertEquals(cabinet.id, result.single().cabinet?.id)
+        assertEquals(1, result.content.size)
+        assertEquals(cabinet.id, result.content.single().cabinet?.id)
     }
 }
