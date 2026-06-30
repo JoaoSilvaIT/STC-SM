@@ -29,8 +29,10 @@ export default function Simulator() {
         const loadData = () => {
             Promise.all([listCabinets(), listTools()])
                 .then(([c, t]) => {
-                    setCabinets(c);
-                    setTools(t);
+                    const sortedCabinets = c.sort((a, b) => a.id - b.id);
+                    setCabinets(sortedCabinets);
+                    const sortedTools = t.sort((a, b) => a.id - b.id);
+                    setTools(sortedTools);
                 })
                 .catch(err => console.error(err));
         };
