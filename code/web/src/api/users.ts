@@ -30,6 +30,12 @@ export async function listUsers(): Promise<User[]> {
   return raw.map(r => toDomain(r))
 }
 
+// Mechanics that are not yet the owner of any shift — used by back-office to assign new shifts.
+export async function listUnassignedMechanics(): Promise<User[]> {
+  const raw = await request<UserResponse[]>('/api/shifts/unassigned-mechanics', { auth: true })
+  return raw.map(r => toDomain(r))
+}
+
 export async function createUser(input: {
   name: string
   email: string

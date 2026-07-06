@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional
 import pt.isel.activity.ActivityType
 import pt.isel.errors.ToolError
 import pt.isel.events.ToolUpdated
+import pt.isel.profile.Role
 import pt.isel.tools.Tool
 import pt.isel.tools.ToolStatus
 import pt.isel.user.User
@@ -36,6 +37,7 @@ class ToolService(
         location: String,
         actor: User? = null,
     ): Either<ToolError, Tool> {
+        if (actor == null || actor.profile.role != Role.ADMIN) return failure(ToolError.NotAuthorized)
         if (name.isBlank()) return failure(ToolError.InvalidName)
         if (location.isBlank()) return failure(ToolError.InvalidLocation)
         val cabinet = cabinetRepo.findByIdOrNull(cabinetId) ?: return failure(ToolError.InvalidCabinet)

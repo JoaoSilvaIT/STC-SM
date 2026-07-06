@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Clock, Package, User, Square, AlertTriangle, Edit2 } from 'lucide-react'
+import { Clock, Package, User, Square, AlertTriangle, Edit2, Plus } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
-import { listShifts, endShift, editShiftHours } from '@/api/shifts'
+import { listShifts, endShift, editShiftHours, createShift } from '@/api/shifts'
 import { listCabinets } from '@/api/cabinets'
+import { listUnassignedMechanics } from '@/api/users'
 import { ApiError } from '@/api/client'
 import ShiftDrawer from '@/components/ui/ShiftDrawer'
-import type { Cabinet, Shift } from '@/types/domain'
+import CreateShiftDrawer from '@/components/ui/CreateShiftDrawer'
+import type { Cabinet, Shift, User as UserType } from '@/types/domain'
 import styles from './Shifts.module.css'
 
 function timeToMinutes(timeStr: string): number {
@@ -155,6 +157,8 @@ export default function Shifts() {
 
   const [editingShift, setEditingShift] = useState<Shift | null>(null)
   const [confirmEndId, setConfirmEndId] = useState<number | null>(null)
+  const [creating,     setCreating]     = useState(false)
+  const [mechanics,    setMechanics]    = useState<UserType[]>([])
 
   const refresh = async () => {
     const [s, c] = await Promise.all([listShifts(user?.id), listCabinets()])
@@ -201,6 +205,28 @@ export default function Shifts() {
     }
   }
 
+  const openCreate = async () => {
+    setActionError(null)
+    try {
+      setMechanics(await listUnassignedMechanics())
+    } catch (err) {
+      setMechanics([])
+      setActionError(err instanceof ApiError ? err.message : 'Failed to load mechanics')
+    }
+    setCreating(true)
+  }
+
+  const handleCreateShift = async (data: { userId: number; cabinetId: number; startTime: string; endTime: string }) => {
+    setActionError(null)
+    try {
+      await createShift(data)
+      await refresh()
+      setCreating(false)
+    } catch (err) {
+      setActionError(err instanceof ApiError ? err.message : 'Failed to create shift')
+    }
+  }
+
   const handleUpdateShiftTimes = async (data: { startTime: string | null; endTime: string | null }) => {
     if (!editingShift) return
     setActionError(null)
@@ -239,6 +265,11 @@ export default function Shifts() {
                 </div>
             )}
           </div>
+          {isBackOffice && (
+              <button className={styles.startBtn} onClick={openCreate}>
+                <Plus size={13} /> {t('shifts.newShift')}
+              </button>
+          )}
         </div>
 
         {actionError && (
@@ -272,6 +303,14 @@ export default function Shifts() {
             shift={editingShift}
             onSave={handleUpdateShiftTimes}
             onClose={() => setEditingShift(null)}
+        />
+
+        <CreateShiftDrawer
+            open={creating}
+            mechanics={mechanics}
+            cabinets={cabinets}
+            onSave={handleCreateShift}
+            onClose={() => setCreating(false)}
         />
       </div>
   )

@@ -4,6 +4,7 @@ import { Search, AlertTriangle, Plus, Pencil } from 'lucide-react'
 import { createTool, listTools, updateTool } from '@/api/tools'
 import { listCabinets } from '@/api/cabinets'
 import { ApiError } from '@/api/client'
+import { useAuth } from '@/context/AuthContext'
 import ToolDrawer from '@/components/ui/ToolDrawer'
 import type { Cabinet, Tool, ToolStatus } from '@/types/domain'
 import styles from './Inventory.module.css'
@@ -12,6 +13,7 @@ const STATUS_FILTERS: Array<ToolStatus | 'ALL'> = ['ALL', 'AVAILABLE', 'IN_USE',
 
 export default function Inventory() {
   const { t } = useTranslation()
+  const { user } = useAuth()
   const [tools,          setTools]          = useState<Tool[]>([])
   const [liveCabinets,   setLiveCabinets]   = useState<Cabinet[]>([])
   const [loading,        setLoading]        = useState(true)
@@ -128,9 +130,11 @@ export default function Inventory() {
             {loading ? t('inventory.loading') : loadError ? loadError : t('inventory.subtitle', { count: tools.length })}
           </p>
         </div>
-        <button className={styles.addBtn} onClick={() => setDrawerMode('create')}>
-          <Plus size={13} /> {t('inventory.addTool')}
-        </button>
+        {user?.role === 'ADMIN' && (
+          <button className={styles.addBtn} onClick={() => setDrawerMode('create')}>
+            <Plus size={13} /> {t('inventory.addTool')}
+          </button>
+        )}
       </div>
 
       {/* FOD alert banner */}

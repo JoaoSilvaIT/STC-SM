@@ -79,6 +79,13 @@ class DataInitializer(
                     status = UserStatus.ACTIVE,
                     passwordValidation = PasswordValidationInfo(passwordEncoder.encode("monteiro")!!),
                 ),
+                User(
+                    name = "mec sem shift",
+                    email = "semshift@isel.pt",
+                    profile = profiles[0],
+                    status = UserStatus.ACTIVE,
+                    passwordValidation = PasswordValidationInfo(passwordEncoder.encode("semshift")!!),
+                )
             )
         if (userRepository.count() == 0L) {
             userRepository.saveAll(users)

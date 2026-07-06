@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { X, Clock, User } from 'lucide-react'
 import type { Shift, User as UserType } from '@/types/domain'
+import TimeField from './TimeField'
 import styles from './ShiftDrawer.module.css'
 
 interface ShiftDrawerProps {
@@ -77,21 +78,23 @@ export default function ShiftDrawer({
 
             <div className={styles.field}>
               <label className={styles.label}><Clock size={11} /> Start Time</label>
-              <input
-                  type="time"
-                  className={`${styles.input} ${errors.time ? styles.inputErr : ''}`}
+              <TimeField
                   value={startTime}
-                  onChange={e => setStartTime(e.target.value)}
+                  onChange={setStartTime}
+                  className={styles.input}
+                  error={!!errors.time}
+                  errorClassName={styles.inputErr}
               />
             </div>
 
             <div className={styles.field}>
               <label className={styles.label}><Clock size={11} /> End Time</label>
-              <input
-                  type="time"
-                  className={`${styles.input} ${errors.time ? styles.inputErr : ''}`}
+              <TimeField
                   value={endTime}
-                  onChange={e => setEndTime(e.target.value)}
+                  onChange={setEndTime}
+                  className={styles.input}
+                  error={!!errors.time}
+                  errorClassName={styles.inputErr}
               />
             </div>
 

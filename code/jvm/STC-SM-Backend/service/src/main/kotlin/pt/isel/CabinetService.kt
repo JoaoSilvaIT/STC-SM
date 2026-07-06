@@ -9,6 +9,7 @@ import pt.isel.cabinet.CabinetStatus
 import pt.isel.errors.CabinetError
 import pt.isel.events.ActivityNotification
 import pt.isel.events.CabinetUpdated
+import pt.isel.profile.Role
 import pt.isel.utils.Either
 import pt.isel.utils.failure
 import pt.isel.utils.success
@@ -58,10 +59,11 @@ class CabinetService(
         desc: String,
         status: CabinetStatus,
         loc: String,
+        role: Role
     ): Either<CabinetError, Cabinet> {
+        if (role != Role.ADMIN) return failure(CabinetError.InvalidRole)
         if (desc.isBlank()) return failure(CabinetError.InvalidDescription)
         if (loc.isBlank()) return failure(CabinetError.InvalidLocation)
-
         val newCabinet = Cabinet(description = desc, status = status, location = loc)
         return success(cabinetRepo.save(newCabinet))
     }

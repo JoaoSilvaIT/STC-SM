@@ -42,6 +42,15 @@ class ShiftServiceTest {
             status = UserStatus.ACTIVE,
             passwordValidation = PasswordValidationInfo("h"),
         )
+    private val backOffice =
+        User(
+            id = 2,
+            name = "Bruno",
+            email = "b@x",
+            profile = Profile(id = 2, role = Role.BACK_OFFICE, description = ""),
+            status = UserStatus.ACTIVE,
+            passwordValidation = PasswordValidationInfo("h"),
+        )
     private val cabinet = Cabinet(id = 1, description = "C", status = CabinetStatus.OPEN, location = "loc")
     private val startStr = "08:00"
     private val endStr = "16:00"
@@ -79,10 +88,18 @@ class ShiftServiceTest {
     }
 
     @Test
+    fun `createShift fails when actor is not back office`() {
+        val result = service.createShift(1, 1, startStr, endStr, user)
+
+        assertIs<Either.Failure<ShiftError>>(result)
+        assertEquals(ShiftError.NotAuthorized, result.value)
+    }
+
+    @Test
     fun `createShift fails when user id invalid`() {
         every { userRepo.findByIdOrNull(99) } returns null
 
-        val result = service.createShift(99, 1, startStr, endStr)
+        val result = service.createShift(99, 1, startStr, endStr, backOffice)
 
         assertIs<Either.Failure<ShiftError>>(result)
         assertEquals(ShiftError.InvalidUserId, result.value)
@@ -93,7 +110,7 @@ class ShiftServiceTest {
         every { userRepo.findByIdOrNull(1) } returns user
         every { cabinetRepo.findById(99) } returns Optional.empty()
 
-        val result = service.createShift(1, 99, startStr, endStr)
+        val result = service.createShift(1, 99, startStr, endStr, backOffice)
 
         assertIs<Either.Failure<ShiftError>>(result)
         assertEquals(ShiftError.InvalidCabinetId, result.value)
@@ -104,7 +121,7 @@ class ShiftServiceTest {
         every { userRepo.findByIdOrNull(1) } returns user
         every { cabinetRepo.findById(1) } returns Optional.of(cabinet)
 
-        val result = service.createShift(1, 1, "not-a-time", endStr)
+        val result = service.createShift(1, 1, "not-a-time", endStr, backOffice)
 
         assertIs<Either.Failure<ShiftError>>(result)
         assertEquals(ShiftError.InvalidTimeFormat, result.value)
@@ -117,7 +134,7 @@ class ShiftServiceTest {
         val saved = slot<Shift>()
         every { shiftRepo.save(capture(saved)) } answers { firstArg() }
 
-        val result = service.createShift(1, 1, startStr, endStr)
+        val result = service.createShift(1, 1, startStr, endStr, backOffice)
 
         assertIs<Either.Success<Shift>>(result)
         assertEquals(user, saved.captured.user)

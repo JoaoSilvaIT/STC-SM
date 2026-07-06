@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.ShiftService
 import pt.isel.model.alert.AlertOutputModel
+import pt.isel.model.user.UserOutputModel
 import pt.isel.user.User
 import pt.isel.utils.Either
 
@@ -27,7 +28,7 @@ class ShiftController(
     @PostMapping("/api/shifts")
     fun createShift(
         @RequestBody shiftInput: ShiftInput,
-        @Suppress("UNUSED_PARAMETER") user: User,
+        user: User,
     ): ResponseEntity<*> =
         when (
             val result =
@@ -36,6 +37,7 @@ class ShiftController(
                     shiftInput.cid,
                     shiftInput.startTime,
                     shiftInput.endTime,
+                    user,
                 )
         ) {
             is Either.Success ->
@@ -82,12 +84,19 @@ class ShiftController(
         user: User,
         @RequestBody shiftInputHours: ShiftInputHours,
     ): ResponseEntity<*> =
-        when (val result = shiftService.editShiftHours(id, shiftInputHours.startTime, shiftInputHours.endTime)) {
+        when (val result = shiftService.editShiftHours(id, shiftInputHours.startTime, shiftInputHours.endTime, user)) {
             is Either.Success -> {
                 ResponseEntity
                     .status(HttpStatus.OK)
                     .body(ShiftOutputModel.fromDomain(result.value))
             }
+            is Either.Failure -> result.value.toProblemResponse()
+        }
+
+    @GetMapping("/api/shifts/unassigned-mechanics")
+    fun getUnassignedMechanics(user: User): ResponseEntity<*> =
+        when (val result = shiftService.getUnassignedMechanics(user)) {
+            is Either.Success -> ResponseEntity.ok(result.value.map(UserOutputModel.Companion::fromDomain))
             is Either.Failure -> result.value.toProblemResponse()
         }
 

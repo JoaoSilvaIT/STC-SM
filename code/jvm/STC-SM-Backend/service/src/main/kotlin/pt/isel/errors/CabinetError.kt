@@ -10,4 +10,6 @@ sealed class CabinetError {
     data object InvalidDescription : CabinetError()
 
     data object UserNotFound : CabinetError()
+
+    data object InvalidRole : CabinetError()
 }

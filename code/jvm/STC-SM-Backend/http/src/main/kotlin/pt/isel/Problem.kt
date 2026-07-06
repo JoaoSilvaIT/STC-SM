@@ -75,4 +75,6 @@ sealed class Problem(
     data object ShiftOutOfTime : Problem(URI("$PROBLEM_URI_PATH/shift-out-of-time"))
 
     data object ShiftAlreadyHappening : Problem(URI("$PROBLEM_URI_PATH/shift-already-happening"))
+
+    data object InvalidRole: Problem(URI("$PROBLEM_URI_PATH/invalid-role"))
 }

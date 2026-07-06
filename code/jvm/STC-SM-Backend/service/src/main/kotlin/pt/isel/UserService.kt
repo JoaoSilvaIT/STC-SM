@@ -58,7 +58,9 @@ class UserService(
     fun updateUser(
         state: String,
         uid: Int,
+        admin: User,
     ): Either<UserError, User> {
+        if (admin.profile.role != Role.ADMIN) return failure(UserError.NotAuthorized)
         if (state.isBlank()) return failure(UserError.BlankState)
 
         val user = userRepo.findByIdOrNull(uid) ?: return failure(UserError.UserNotFound)

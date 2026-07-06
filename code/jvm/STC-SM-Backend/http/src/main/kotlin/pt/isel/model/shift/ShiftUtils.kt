@@ -12,7 +12,7 @@ fun ShiftError.toProblemResponse(): ResponseEntity<Any> =
         ShiftError.InvalidCabinetId -> Problem.CabinetNotFound.response(HttpStatus.BAD_REQUEST)
         ShiftError.InvalidTimeFormat -> Problem.InvalidTimeFormat.response(HttpStatus.BAD_REQUEST)
         ShiftError.InvalidTimeRange -> Problem.InvalidTimeRange.response(HttpStatus.BAD_REQUEST)
-        ShiftError.NotAuthorized -> Problem.NotAuthorized.response(HttpStatus.UNAUTHORIZED)
+        ShiftError.NotAuthorized -> Problem.NotAuthorized.response(HttpStatus.FORBIDDEN)
         ShiftError.ShiftAlreadyStarted -> Problem.ShiftAlreadyStarted.response(HttpStatus.CONFLICT)
         ShiftError.ShiftAlreadyEnded -> Problem.ShiftAlreadyEnded.response(HttpStatus.CONFLICT)
         ShiftError.ShiftOutOfTime -> Problem.ShiftOutOfTime.response(HttpStatus.CONFLICT)

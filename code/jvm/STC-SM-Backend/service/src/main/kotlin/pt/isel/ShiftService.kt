@@ -7,8 +7,10 @@ import org.springframework.transaction.annotation.Transactional
 import pt.isel.activity.ActivityType
 import pt.isel.errors.ShiftError
 import pt.isel.events.ShiftUpdated
+import pt.isel.profile.Role
 import pt.isel.results.ShiftResult
 import pt.isel.shift.Shift
+import pt.isel.user.User
 import pt.isel.shift.ShiftStatus
 import pt.isel.utils.Either
 import pt.isel.utils.failure
@@ -33,13 +35,23 @@ class ShiftService(
 
     fun getAllShifts(): List<Shift> = shiftRepo.findAll()
 
+    fun getUnassignedMechanics(actor: User): Either<ShiftError, List<User>> {
+        if (actor.profile.role != Role.BACK_OFFICE) return failure(ShiftError.NotAuthorized)
+        val assignedUserIds = shiftRepo.findAll().map { it.user.id }.toSet()
+        return success(
+            userRepo.findAll().filter { it.profile.role == Role.MECHANIC && it.id !in assignedUserIds },
+        )
+    }
+
     @Transactional
     fun createShift(
         uid: Int,
         cid: Int,
         startTime: String,
         endTime: String,
+        actor: User,
     ): Either<ShiftError, Shift> {
+        if (actor.profile.role != Role.BACK_OFFICE) return failure(ShiftError.NotAuthorized)
         val user = userRepo.findByIdOrNull(uid) ?: return failure(ShiftError.InvalidUserId)
         val cabinet = cabinetRepo.findByIdOrNull(cid) ?: return failure(ShiftError.InvalidCabinetId)
 
@@ -68,7 +80,9 @@ class ShiftService(
         sid: Int,
         startTime: String? = null,
         endTime: String? = null,
+        actor: User,
     ): Either<ShiftError, Shift> {
+        if (actor.profile.role != Role.BACK_OFFICE) return failure(ShiftError.NotAuthorized)
         val shift = shiftRepo.findByIdOrNull(sid) ?: return failure(ShiftError.ShiftNotFound)
 
         val startTime =

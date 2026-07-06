@@ -6,6 +6,7 @@ import { listTools } from '@/api/tools'
 import { listShifts } from '@/api/shifts'
 import { ApiError } from '@/api/client'
 import CabinetDrawer from '@/components/ui/CabinetDrawer'
+import { useAuth } from '@/context/AuthContext'
 import type { Cabinet, CabinetStatus, Shift, Tool } from '@/types/domain'
 import styles from './Cabinets.module.css'
 
@@ -37,7 +38,6 @@ function CabinetPanel({ cabinet, tools, activeShift, onEdit }: CabinetPanelProps
       <div className={`${styles.panel}
       ${cabinet.status === 'INACTIVE' ? styles.panelMaint : ''}
       ${miss > 0                      ? styles.panelMissing : ''}
-      /* Removido o check de BROKEN aqui */
     `}>
 
         <div className={styles.panelHead}>
@@ -138,6 +138,7 @@ function CabinetPanel({ cabinet, tools, activeShift, onEdit }: CabinetPanelProps
 
 export default function Cabinets() {
   const { t } = useTranslation()
+  const { user } = useAuth()
   const [cabinets,        setCabinets]        = useState<Cabinet[]>([])
   const [tools,           setTools]           = useState<Tool[]>([])
   const [shifts,          setShifts]          = useState<Shift[]>([])
@@ -249,10 +250,12 @@ export default function Cabinets() {
             {missing > 0 ? ` · ${t('cabinets.toolsMissing', { count: missing })}` : ` · ${t('cabinets.allAccounted')}`}
           </p>
         </div>
-        <button className={styles.addBtn} onClick={() => setDrawerMode('create')}>
-          <Plus size={14} />
-          {t('cabinets.addCabinet')}
-        </button>
+        {user?.role === 'ADMIN' && (
+          <button className={styles.addBtn} onClick={() => setDrawerMode('create')}>
+            <Plus size={14} />
+            {t('cabinets.addCabinet')}
+          </button>
+        )}
       </div>
 
       <div className={styles.legend}>

@@ -14,4 +14,5 @@ fun ToolError.toProblemResponse(): ResponseEntity<Any> =
         ToolError.InvalidLocation -> Problem.InvalidLocationForCabinet.response(HttpStatus.BAD_REQUEST)
         ToolError.InvalidCabinet -> Problem.CabinetNotFound.response(HttpStatus.BAD_REQUEST)
         ToolError.UserNotFound -> Problem.UserNotFoundOrInvalidCredentials.response(HttpStatus.BAD_REQUEST)
+        ToolError.NotAuthorized -> Problem.NotAuthorized.response(HttpStatus.FORBIDDEN)
     }

@@ -93,8 +93,16 @@ class CabinetServiceTest {
     }
 
     @Test
+    fun `createCabinet fails when actor is not admin`() {
+        val result = service.createCabinet("desc", CabinetStatus.CLOSED, "loc", Role.MECHANIC)
+
+        assertIs<Either.Failure<CabinetError>>(result)
+        assertEquals(CabinetError.InvalidRole, result.value)
+    }
+
+    @Test
     fun `createCabinet fails on blank description`() {
-        val result = service.createCabinet(" ", CabinetStatus.CLOSED, "loc")
+        val result = service.createCabinet(" ", CabinetStatus.CLOSED, "loc", Role.ADMIN)
 
         assertIs<Either.Failure<CabinetError>>(result)
         assertEquals(CabinetError.InvalidDescription, result.value)
@@ -102,7 +110,7 @@ class CabinetServiceTest {
 
     @Test
     fun `createCabinet fails on blank location`() {
-        val result = service.createCabinet("desc", CabinetStatus.CLOSED, "  ")
+        val result = service.createCabinet("desc", CabinetStatus.CLOSED, "  ", Role.ADMIN)
 
         assertIs<Either.Failure<CabinetError>>(result)
         assertEquals(CabinetError.InvalidLocation, result.value)
@@ -113,7 +121,7 @@ class CabinetServiceTest {
         val saved = slot<Cabinet>()
         every { cabinetRepo.save(capture(saved)) } answers { firstArg() }
 
-        val result = service.createCabinet("White Cabinet", CabinetStatus.CLOSED, "Sector 2")
+        val result = service.createCabinet("White Cabinet", CabinetStatus.CLOSED, "Sector 2", Role.ADMIN)
 
         assertIs<Either.Success<Cabinet>>(result)
         assertEquals("White Cabinet", saved.captured.description)

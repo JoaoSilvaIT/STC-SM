@@ -40,7 +40,7 @@ export async function getShiftsByCabinet(cabinetId: number): Promise<Shift[]> {
   return raw.map(r => toDomain(r))
 }
 
-export async function startShift(input: {
+export async function createShift(input: {
   userId: number
   cabinetId: number
   startTime?: string

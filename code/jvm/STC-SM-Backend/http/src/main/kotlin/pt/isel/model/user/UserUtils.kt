@@ -14,7 +14,7 @@ fun UserError.toProblemResponse(): ResponseEntity<Any> =
         UserError.BlankPassword -> Problem.BlankPassword.response(HttpStatus.BAD_REQUEST)
         UserError.EmailAlreadyInUse -> Problem.EmailAlreadyInUse.response(HttpStatus.CONFLICT)
         UserError.InvalidProfileId -> Problem.InvalidProfileId.response(HttpStatus.BAD_REQUEST)
-        UserError.NotAuthorized -> Problem.NotAuthorized.response(HttpStatus.UNAUTHORIZED)
+        UserError.NotAuthorized -> Problem.NotAuthorized.response(HttpStatus.FORBIDDEN)
         UserError.BlankState -> Problem.BlankState.response(HttpStatus.BAD_REQUEST)
         UserError.InvalidState -> Problem.InvalidState.response(HttpStatus.BAD_REQUEST)
     }

@@ -62,7 +62,7 @@ class CabinetController(
         @RequestBody input: CreateCabinetInputModel,
         @Suppress("UNUSED_PARAMETER") user: User,
     ): ResponseEntity<*> =
-        when (val result = cabinetService.createCabinet(input.description, input.status, input.location)) {
+        when (val result = cabinetService.createCabinet(input.description, input.status, input.location, user.profile.role)) {
             is Either.Success ->
                 ResponseEntity
                     .status(HttpStatus.CREATED)

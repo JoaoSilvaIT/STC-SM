@@ -241,7 +241,17 @@
     "endConfirm": "Terminar turno de {{name}}? Isto bloqueia {{cabinet}}.",
     "confirm": "Confirmar",
     "cancel": "Cancelar",
-    "endShift": "Terminar Turno"
+    "endShift": "Terminar Turno",
+    "newShift": "Novo Turno",
+    "createTitle": "Atribuir Novo Turno",
+    "createSub": "Atribui um mecânico a um armário para um turno agendado",
+    "createShift": "Criar Turno",
+    "selectMechanic": "Seleciona um mecânico…",
+    "selectCabinet": "Seleciona um armário…",
+    "selectMechanicError": "Seleciona um mecânico",
+    "selectCabinetError": "Seleciona um armário",
+    "timeRequired": "As horas de início e fim são obrigatórias",
+    "noMechanicsAvailable": "Não há mecânicos por atribuir"
   },
   "users": {
     "title": "Gestão de Utilizadores",
@@ -290,11 +300,7 @@
     "profile": {
       "title": "Perfil de Utilizador",
       "displayName": "Nome a Apresentar",
-      "email": "Email",
-      "newPassword": "Nova Palavra-passe",
-      "passwordPlaceholder": "Deixe em branco para manter a atual",
-      "save": "Guardar Alterações",
-      "saved": "Guardado"
+      "email": "Email"
     },
     "display": {
       "title": "Preferências de Visualização",
@@ -303,23 +309,15 @@
       "dark": "Escuro",
       "light": "Claro",
       "clock": "Formato da Hora",
-      "clockHint": "Afeta o relógio do cabeçalho",
-      "compact": "Modo Compacto",
-      "compactHint": "Linhas mais densas nas tabelas"
+      "clockHint": "Afeta o formato de hora da aplicação"
     },
     "system": {
       "title": "Informação do Sistema",
       "application": "Aplicação",
       "version": "Versão",
       "environment": "Ambiente",
-      "api": "API",
-      "rfid": "RFID",
-      "database": "Base de Dados",
-      "auditLog": "Registo de Auditoria",
-      "operational": "Operacional",
-      "connected": "Ligado",
-      "active": "Ativo",
-      "development": "Desenvolvimento"
+      "development": "Desenvolvimento",
+      "production": "Produção"
     },
     "access": {
       "title": "Controlo de Acesso",

@@ -12,4 +12,6 @@ sealed class ToolError {
     data object InvalidCabinet : ToolError()
 
     data object UserNotFound : ToolError()
+
+    data object NotAuthorized : ToolError()
 }

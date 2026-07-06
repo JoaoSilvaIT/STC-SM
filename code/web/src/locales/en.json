@@ -241,7 +241,17 @@
     "endConfirm": "End shift for {{name}}? This locks {{cabinet}}.",
     "confirm": "Confirm",
     "cancel": "Cancel",
-    "endShift": "End Shift"
+    "endShift": "End Shift",
+    "newShift": "New Shift",
+    "createTitle": "Assign New Shift",
+    "createSub": "Assign a mechanic to a cabinet for a scheduled shift",
+    "createShift": "Create Shift",
+    "selectMechanic": "Select a mechanic…",
+    "selectCabinet": "Select a cabinet…",
+    "selectMechanicError": "Please select a mechanic",
+    "selectCabinetError": "Please select a cabinet",
+    "timeRequired": "Both start and end times are required",
+    "noMechanicsAvailable": "No unassigned mechanics available"
   },
   "users": {
     "title": "User Management",
@@ -290,11 +300,7 @@
     "profile": {
       "title": "User Profile",
       "displayName": "Display Name",
-      "email": "Email",
-      "newPassword": "New Password",
-      "passwordPlaceholder": "Leave blank to keep current",
-      "save": "Save Changes",
-      "saved": "Saved"
+      "email": "Email"
     },
     "display": {
       "title": "Display Preferences",
@@ -303,23 +309,15 @@
       "dark": "Dark",
       "light": "Light",
       "clock": "Clock Format",
-      "clockHint": "Affects the header clock",
-      "compact": "Compact Mode",
-      "compactHint": "Tighter rows in tables"
+      "clockHint": "Affects the time format of the app"
     },
     "system": {
       "title": "System Information",
       "application": "Application",
       "version": "Version",
       "environment": "Environment",
-      "api": "API",
-      "rfid": "RFID",
-      "database": "Database",
-      "auditLog": "Audit Log",
-      "operational": "Operational",
-      "connected": "Connected",
-      "active": "Active",
-      "development": "Development"
+      "development": "Development",
+      "production": "Production"
     },
     "access": {
       "title": "Access Control",

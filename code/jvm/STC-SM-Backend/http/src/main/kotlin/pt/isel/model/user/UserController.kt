@@ -45,13 +45,14 @@ class UserController(
     fun updateUser(
         @PathVariable id: Int,
         @RequestBody updateUserInput: UpdateUserInput,
-        @Suppress("UNUSED_PARAMETER") user: User,
+        user: User,
     ): ResponseEntity<*> =
         when (
             val result =
                 userService.updateUser(
                     updateUserInput.state,
                     id,
+                    user,
                 )
         ) {
             is Either.Success ->

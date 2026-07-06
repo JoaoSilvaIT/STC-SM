@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   User, Shield, Monitor, Info,
-  Check, ChevronRight, Sun, Moon,
+  ChevronRight, Sun, Moon,
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { usePrefs } from '@/context/PrefsContext'
@@ -49,14 +49,15 @@ const ROLE_PERMISSIONS: Record<UserRole, { can: string[]; cannot: string[] }> = 
 }
 
 // System rows: `ok` drives the styling, `value`/`valueKey` the (translatable) text.
+// Values are derived from the actual build (version from package.json, environment from Vite mode).
 const SYS_ROWS: { labelKey: string; value?: string; valueKey?: string; ok: boolean }[] = [
-  { labelKey: 'settings.system.application', value: 'STC-SM',                          ok: false },
-  { labelKey: 'settings.system.version',     value: '0.1.0-dev',                       ok: false },
-  { labelKey: 'settings.system.environment', valueKey: 'settings.system.development',  ok: false },
-  { labelKey: 'settings.system.api',         valueKey: 'settings.system.operational',  ok: true  },
-  { labelKey: 'settings.system.rfid',        valueKey: 'settings.system.operational',  ok: true  },
-  { labelKey: 'settings.system.database',    valueKey: 'settings.system.connected',    ok: true  },
-  { labelKey: 'settings.system.auditLog',    valueKey: 'settings.system.active',       ok: true  },
+  { labelKey: 'settings.system.application', value: 'STC-SM',        ok: false },
+  { labelKey: 'settings.system.version',     value: __APP_VERSION__, ok: false },
+  {
+    labelKey: 'settings.system.environment',
+    valueKey: import.meta.env.DEV ? 'settings.system.development' : 'settings.system.production',
+    ok: false,
+  },
 ]
 
 // ── Section wrapper ───────────────────────────────────────────────────────────
@@ -84,17 +85,11 @@ function Section({
 export default function Settings() {
   const { t } = useTranslation()
   const { user }                          = useAuth()
-  const { clockFormat, compactMode, theme, language,
-          setClockFormat, setCompactMode, setTheme, setLanguage } = usePrefs()
+  const { clockFormat, theme, language,
+          setClockFormat, setTheme, setLanguage } = usePrefs()
 
   const [profileName,    setProfileName]    = useState(user?.name ?? '')
   const [profileEmail,   setProfileEmail]   = useState(user?.email ?? '')
-  const [profileSaved,   setProfileSaved]   = useState(false)
-
-  const handleProfileSave = () => {
-    setProfileSaved(true)
-    setTimeout(() => setProfileSaved(false), 2000)
-  }
 
   if (!user) return null
 
@@ -145,22 +140,7 @@ export default function Settings() {
                   onChange={e => setProfileEmail(e.target.value)}
                 />
               </div>
-              <div className={styles.field}>
-                <label className={styles.label}>{t('settings.profile.newPassword')}</label>
-                <input
-                  className={styles.input}
-                  type="password"
-                  placeholder={t('settings.profile.passwordPlaceholder')}
-                />
-              </div>
             </div>
-
-            <button
-              className={`${styles.saveBtn} ${profileSaved ? styles.saveBtnDone : ''}`}
-              onClick={handleProfileSave}
-            >
-              {profileSaved ? <><Check size={12} /> {t('settings.profile.saved')}</> : t('settings.profile.save')}
-            </button>
           </Section>
 
           {/* Display */}
@@ -226,20 +206,6 @@ export default function Settings() {
                   12h
                 </button>
               </div>
-            </div>
-
-            <div className={styles.prefRow}>
-              <div className={styles.prefLabel}>
-                <span className={styles.prefName}>{t('settings.display.compact')}</span>
-                <span className={styles.prefHint}>{t('settings.display.compactHint')}</span>
-              </div>
-              <button
-                className={`${styles.toggle} ${compactMode ? styles.toggleOn : ''}`}
-                onClick={() => setCompactMode(!compactMode)}
-                aria-pressed={compactMode}
-              >
-                <span className={styles.toggleThumb} />
-              </button>
             </div>
           </Section>
 
