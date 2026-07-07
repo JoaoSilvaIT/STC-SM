@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react';
-import { FlatList, View, Text, StyleSheet } from 'react-native';
+import React, { useMemo, useState, useCallback } from 'react';
+import { FlatList, View, Text, StyleSheet, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../App';
@@ -13,11 +14,30 @@ import { useTranslation } from 'react-i18next';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Activity'>;
 
+const POLL_INTERVAL_MS = 12000;
+
 export default function ActivityScreen({ navigation }: Props) {
-  const { activities, activeShift } = useShift();
+  const { activities, activeShift, refreshActivities } = useShift();
   const { t } = useTranslation();
   const { colors, typography, layout } = useTheme();
   const s = useMemo(() => makeStyles(colors), [colors]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Poll the backend only while this screen is focused: refresh on entry, keep
+  // it fresh on an interval, and stop when the mechanic leaves.
+  useFocusEffect(
+    useCallback(() => {
+      refreshActivities();
+      const id = setInterval(() => { refreshActivities(); }, POLL_INTERVAL_MS);
+      return () => clearInterval(id);
+    }, [refreshActivities])
+  );
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refreshActivities();
+    setRefreshing(false);
+  }, [refreshActivities]);
 
   return (
     <SafeAreaView style={layout.screen} edges={['top', 'left', 'right']}>
@@ -48,6 +68,9 @@ export default function ActivityScreen({ navigation }: Props) {
             <ActivityItem activity={item} isLast={index === activities.length - 1} />
           )}
           contentContainerStyle={{ padding: spacing.md, paddingBottom: spacing.xl }}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.amber} />
+          }
         />
       )}
     </SafeAreaView>

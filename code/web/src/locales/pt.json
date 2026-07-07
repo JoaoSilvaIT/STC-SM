@@ -203,7 +203,7 @@
     "colOperator": "Operador",
     "colNotes": "Notas",
     "noMatch": "Nenhum registo corresponde aos filtros atuais",
-    "footer": "A mostrar {{shown}} de {{total}} registos — o registo é apenas de adição conforme o protocolo de segurança da aviação",
+    "footer": "A mostrar {{shown}} de {{total}} registos",
     "prev": "Anterior",
     "next": "Seguinte",
     "pageOf": "Página {{page}} de {{total}}",

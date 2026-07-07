@@ -15,11 +15,13 @@ const makeIconMap = (colors: Palette): Record<ActivityType, { name: keyof typeof
   TOOL_BROKEN:          { name: 'warning',           color: colors.stop },
   TOOL_MISSING:         { name: 'search',            color: colors.stop },
   TOOL_MISSING_DETECTED:{ name: 'search',            color: colors.stop },
+  TOOL_IN_MAINTENANCE:  { name: 'construct',         color: colors.warn },
   DOOR_OPENED:          { name: 'lock-open-outline', color: colors.sky },
   DOOR_CLOSED:          { name: 'lock-closed',       color: colors.sky },
   CABINET_ONLINE:       { name: 'checkmark-circle',  color: colors.go },
   CABINET_OFFLINE:      { name: 'close-circle',      color: colors.stop },
   CABINET_ANOMALY:      { name: 'alert',             color: colors.stop },
+  CABINET_BROKEN:       { name: 'alert-circle',      color: colors.stop },
 });
 
 function relTime(iso: string, t: TFunction): string {
@@ -39,11 +41,13 @@ function describeActivity(act: Activity, t: TFunction): string {
     case 'TOOL_BROKEN':           return t('activity.type.toolBroken', { tool });
     case 'TOOL_MISSING':          return t('activity.type.toolMissing', { tool });
     case 'TOOL_MISSING_DETECTED': return t('activity.type.toolMissingDetected', { tool });
+    case 'TOOL_IN_MAINTENANCE':   return t('activity.type.toolInMaintenance', { tool });
     case 'DOOR_OPENED':           return t('activity.type.doorOpened');
     case 'DOOR_CLOSED':           return t('activity.type.doorClosed');
     case 'CABINET_ONLINE':        return t('activity.type.cabinetOnline');
     case 'CABINET_OFFLINE':       return t('activity.type.cabinetOffline');
     case 'CABINET_ANOMALY':       return t('activity.type.cabinetAnomaly');
+    case 'CABINET_BROKEN':        return t('activity.type.cabinetBroken');
   }
 }
 

@@ -8,11 +8,13 @@ export type ActivityType =
   | 'TOOL_BROKEN'
   | 'TOOL_MISSING'
   | 'TOOL_MISSING_DETECTED'
+  | 'TOOL_IN_MAINTENANCE'
   | 'DOOR_OPENED'
   | 'DOOR_CLOSED'
   | 'CABINET_ONLINE'
   | 'CABINET_OFFLINE'
-  | 'CABINET_ANOMALY';
+  | 'CABINET_ANOMALY'
+  | 'CABINET_BROKEN';
 export type UserRole = 'ADMIN' | 'MECHANIC' | 'BACK_OFFICE';
 export type UserStatus = 'ACTIVE' | 'INACTIVE';
 export type ShiftStatus = 'ACTIVE' | 'INACTIVE';

@@ -55,11 +55,13 @@
       "toolBroken": "{{tool}} Marked Broken",
       "toolMissing": "{{tool}} Marked Missing",
       "toolMissingDetected": "{{tool}} Missing",
+      "toolInMaintenance": "{{tool}} In Maintenance",
       "doorOpened": "Cabinet Door Opened",
       "doorClosed": "Cabinet Door Closed",
       "cabinetOnline": "Cabinet Online",
       "cabinetOffline": "Cabinet Offline",
-      "cabinetAnomaly": "Cabinet Anomaly"
+      "cabinetAnomaly": "Cabinet Anomaly",
+      "cabinetBroken": "Cabinet Broken"
     }
   },
   "endShift": {

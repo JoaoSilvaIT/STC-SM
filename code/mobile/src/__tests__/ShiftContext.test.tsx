@@ -1,7 +1,7 @@
 import React from 'react';
 import { renderHook, act } from '@testing-library/react-native';
 import { ShiftProvider, useShift } from '../context/ShiftContext';
-import type { Cabinet, Tool, Shift } from '../types/domain';
+import type { Cabinet, Tool, Shift, Activity } from '../types/domain';
 
 // Mock API modules so tests don't need a running backend
 jest.mock('../api/shifts', () => ({
@@ -15,18 +15,24 @@ jest.mock('../api/cabinets', () => ({
 
 jest.mock('../api/tools', () => ({
   listTools: jest.fn(),
-  updateTool: jest.fn(),
+}));
+
+jest.mock('../api/activities', () => ({
+  createActivity: jest.fn(),
+  getActivitiesByCabinet: jest.fn(),
 }));
 
 import * as shiftsApi from '../api/shifts';
 import * as cabinetsApi from '../api/cabinets';
 import * as toolsApi  from '../api/tools';
+import * as activitiesApi from '../api/activities';
 
-const mockStartShift  = shiftsApi.startShift  as jest.Mock;
-const mockEndShift    = shiftsApi.endShift    as jest.Mock;
-const mockGetCabinet  = cabinetsApi.getCabinet as jest.Mock;
-const mockListTools   = toolsApi.listTools    as jest.Mock;
-const mockUpdateTool  = toolsApi.updateTool   as jest.Mock;
+const mockStartShift    = shiftsApi.startShift  as jest.Mock;
+const mockEndShift      = shiftsApi.endShift    as jest.Mock;
+const mockGetCabinet    = cabinetsApi.getCabinet as jest.Mock;
+const mockListTools     = toolsApi.listTools    as jest.Mock;
+const mockCreateActivity = activitiesApi.createActivity as jest.Mock;
+const mockGetActivitiesByCabinet = activitiesApi.getActivitiesByCabinet as jest.Mock;
 
 const mockCabinet: Cabinet = {
   id: 1, name: 'CAB-001', location: 'Bay Alpha', status: 'OPEN', isActive: true,
@@ -58,6 +64,8 @@ describe('ShiftContext', () => {
     mockEndShift.mockResolvedValue({ ...mockShift, status: 'ENDED' });
     mockGetCabinet.mockResolvedValue(mockCabinet);
     mockListTools.mockResolvedValue(mockTools);
+    mockCreateActivity.mockResolvedValue(undefined);
+    mockGetActivitiesByCabinet.mockResolvedValue([]);
   });
 
   it('starts with no active shift', () => {
@@ -69,60 +77,34 @@ describe('ShiftContext', () => {
     const { result } = renderHook(() => useShift(), { wrapper });
     await act(async () => { await result.current.startShift(mockAssignedShift); });
     expect(result.current.activeShift?.cabinetId).toBe(1);
-    expect(result.current.activeShift?.status).toBe('ON_GOING');
+    expect(result.current.activeShift?.status).toBe('ACTIVE');
     expect(result.current.cabinetTools.length).toBe(2);
-  });
-
-  it('takeTool calls API and logs TOOL_REMOVED', async () => {
-    const updatedTool = { ...mockTools[0], status: 'IN_USE' as const };
-    mockUpdateTool.mockResolvedValue(updatedTool);
-
-    const { result } = renderHook(() => useShift(), { wrapper });
-    await act(async () => { await result.current.startShift(mockAssignedShift); });
-    await act(async () => { await result.current.takeTool(101); });
-
-    expect(mockUpdateTool).toHaveBeenCalledWith(101, 'IN_USE');
-    const tool = result.current.cabinetTools.find(t => t.id === 101);
-    expect(tool?.status).toBe('IN_USE');
-    expect(result.current.activities.some(a => a.type === 'TOOL_REMOVED' && a.toolId === 101)).toBe(true);
-  });
-
-  it('returnTool calls API and logs TOOL_RETURNED', async () => {
-    const takenTool    = { ...mockTools[0], status: 'IN_USE'    as const };
-    const returnedTool = { ...mockTools[0], status: 'AVAILABLE' as const };
-    mockUpdateTool
-      .mockResolvedValueOnce(takenTool)
-      .mockResolvedValueOnce(returnedTool);
-
-    const { result } = renderHook(() => useShift(), { wrapper });
-    await act(async () => { await result.current.startShift(mockAssignedShift); });
-    await act(async () => { await result.current.takeTool(101); });
-    await act(async () => { await result.current.returnTool(101); });
-
-    const tool = result.current.cabinetTools.find(t => t.id === 101);
-    expect(tool?.status).toBe('AVAILABLE');
-    expect(result.current.activities.some(a => a.type === 'TOOL_RETURNED' && a.toolId === 101)).toBe(true);
-  });
-
-  it('markBroken calls API with BROKEN and logs TOOL_BROKEN', async () => {
-    const brokenTool = { ...mockTools[0], status: 'BROKEN' as const };
-    mockUpdateTool.mockResolvedValue(brokenTool);
-
-    const { result } = renderHook(() => useShift(), { wrapper });
-    await act(async () => { await result.current.startShift(mockAssignedShift); });
-    await act(async () => { await result.current.markBroken(101); });
-
-    expect(mockUpdateTool).toHaveBeenCalledWith(101, 'BROKEN');
-    const tool = result.current.cabinetTools.find(t => t.id === 101);
-    expect(tool?.status).toBe('BROKEN');
-    expect(result.current.activities.some(a => a.type === 'TOOL_BROKEN' && a.toolId === 101)).toBe(true);
   });
 
   it('logAnomaly logs CABINET_ANOMALY activity', async () => {
     const { result } = renderHook(() => useShift(), { wrapper });
     await act(async () => { await result.current.startShift(mockAssignedShift); });
-    act(() => { result.current.logAnomaly('CABINET_ANOMALY'); });
+    await act(async () => { await result.current.logAnomaly('CABINET_ANOMALY'); });
+    expect(mockCreateActivity).toHaveBeenCalled();
     expect(result.current.activities.some(a => a.type === 'CABINET_ANOMALY')).toBe(true);
+  });
+
+  it('refreshActivities loads the shift activities from the backend', async () => {
+    const backendFeed: Activity[] = [
+      { id: 30, type: 'TOOL_REMOVED',  userId: 2, cabinetId: 1, toolId: 101, notes: null, shiftId: 10, timestamp: new Date().toISOString() },
+      { id: 20, type: 'SHIFT_STARTED', userId: 2, cabinetId: 1, toolId: null, notes: null, shiftId: 10, timestamp: new Date().toISOString() },
+      { id: 10, type: 'SHIFT_ENDED',   userId: 2, cabinetId: 1, toolId: null, notes: null, shiftId: 9,  timestamp: new Date().toISOString() },
+    ];
+    mockGetActivitiesByCabinet.mockResolvedValue(backendFeed);
+
+    const { result } = renderHook(() => useShift(), { wrapper });
+    await act(async () => { await result.current.startShift(mockAssignedShift); });
+    await act(async () => { await result.current.refreshActivities(); });
+
+    expect(mockGetActivitiesByCabinet).toHaveBeenCalledWith(1);
+    // The feed comes from the backend, scoped to the current shift (cut at the most recent SHIFT_STARTED)
+    expect(result.current.activities.map(a => a.type)).toEqual(['TOOL_REMOVED', 'SHIFT_STARTED']);
+    expect(result.current.activities.some(a => a.type === 'SHIFT_ENDED')).toBe(false);
   });
 
   it('endShift calls API and clears state', async () => {

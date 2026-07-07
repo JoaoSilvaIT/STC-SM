@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import type { Shift, Tool, Activity, Cabinet, ActivityType } from '../types/domain';
 import { startShift as apiStartShift, endShift as apiEndShift, getShiftsByUser } from '../api/shifts';
-import { listTools, updateTool } from '../api/tools';
+import { listTools } from '../api/tools';
 import { getCabinet } from '../api/cabinets';
-import { createActivity } from '../api/activities';
+import { createActivity, getActivitiesByCabinet } from '../api/activities';
 
 interface ShiftContextType {
 
@@ -15,10 +15,8 @@ interface ShiftContextType {
   loading: boolean;
   error: string | null;
   refreshAssignment(silent?: boolean): Promise<void>;
+  refreshActivities(): Promise<void>;
   startShift(shift: Shift): Promise<void>;
-  takeTool(toolId: number): Promise<void>;
-  returnTool(toolId: number): Promise<void>;
-  markBroken(toolId: number): Promise<void>;
   logAnomaly(type: ActivityType, toolId?: number): Promise<void>;
   endShift(): Promise<void>;
 }
@@ -86,6 +84,21 @@ export function ShiftProvider({
     refreshAssignment();
   }, [userId]);
 
+  // Pull the current shift's activity from the backend so events created
+  // elsewhere (e.g. the mechanic operating the cabinet via the simulator) show
+  // up too. The backend is the source of truth; we scope to the current shift by
+  // cutting the cabinet's activity list at its most recent SHIFT_STARTED event.
+  const refreshActivities = useCallback(async () => {
+    if (!activeShift) return;
+    try {
+      const all = await getActivitiesByCabinet(activeShift.cabinetId);
+      const startIdx = all.findIndex(a => a.type === 'SHIFT_STARTED');
+      setActivities(startIdx >= 0 ? all.slice(0, startIdx + 1) : all);
+    } catch {
+      // Ignore transient errors from a background poll
+    }
+  }, [activeShift]);
+
   function addActivity(partial: Omit<Activity, 'id' | 'timestamp'>): void {
     setActivities(prev => [
       { ...partial, id: activityIdCounter++, timestamp: new Date().toISOString() },
@@ -122,51 +135,6 @@ export function ShiftProvider({
     } finally {
       setLoading(false);
     }
-  }
-
-  async function takeTool(toolId: number): Promise<void> {
-    if (!activeShift) return;
-    const updated = await updateTool(toolId, 'IN_USE');
-    setCabinetTools(prev => prev.map(t => (t.id === toolId ? updated : t)));
-    addActivity({
-      type: 'TOOL_REMOVED',
-      userId,
-      cabinetId: activeShift.cabinetId,
-      toolId,
-      toolName: updated.name,
-      notes: null,
-      shiftId: activeShift.id,
-    });
-  }
-
-  async function returnTool(toolId: number): Promise<void> {
-    if (!activeShift) return;
-    const updated = await updateTool(toolId, 'AVAILABLE');
-    setCabinetTools(prev => prev.map(t => (t.id === toolId ? updated : t)));
-    addActivity({
-      type: 'TOOL_RETURNED',
-      userId,
-      cabinetId: activeShift.cabinetId,
-      toolId,
-      toolName: updated.name,
-      notes: null,
-      shiftId: activeShift.id,
-    });
-  }
-
-  async function markBroken(toolId: number): Promise<void> {
-    if (!activeShift) return;
-    const updated = await updateTool(toolId, 'BROKEN');
-    setCabinetTools(prev => prev.map(t => (t.id === toolId ? updated : t)));
-    addActivity({
-      type: 'TOOL_BROKEN',
-      userId,
-      cabinetId: activeShift.cabinetId,
-      toolId,
-      toolName: updated.name,
-      notes: null,
-      shiftId: activeShift.id,
-    });
   }
 
   async function logAnomaly(type: ActivityType, toolId?: number): Promise<void> {
@@ -228,7 +196,7 @@ export function ShiftProvider({
     <ShiftContext.Provider value={{
       activeShift, assignedShift, activeCabinet, cabinetTools, activities,
       loading, error,
-      refreshAssignment, startShift, takeTool, returnTool, markBroken, logAnomaly, endShift,
+      refreshAssignment, refreshActivities, startShift, logAnomaly, endShift,
     }}>
       {children}
     </ShiftContext.Provider>

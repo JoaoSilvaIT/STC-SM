@@ -97,11 +97,6 @@ class DataInitializer(
                     status = CabinetStatus.CLOSED,
                     location = "Sector 2",
                 ),
-                Cabinet(
-                    description = "Black and Blue Cabinet",
-                    status = CabinetStatus.CLOSED,
-                    location = "Sector 3",
-                ),
             )
         if (cabinetRepository.count() == 0L) {
             cabinetRepository.saveAll(cabinets)
@@ -116,7 +111,7 @@ class DataInitializer(
                 ),
                 Tool(
                     name = "Wrench",
-                    cabinet = cabinets[1],
+                    cabinet = cabinets[0],
                     status = ToolStatus.AVAILABLE,
                     location = "Sector 3",
                 ),

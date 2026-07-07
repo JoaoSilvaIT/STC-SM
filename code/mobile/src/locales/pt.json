@@ -55,11 +55,13 @@
       "toolBroken": "{{tool}} Marcada como Avariada",
       "toolMissing": "{{tool}} Marcada como em Falta",
       "toolMissingDetected": "{{tool}} em Falta",
+      "toolInMaintenance": "{{tool}} em Manutenção",
       "doorOpened": "Porta do Armário Aberta",
       "doorClosed": "Porta do Armário Fechada",
       "cabinetOnline": "Armário Online",
       "cabinetOffline": "Armário Offline",
-      "cabinetAnomaly": "Anomalia no Armário"
+      "cabinetAnomaly": "Anomalia no Armário",
+      "cabinetBroken": "Armário Avariado"
     }
   },
   "endShift": {
