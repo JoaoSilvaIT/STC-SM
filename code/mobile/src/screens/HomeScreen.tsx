@@ -47,9 +47,6 @@ export default function HomeScreen({ navigation }: Props) {
 
       <View style={s.topBar}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
-          <LED color={colors.go} size={6} />
-          <Text style={s.topBarText}>{t('home.ready')}</Text>
-          <Text style={s.topBarDivider}>·</Text>
           <Text style={s.topBarText}>{currentUser?.role}</Text>
         </View>
         <TouchableOpacity onPress={() => setSettingsOpen(true)} hitSlop={10} accessibilityLabel="Settings">

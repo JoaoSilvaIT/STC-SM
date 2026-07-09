@@ -110,6 +110,42 @@ class DataInitializer(
                     location = "Sector 2",
                 ),
                 Tool(
+                    name = "Hammer",
+                    cabinet = cabinets[0],
+                    status = ToolStatus.AVAILABLE,
+                    location = "Sector 2",
+                ),
+                Tool(
+                    name = "Pliers",
+                    cabinet = cabinets[0],
+                    status = ToolStatus.AVAILABLE,
+                    location = "Sector 2",
+                ),
+                Tool(
+                    name = "Torque Wrench",
+                    cabinet = cabinets[0],
+                    status = ToolStatus.AVAILABLE,
+                    location = "Sector 2",
+                ),
+                Tool(
+                    name = "Socket Set",
+                    cabinet = cabinets[0],
+                    status = ToolStatus.AVAILABLE,
+                    location = "Sector 2",
+                ),
+                Tool(
+                    name = "Ratchet",
+                    cabinet = cabinets[0],
+                    status = ToolStatus.AVAILABLE,
+                    location = "Sector 2",
+                ),
+                Tool(
+                    name = "Allen Key Set",
+                    cabinet = cabinets[0],
+                    status = ToolStatus.AVAILABLE,
+                    location = "Sector 2",
+                ),
+                Tool(
                     name = "Wrench",
                     cabinet = cabinets[0],
                     status = ToolStatus.AVAILABLE,

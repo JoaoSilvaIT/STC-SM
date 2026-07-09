@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -27,7 +27,6 @@ export default function EndShiftScreen({ navigation }: Props) {
   const { t } = useTranslation();
   const { colors, typography, btn, layout } = useTheme();
   const s = useMemo(() => makeStyles(colors), [colors]);
-  const [acknowledged, setAcknowledged] = useState(false);
 
   if (!activeShift) return null;
 
@@ -37,7 +36,7 @@ export default function EndShiftScreen({ navigation }: Props) {
   const toolsReturned = activities.filter(a => a.type === 'TOOL_RETURNED').length;
   const anomalies     = activities.filter(a => a.type === 'CABINET_ANOMALY').length;
   const hasFOD        = inUseTools.length > 0;
-  const canConfirm    = !hasFOD || acknowledged;
+  const canConfirm    = !hasFOD;
   const dur           = shiftDuration(activeShift.startTime);
 
   async function handleConfirm() {
@@ -98,18 +97,6 @@ export default function EndShiftScreen({ navigation }: Props) {
               ))}
             </View>
 
-            <TouchableOpacity
-              style={[s.ackBtn, acknowledged && s.ackBtnActive]}
-              onPress={() => setAcknowledged(v => !v)}
-              activeOpacity={0.8}
-            >
-              <View style={[s.checkbox, acknowledged && s.checkboxActive]}>
-                {acknowledged && <Ionicons name="checkmark" size={12} color="#0A0A0A" />}
-              </View>
-              <Text style={[typography.small, { color: acknowledged ? colors.textHi : colors.text, flex: 1, lineHeight: 17 }]}>
-                {t('endShift.ackText')}
-              </Text>
-            </TouchableOpacity>
           </View>
         ) : (
           <View style={s.allClear}>
