@@ -1,4 +1,4 @@
-# STC-SM — Smart Tool Cabinets · Shift Management
+# STC-SM — Smart Tool Cabinets · System Manager
 
 A system for managing **smart tool cabinets** and the **mechanics' shifts** that use them.
 It tracks tool inventory and cabinet state in real time, records shift activity, and raises
