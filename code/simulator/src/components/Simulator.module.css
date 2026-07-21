@@ -2,6 +2,9 @@
 .page {
     padding: 24px 28px 32px;
     animation: fade-up 0.3s ease forwards;
+    background-color: #ffffff; /* Força o fundo branco */
+    color: #1a1a1a; /* Garante que o texto base é escuro */
+    min-height: 100vh; /* Garante que o fundo branco cobre todo o ecrã */
 }
 
 .pageHead {
@@ -15,14 +18,14 @@
     font-family: var(--font-display);
     font-size: 22px;
     font-weight: 700;
-    color: var(--text-primary);
+    color: #111827; /* Forçado a cinza muito escuro/preto */
     letter-spacing: 0.02em;
     margin: 0 0 4px;
 }
 
 .pageSub {
     font-size: 11px;
-    color: var(--text-muted);
+    color: #6b7280; /* Forçado a cinza médio */
     margin: 0;
     font-family: var(--font-mono);
     letter-spacing: 0.03em;
@@ -31,9 +34,9 @@
 .resetBtn {
     padding: 6px 14px;
     border-radius: var(--radius-md);
-    border: 1px solid var(--border-default);
+    border: 1px solid #d1d5db;
     background: transparent;
-    color: var(--text-secondary);
+    color: #4b5563;
     font-size: 11px;
     font-family: var(--font-mono);
     cursor: pointer;
@@ -54,14 +57,14 @@
 
 /* ── PANEL CARD ── */
 .panel {
-    border: 1px solid var(--border-subtle);
+    border: 1px solid #e5e7eb;
     border-radius: var(--radius-lg);
-    background: var(--bg-surface);
+    background: #f9fafb; /* Fundo do painel num cinza super claro */
     overflow: hidden;
     transition: border-color .2s;
 }
 .panel:not(.panelInactive):hover {
-    border-color: var(--border-strong);
+    border-color: #9ca3af;
 }
 .panelInactive {
     opacity: 0.4;
@@ -73,18 +76,18 @@
     align-items: center;
     justify-content: space-between;
     padding: 10px 14px;
-    border-bottom: 1px solid var(--border-subtle);
+    border-bottom: 1px solid #e5e7eb;
 }
 .panelName {
     font-size: 13px;
     font-weight: 700;
     font-family: var(--font-display);
     letter-spacing: 0.05em;
-    color: var(--text-primary);
+    color: #111827;
 }
 .panelLoc {
     font-size: 10px;
-    color: var(--text-muted);
+    color: #6b7280;
     margin-top: 2px;
     font-family: var(--font-mono);
 }
@@ -94,10 +97,6 @@
 .badgeOffline { font-size: 9px; padding: 2px 7px; border-radius: 3px; font-weight: 700; letter-spacing: .07em; background: var(--risk-soft);  color: var(--risk);  }
 
 /* ── 3D SCENE ── */
-/*
-  perspective set here so children (door) transform in 3D space.
-  The door uses transform-origin:left center + rotateY to swing open.
-*/
 .scene {
     position: relative;
     height: 290px;
@@ -109,22 +108,21 @@
 .interior {
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, #020408 0%, #060a14 100%);
-    box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.9);
+    background: linear-gradient(180deg, #f5f5f5 0%, #d4d4d4 100%);
+    box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
 }
 
-/* Subtle ambient LED strip along the top of the interior */
 .interior::before {
     content: '';
     display: block;
     height: 2px;
     background: linear-gradient(90deg,
     transparent 0%,
-    rgba(12, 232, 120, 0.25) 20%,
-    rgba(12, 232, 120, 0.4) 50%,
-    rgba(12, 232, 120, 0.25) 80%,
+    rgba(12, 232, 120, 0.35) 20%,
+    rgba(12, 232, 120, 0.6) 50%,
+    rgba(12, 232, 120, 0.35) 80%,
     transparent 100%
     );
     flex-shrink: 0;
@@ -135,12 +133,12 @@
     align-items: center;
     justify-content: space-between;
     padding: 6px 10px;
-    border-bottom: 1px solid rgba(160, 185, 235, 0.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     flex-shrink: 0;
 }
 .interiorHint {
     font-size: 9px;
-    color: rgba(255, 255, 255, 0.22);
+    color: rgba(0, 0, 0, 0.4);
     font-style: italic;
     font-family: var(--font-mono);
     letter-spacing: 0.03em;
@@ -165,17 +163,17 @@
     font-family: var(--font-mono);
     font-weight: 600;
     letter-spacing: 0.05em;
-    color: var(--text-secondary);
-    background: rgba(160, 185, 235, 0.07);
-    border: 1px solid var(--border-subtle);
+    color: #4b5563;
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: var(--radius-sm);
     padding: 2px 7px;
     cursor: pointer;
     transition: background .15s, color .15s;
 }
 .closeDoorBtn:hover {
-    background: rgba(160, 185, 235, 0.13);
-    color: var(--text-primary);
+    background: rgba(0, 0, 0, 0.08);
+    color: #111827;
 }
 
 /* ── TOOL SLOT LIST ── */
@@ -208,24 +206,23 @@
 }
 
 .slotPresent {
-    background: rgba(12, 232, 120, 0.06);
-    border-color: rgba(12, 232, 120, 0.14);
+    background: rgba(12, 232, 120, 0.08);
+    border-color: rgba(12, 232, 120, 0.2);
 }
 .slotPresent:not(:disabled):hover {
-    background: rgba(12, 232, 120, 0.12);
-    border-color: rgba(12, 232, 120, 0.3);
+    background: rgba(12, 232, 120, 0.15);
+    border-color: rgba(12, 232, 120, 0.4);
 }
 
 .slotAbsent {
-    background: rgba(160, 185, 235, 0.02);
-    border-color: rgba(160, 185, 235, 0.07);
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.08);
     border-style: dashed;
 }
 .slotAbsent:not(:disabled):hover {
-    background: rgba(160, 185, 235, 0.05);
+    background: rgba(0, 0, 0, 0.06);
 }
 
-/* Weight-sensor indicator dot */
 .indicator {
     width: 8px;
     height: 8px;
@@ -235,11 +232,11 @@
 }
 .indicatorOn {
     background: var(--clear);
-    box-shadow: 0 0 7px rgba(12, 232, 120, 0.55);
+    box-shadow: 0 0 7px rgba(12, 232, 120, 0.6);
 }
 .indicatorOff {
     background: transparent;
-    border: 1.5px solid rgba(160, 185, 235, 0.2);
+    border: 1.5px solid rgba(0, 0, 0, 0.2);
 }
 
 .slotInfo {
@@ -249,19 +246,19 @@
 .slotName {
     display: block;
     font-size: 11px;
-    color: #b8c6dc;
+    color: #374151;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: 1.3;
 }
 .slotAbsent .slotName {
-    color: rgba(160, 185, 235, 0.28);
+    color: rgba(0, 0, 0, 0.4);
 }
 .slotPart {
     display: block;
     font-size: 9px;
-    color: var(--text-muted);
+    color: #6b7280;
     font-family: var(--font-mono);
     letter-spacing: 0.03em;
 }
@@ -278,7 +275,7 @@
     flex-shrink: 0;
 }
 
-/* ── 3D DOOR ── */
+/* ── 3D DOOR (Cinza Neutro) ── */
 .door {
     position: absolute;
     inset: 0;
@@ -289,42 +286,40 @@
     cursor: pointer;
     will-change: transform;
     display: flex;
-    /* Outer door frame — slightly lighter edge at left (hinge side) */
     background: linear-gradient(
             to right,
-            #32394e 0px,
-            #2a2f42 3px,
-            #1e2233 20%,
-            #191c2d 100%
+            #f5f5f5 0px,
+            #eeeeee 3px,
+            #e0e0e0 20%,
+            #cccccc 100%
     );
     box-shadow:
-            inset -5px 0 15px rgba(0, 0, 0, 0.6),
-            inset 0 2px 4px rgba(255, 255, 255, 0.04),
-            2px 0 8px rgba(0, 0, 0, 0.4);
+            inset -5px 0 15px rgba(0, 0, 0, 0.05),
+            inset 0 2px 4px rgba(255, 255, 255, 0.8),
+            2px 0 8px rgba(0, 0, 0, 0.1);
 }
 .door:hover {
     background: linear-gradient(
             to right,
-            #3a4158 0px,
-            #31364c 3px,
-            #252940 20%,
-            #202337 100%
+            #ffffff 0px,
+            #f9f9f9 3px,
+            #ebebeb 20%,
+            #d4d4d4 100%
     );
 }
 .doorOpen {
     transform: rotateY(-76deg);
 }
 
-/* Vertical hinge strip on the left edge */
+/* Dobradiça */
 .doorHingeBar {
     width: 6px;
     height: 100%;
-    background: linear-gradient(to right, #4a5272, #363b52);
-    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    background: linear-gradient(to right, #b3b3b3, #cccccc);
+    border-right: 1px solid rgba(0, 0, 0, 0.08);
     flex-shrink: 0;
 }
 
-/* Everything else on the door face */
 .doorFace {
     flex: 1;
     display: flex;
@@ -334,14 +329,14 @@
 
 .doorTop {
     padding: 8px 12px 6px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 }
 .doorId {
     font-family: var(--font-display);
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.1em;
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(0, 0, 0, 0.4);
 }
 
 .doorMid {
@@ -352,7 +347,7 @@
     padding: 0 18px 0 20px;
 }
 
-/* Ventilation slot grilles */
+/* Grelhas de ventilação */
 .doorVents {
     display: flex;
     flex-direction: column;
@@ -361,15 +356,14 @@
 .vent {
     width: 44px;
     height: 3px;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.15);
     border-radius: 2px;
-    /* Embossed effect */
     box-shadow:
-            0 1px 0 rgba(255, 255, 255, 0.07),
-            0 -1px 0 rgba(0, 0, 0, 0.4);
+            0 1px 0 rgba(255, 255, 255, 0.9),
+            0 -1px 0 rgba(0, 0, 0, 0.1);
 }
 
-/* Door handle */
+/* Puxador da porta */
 .doorHandle {
     display: flex;
     align-items: center;
@@ -378,35 +372,35 @@
     height: 70px;
     background: linear-gradient(
             180deg,
-            #3c4260 0%,
-            #4a5070 25%,
-            #5a6280 50%,
-            #4a5070 75%,
-            #3c4260 100%
+            #d4d4d4 0%,
+            #b3b3b3 25%,
+            #999999 50%,
+            #b3b3b3 75%,
+            #d4d4d4 100%
     );
     border-radius: 10px;
     box-shadow:
-            -2px 2px 8px rgba(0, 0, 0, 0.6),
-            inset 1px 0 3px rgba(255, 255, 255, 0.18),
-            inset -1px 0 2px rgba(0, 0, 0, 0.3);
+            -2px 2px 8px rgba(0, 0, 0, 0.15),
+            inset 1px 0 3px rgba(255, 255, 255, 0.9),
+            inset -1px 0 2px rgba(0, 0, 0, 0.15);
 }
 .handleGrip {
     width: 4px;
     height: 40px;
     background: linear-gradient(
             180deg,
-            #8a94aa 0%,
-            #aab4c8 40%,
-            #9aa4bc 60%,
-            #7a8498 100%
+            #808080 0%,
+            #999999 40%,
+            #666666 60%,
+            #4d4d4d 100%
     );
     border-radius: 2px;
-    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.4);
+    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.3);
 }
 
 .doorBottom {
     padding: 6px 12px;
-    border-top: 1px solid rgba(255, 255, 255, 0.03);
+    border-top: 1px solid rgba(0, 0, 0, 0.04);
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -414,7 +408,7 @@
 .doorStatus {
     font-size: 9px;
     font-family: var(--font-mono);
-    color: rgba(255, 255, 255, 0.2);
+    color: rgba(0, 0, 0, 0.4);
     letter-spacing: 0.08em;
 }
 
@@ -428,7 +422,7 @@
 }
 .inactiveMsg {
     font-size: 11px;
-    color: var(--text-muted);
+    color: #6b7280;
     font-family: var(--font-mono);
     letter-spacing: 0.04em;
 }
